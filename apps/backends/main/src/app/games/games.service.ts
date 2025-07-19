@@ -46,7 +46,7 @@ export class GamesService {
     });
     return categories
       .map((c: { category: string | null }) => c.category)
-      .filter((cat): cat is string => typeof cat === 'string');
+      .filter((cat: string | null): cat is string => typeof cat === 'string');
   }
 
   async getGameTypes(): Promise<string[]> {
@@ -69,7 +69,7 @@ export class GamesService {
         ...(type ? { type: type as any } : {}),
       },
     });
-    return templates.map(t => {
+    return templates.map((t: any) => {
       let gdevelopProjectUrl = t.gdevelopProjectUrl;
       if (!gdevelopProjectUrl && t.type !== 'QUIZ') {
         // Use static URL for GDevelop games

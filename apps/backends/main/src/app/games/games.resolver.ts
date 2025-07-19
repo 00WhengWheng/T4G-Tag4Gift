@@ -11,7 +11,7 @@ export class GamesResolver {
     @Args('category', { type: () => String }) category: string,
   ): Promise<GameTemplate[]> {
     const templates = await this.gamesService.getGameTemplates(category, 'QUIZ');
-    return templates.map(t => ({
+    return templates.map((t: GameTemplate) => ({
       id: t.id,
       name: t.name,
       description: t.description ?? undefined,
@@ -68,7 +68,7 @@ export class GamesResolver {
   ): Promise<GameTemplate[]> {
     const templates = await this.gamesService.getGameTemplates(category, type);
     // Map Prisma results to GraphQL type
-    return templates.map(t => ({
+    return templates.map((t: GameTemplate) => ({
       id: t.id,
       name: t.name,
       description: t.description ?? undefined,
