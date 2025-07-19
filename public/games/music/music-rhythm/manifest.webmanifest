@@ -1,0 +1,12 @@
+{
+  "name": "Shrill Act (Rhythm)",
+  "short_name": "Shrill Act (Rhythm)",
+  "id": "com.examples.rhythm",
+  "description": "",
+  "orientation": "landscape",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "black",
+  "categories": ["games", "entertainment"],
+  "icons": []
+}

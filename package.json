@@ -46,6 +46,7 @@
   },
   "nx": {},
   "dependencies": {
+    "@apollo/client": "^3.13.8",
     "@nestjs/apollo": "^13.1.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
@@ -54,6 +55,7 @@
     "@prisma/client": "6.12.0",
     "apollo-server-express": "^3.13.0",
     "axios": "^1.6.0",
+    "framer-motion": "^12.23.6",
     "graphql": "^16.11.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
