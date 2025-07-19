@@ -1,6 +1,13 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { GamesService } from './games.service';
-import { GameCategory, GameType, GameTemplate, Game, GAME_CATEGORIES, GAME_TYPES } from './types';
+import {
+  GameCategory,
+  GameType,
+  GameTemplate,
+  Game,
+  GAME_CATEGORIES,
+  GAME_TYPES,
+} from './types';
 
 @Resolver(() => Game)
 export class GamesResolver {
@@ -8,9 +15,12 @@ export class GamesResolver {
 
   @Query(() => [GameTemplate], { name: 'quizTemplatesByCategory' })
   async getQuizTemplatesByCategory(
-    @Args('category', { type: () => String }) category: string,
+    @Args('category', { type: () => String }) category: string
   ): Promise<GameTemplate[]> {
-    const templates = await this.gamesService.getGameTemplates(category, 'QUIZ');
+    const templates = await this.gamesService.getGameTemplates(
+      category,
+      'QUIZ'
+    );
     return templates.map((t: GameTemplate) => ({
       id: t.id,
       name: t.name,
@@ -20,7 +30,8 @@ export class GamesResolver {
       difficulty: t.difficulty ?? undefined,
       structure: JSON.stringify(t.structure),
       isActive: t.isActive,
-      gdevelopProjectUrl: (t as any).gdevelopProjectUrl ?? `https://gdevelop.io/project/${t.id}`,
+      gdevelopProjectUrl:
+        (t as any).gdevelopProjectUrl ?? `https://gdevelop.io/project/${t.id}`,
     }));
   }
 
@@ -28,8 +39,10 @@ export class GamesResolver {
   async createQuizTemplate(
     @Args('name', { type: () => String }) name: string,
     @Args('questions', { type: () => String }) questions: string, // JSON string
-    @Args('description', { type: () => String, nullable: true }) description?: string,
-    @Args('gdevelopProjectUrl', { type: () => String, nullable: true }) gdevelopProjectUrl?: string,
+    @Args('description', { type: () => String, nullable: true })
+    description?: string,
+    @Args('gdevelopProjectUrl', { type: () => String, nullable: true })
+    gdevelopProjectUrl?: string
   ): Promise<GameTemplate> {
     // Save quiz template to DB using Prisma
     const template = await this.gamesService.createQuizTemplate({
@@ -47,13 +60,15 @@ export class GamesResolver {
       difficulty: template.difficulty ?? undefined,
       structure: JSON.stringify(template.structure),
       isActive: template.isActive,
-      gdevelopProjectUrl: template.gdevelopProjectUrl ?? `https://gdevelop.io/project/${template.id}`,
+      gdevelopProjectUrl:
+        template.gdevelopProjectUrl ??
+        `https://gdevelop.io/project/${template.id}`,
     };
   }
 
   @Query(() => [GameCategory], { name: 'gameCategories' })
   getCategories(): GameCategory[] {
-    return GAME_CATEGORIES.map(name => ({ name }));
+    return GAME_CATEGORIES.map((name) => ({ name }));
   }
 
   @Query(() => [GameType], { name: 'gameTypes' })
@@ -64,7 +79,7 @@ export class GamesResolver {
   @Query(() => [GameTemplate], { name: 'gameTemplates' })
   async getGameTemplates(
     @Args('category', { type: () => String, nullable: true }) category?: string,
-    @Args('type', { type: () => String, nullable: true }) type?: string,
+    @Args('type', { type: () => String, nullable: true }) type?: string
   ): Promise<GameTemplate[]> {
     const templates = await this.gamesService.getGameTemplates(category, type);
     // Map Prisma results to GraphQL type
@@ -83,11 +98,11 @@ export class GamesResolver {
 
   @Query(() => [Game], { name: 'gameData' })
   async getGameData(
-    @Args('gameId', { type: () => String }) gameId: string,
+    @Args('gameId', { type: () => String }) gameId: string
   ): Promise<Game[]> {
     const data = await this.gamesService.getGameData(gameId);
     // Map Prisma results to GraphQL type
-    return data.map(d => ({
+    return data.map((d: { id: string; gameId: string; data: any }) => ({
       id: d.id,
       type: '', // You may want to fetch type from Game model if needed
       status: undefined,
