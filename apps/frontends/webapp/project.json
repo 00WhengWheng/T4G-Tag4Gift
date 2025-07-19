@@ -4,6 +4,18 @@
   "sourceRoot": "apps/frontends/webapp/src",
   "projectType": "application",
   "tags": [],
-  "// targets": "to see all targets run: nx show project webapp --web",
-  "targets": {}
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "options": {
+        "outputPath": "dist/apps/frontends/webapp"
+      }
+    },
+    "serve": {
+      "executor": "@nx/vite:serve",
+      "options": {
+        "buildTarget": "webapp:build"
+      }
+    }
+  }
 }
