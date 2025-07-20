@@ -4,6 +4,7 @@ const { join } = require('path');
 module.exports = {
   output: {
     path: join(__dirname, '../../../dist/apps/backends/main'),
+    filename: '[name].[contenthash].js',
   },
   plugins: [
     new NxAppWebpackPlugin({
@@ -12,9 +13,14 @@ module.exports = {
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
       assets: ['./src/assets'],
-      optimization: false,
-      outputHashing: 'none',
+      optimization: true,
+      outputHashing: 'all',
       generatePackageJson: true,
+      cache: true,
     }),
   ],
+  cache: {
+    type: 'filesystem',
+  },
+  mode: 'production',
 };
