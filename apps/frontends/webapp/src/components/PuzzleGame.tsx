@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from 'urql';
 
-const GET_PUZZLE_TEMPLATE = gql`
+const GET_PUZZLE_TEMPLATE = `
   query GetPuzzleTemplate($type: String!) {
     gameTemplates(type: $type) {
       id
@@ -19,9 +19,7 @@ interface Puzzle {
 }
 
 export const PuzzleGame: React.FC = () => {
-  const { data, loading, error } = useQuery(GET_PUZZLE_TEMPLATE, {
-    variables: { type: 'PUZZLE' },
-  });
+  const [{ data, fetching, error }] = useQuery({ query: GET_PUZZLE_TEMPLATE, variables: { type: 'PUZZLE' } });
   const [puzzles, setPuzzles] = useState<Puzzle[]>([]);
   const [current, setCurrent] = useState(0);
 
@@ -32,7 +30,7 @@ export const PuzzleGame: React.FC = () => {
     }
   }, [data]);
 
-  if (loading) return <div>Loading...</div>;
+  if (fetching) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!puzzles.length) return <div>No puzzles found.</div>;
 

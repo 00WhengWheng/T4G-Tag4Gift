@@ -1,5 +1,5 @@
 import React from 'react';
-import QuizGame from './QuizGame';
+import { QuizGame } from './QuizGame';
 
 type GameTemplate = {
   id: string;
@@ -15,11 +15,10 @@ interface Props {
   game: GameTemplate;
 }
 
+const GameDisplay: React.FC<Props> = ({ game }) => {
   if (game.type === 'QUIZ') {
-    // Render quiz game with framer-motion
-    return <QuizGame {...game} />;
+    return <QuizGame />;
   }
-  // Render GDevelop game in iframe
   return (
     <div>
       <h3>{game.name}</h3>
@@ -34,4 +33,7 @@ interface Props {
       <p>{game.description}</p>
     </div>
   );
-}
+};
+
+export default GameDisplay;
+
