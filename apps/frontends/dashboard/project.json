@@ -1,0 +1,27 @@
+{
+  "name": "dashboard",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/frontends/dashboard/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "options": {
+        "outputPath": "dist/apps/frontends/dashboard"
+      }
+    },
+    "serve": {
+      "executor": "@nx/vite:serve",
+      "options": {
+        "buildTarget": "dashboard:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/frontends/dashboard/src/**/*.ts", "apps/frontends/dashboard/src/**/*.tsx"]
+      }
+    }
+  }
+}

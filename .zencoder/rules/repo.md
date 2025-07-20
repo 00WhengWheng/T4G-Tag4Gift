@@ -92,11 +92,16 @@ nx build webapp
 nx serve webapp
 ```
 
+#### Game Implementation
+- **Quiz Games**: Implemented with React and Framer Motion for animations
+- **Puzzle, Reaction, and Music Games**: Implemented using GDevelop game engine framework
+- **Game Integration**: iframes used to embed GDevelop games into the React application
+
 #### Components
-- GameDisplay
-- GamesList
-- PuzzleGame
-- QuizGame
+- GameDisplay: Main component for rendering different game types
+- GamesList: Displays available games to the user
+- QuizGame: React implementation of quiz games with animations
+- External Games: Loaded via iframes from the public directory
 
 ## Testing
 **Framework**: Playwright for E2E testing
