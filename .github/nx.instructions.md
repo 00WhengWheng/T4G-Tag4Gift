@@ -6,7 +6,7 @@ Welcome to the **T4G-Tag4Gift Nx Monorepo**! This guide will help maintainers se
 
 ### 🏗️ Workspace Overview
 - **Type:** Monorepo
-- **Tech Stack:** Nx, NestJS, React, Vite, Expo, Gradle
+- **Tech Stack:** Nx, NestJS, React, Vite, Expo, GraphQL, Prisma, Docker, PostgreSQL, Redis
 - **Plugins:**
   - `@nx/nest` (Backend)
   - `@nx/eslint` (Linting)
@@ -57,6 +57,11 @@ Welcome to the **T4G-Tag4Gift Nx Monorepo**! This guide will help maintainers se
   ```bash
   nx build <project>
   ```
+- Github Actions for CI/CD:
+  - Build and test on push/PR.
+  - Deploy on merge to main.
+  - Use `nx affected:build` for efficient builds.
+- Ensure environment variables are set for production.
 - Follow CI/CD pipeline instructions in the repo.
 - Tag releases and update changelogs.
 
@@ -69,6 +74,11 @@ Welcome to the **T4G-Tag4Gift Nx Monorepo**! This guide will help maintainers se
 - **@nx/vite:** Fast frontend builds
 - **@nx/expo:** Mobile app development
 - **@nx/gradle:** Android builds
+- **Docker:** Containerization for consistent environments
+- **PostgreSQL & Redis:** Database and caching
+- **Nx Console:** VSCode extension for UI-driven development
+- **GraphQL:** API query language for flexible data fetching
+- **Prisma:** ORM for database interactions
 
 ---
 
