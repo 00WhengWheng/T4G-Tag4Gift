@@ -1,13 +1,20 @@
+import { ObjectType, Field } from '@nestjs/graphql';
+
+@ObjectType()
 export class GameCategory {
+  @Field()
   name: string;
 }
 
+@ObjectType()
 export class GameType {
+  @Field()
   name: string;
+
+  @Field(() => [String])
   games: string[];
 }
 
-import { ObjectType, Field } from '@nestjs/graphql';
 
 @ObjectType()
 export class GameTemplate {
@@ -39,13 +46,27 @@ export class GameTemplate {
   gdevelopProjectUrl?: string;
 }
 
+@ObjectType()
 export class Game {
+  @Field()
   id: string;
+
+  @Field()
   type: string;
+
+  @Field({ nullable: true })
   status?: string;
+
+  @Field({ nullable: true })
   category?: string;
+
+  @Field({ nullable: true })
   name?: string;
+
+  @Field({ nullable: true })
   description?: string;
+
+  @Field({ nullable: true })
   gdevelopProjectUrl?: string;
 }
 
