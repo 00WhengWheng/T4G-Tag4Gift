@@ -1,0 +1,46 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type GameCategory {
+  name: String!
+}
+
+type GameType {
+  name: String!
+  games: [String!]!
+}
+
+type GameTemplate {
+  id: String!
+  name: String!
+  description: String
+  type: String!
+  category: String
+  difficulty: String
+  structure: String!
+  isActive: Boolean!
+  gdevelopProjectUrl: String
+}
+
+type Game {
+  id: String!
+  type: String!
+  status: String
+  category: String
+  name: String
+  description: String
+  gdevelopProjectUrl: String
+}
+
+type Query {
+  quizTemplatesByCategory(category: String!): [GameTemplate!]!
+  gameCategories: [GameCategory!]!
+  gameTypes: [GameType!]!
+  gameTemplates(category: String, type: String): [GameTemplate!]!
+  gameData(gameId: String!): [Game!]!
+}
+
+type Mutation {
+  createQuizTemplate(name: String!, questions: String!, description: String, gdevelopProjectUrl: String): GameTemplate!
+}

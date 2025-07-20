@@ -4,6 +4,9 @@
   },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "nxCloudId": "687a6f9af1adb7701cb61f95",
+  "watch": {
+    "ignored": ["dist/**", "out-tsc/**", "dist/apps/backends/main/**"]
+  },
   "plugins": [
     {
       "plugin": "@nx/webpack/plugin",
