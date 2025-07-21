@@ -1,54 +1,39 @@
 
 import React, { useState } from 'react';
+import { useQuery } from 'urql';
 
 const defaultCover = '/default-cover.png'; // Place this image in public/
 
-// Production games data (replace with backend/API fetch as needed)
-const games = [
-  {
-    id: 'quiz-game',
-    name: 'Quiz Master',
-    description: 'Test your knowledge with fun quizzes! (React-based)',
-    category: 'Quiz',
-    url: '/games/quiz', // This should route to your React quiz game
-    image: '/games/quiz/cover.png',
-  },
-  {
-    id: 'puzzle-parking-jam',
-    name: 'Parking Jam',
-    description: 'Get the cars out of the jam! (GDevelop)',
-    category: 'Puzzle',
-    url: '/games/puzzle/parking-jam/index.html',
-    image: '/games/puzzle/parking-jam/cover.png',
-  },
-  {
-    id: 'reaction-flappy-plane',
-    name: 'Flappy Plane',
-    description: 'Fly the plane through obstacles. Press space or click to jump! (GDevelop)',
-    category: 'Reaction',
-    url: '/games/reaction/flappy-plane/index.html',
-    image: '/games/reaction/flappy-plane/cover.png',
-  },
-  {
-    id: 'music-jukebox',
-    name: 'Music Jukebox',
-    description: 'Play along with the beat and test your musical skills! (GDevelop)',
-    category: 'Music',
-    url: '/games/music/jukebox/index.html',
-    image: '/games/music/jukebox/cover.png',
-  },
-  // Add more real games here for each category
-];
+const GET_GAMES = `
+  query GetGameTemplates {
+    gameTemplates {
+      id
+      name
+      description
+      category
+      url: gdevelopProjectUrl
+      type
+    }
+  }
+`;
 
 const categories = ['Quiz', 'Puzzle', 'Reaction', 'Music'];
 
 const GamesPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [modalGame, setModalGame] = useState<null | typeof games[0]>(null);
-  const filteredGames = games.filter(g => g.category === selectedCategory);
+  const [modalGame, setModalGame] = useState<any>(null);
+  const [{ data, fetching, error }] = useQuery({ query: GET_GAMES });
+
+  const games = data?.gameTemplates || [];
+  const filteredGames = games.filter((g: any) => g.category === selectedCategory);
+
+  // If no games for selected category, show all games as fallback
+  const displayGames = filteredGames.length > 0 ? filteredGames : games;
 
   return (
     <div className="games-page" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+      {fetching && <div style={{ textAlign: 'center', color: '#888', fontSize: '1.2em', margin: '2rem auto' }}>Loading games...</div>}
+      {error && <div style={{ textAlign: 'center', color: '#e00', fontSize: '1.2em', margin: '2rem auto' }}>Error loading games: {error.message}</div>}
       <h1 style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '0.02em' }}>Games</h1>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
         {categories.map(cat => (
@@ -80,10 +65,10 @@ const GamesPage: React.FC = () => {
         paddingBottom: '2rem',
         alignItems: 'stretch',
       }}>
-        {filteredGames.length === 0 ? (
-          <div style={{ color: '#888', fontSize: '1.2em', margin: '2rem auto', gridColumn: '1/-1', textAlign: 'center' }}>No games available in this category yet.</div>
+        {displayGames.length === 0 ? (
+          <div style={{ color: '#888', fontSize: '1.2em', margin: '2rem auto', gridColumn: '1/-1', textAlign: 'center' }}>No games available yet.</div>
         ) : (
-          filteredGames.map(game => (
+          displayGames.map((game: any) => (
             <div key={game.id} className="game-card" style={{
               display: 'flex',
               flexDirection: 'column',
@@ -97,7 +82,7 @@ const GamesPage: React.FC = () => {
               transition: 'box-shadow 0.2s',
             }}>
               <img
-                src={game.image}
+                src={game.image ? game.image : defaultCover}
                 alt={game.name}
                 style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '10px', marginBottom: '1rem', background: '#f5f5f5' }}
                 onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = defaultCover; }}
@@ -154,12 +139,18 @@ const GamesPage: React.FC = () => {
               &times;
             </button>
             <h2 style={{ textAlign: 'center', margin: '2rem 0 1rem 0', fontSize: '2rem', fontWeight: 700 }}>{modalGame.name}</h2>
-            <iframe
-              src={modalGame.url}
-              title={modalGame.name}
-              style={{ flex: 1, width: '100%', border: 'none', borderRadius: '12px', background: '#f5f5f5' }}
-              allowFullScreen
-            />
+            {modalGame?.url ? (
+              <iframe
+                src={modalGame.url}
+                title={modalGame.name || 'Game'}
+                style={{ flex: 1, width: '100%', border: 'none', borderRadius: '12px', background: '#f5f5f5' }}
+                allowFullScreen
+              />
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e00', fontSize: '1.2em' }}>
+                Game URL not available.
+              </div>
+            )}
           </div>
         </div>
       )}

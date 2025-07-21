@@ -12,6 +12,7 @@ import { join } from 'path';
       autoSchemaFile: join(process.cwd(), 'apps/backends/main/.generated/schema.gql'),
       driver: ApolloDriver,
       playground: true,
+      path: '/api/graphql',
     }),
     GamesModule,
   ],

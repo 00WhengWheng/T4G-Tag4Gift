@@ -63,9 +63,14 @@ export class GamesService {
     });
     return templates.map((t: any) => {
       let gdevelopProjectUrl = t.gdevelopProjectUrl;
-      if (!gdevelopProjectUrl && t.type !== 'QUIZ') {
-        // Use static URL for GDevelop games
-        gdevelopProjectUrl = `/games/${t.category}/index.html`;
+      if (!gdevelopProjectUrl) {
+        if (t.type === 'QUIZ') {
+          // Use static route for quiz games
+          gdevelopProjectUrl = '/games/quiz';
+        } else {
+          // Use static URL for GDevelop games (by id and category)
+          gdevelopProjectUrl = `/games/${t.category}/${t.id}/index.html`;
+        }
       }
       return { ...t, gdevelopProjectUrl };
     });
