@@ -65,14 +65,42 @@ const GamesPage: React.FC = () => {
               style={{ border: 'none' }}
             >
               {/* Badge */}
-              <span className="absolute top-3 left-4 card-badge badge-pulse text-xs font-bebas tracking-wider z-10">NEW</span>
+              <span style={{
+                position: 'absolute',
+                top: '0.75rem',
+                left: '1rem',
+                display: 'inline-block',
+                color: 'white',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                letterSpacing: '0.05em',
+                background: 'linear-gradient(90deg, #6366f1 0%, #a21caf 100%)',
+                zIndex: 10
+              }}>NEW</span>
               {/* Game Image with shimmer */}
-              <div className="shimmer w-full h-44 rounded-t-2xl overflow-hidden">
+              <div style={{
+                position: 'relative',
+                overflow: 'hidden',
+                width: '100%',
+                height: '11rem',
+                borderTopLeftRadius: '1rem',
+                borderTopRightRadius: '1rem',
+                background: '#f3f4f6'
+              }}>
                 <img
                   src={game.image ? game.image : defaultCover}
                   alt={game.name}
-                  className="w-full h-44 object-cover rounded-t-2xl"
-                  style={{ mixBlendMode: 'multiply' }}
+                  style={{ 
+                    width: '100%', 
+                    height: '11rem', 
+                    objectFit: 'cover', 
+                    borderTopLeftRadius: '1rem',
+                    borderTopRightRadius: '1rem',
+                    mixBlendMode: 'multiply' 
+                  }}
                 />
               </div>
               <div className="flex-1 flex flex-col px-6 py-4">

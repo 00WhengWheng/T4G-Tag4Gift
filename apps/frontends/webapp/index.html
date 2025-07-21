@@ -1,15 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <title>Webapp</title>
+    <title>Tag4Gift - Play, Share, Win</title>
     <base href="/" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Tag4Gift - Your gateway to fun, discovery, and rewards. Scan QR codes, share gifts, play games, and explore venues." />
+    <meta name="theme-color" content="#6d28d9" />
+    
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    
     <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Preload critical CSS -->
     <link rel="stylesheet" href="/src/styles.css" />
+    
+    <!-- Initialize theme from localStorage if available -->
+    <script>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('tag4gift-theme');
+          if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+          }
+        } catch (e) {
+          console.error('Error setting initial theme:', e);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

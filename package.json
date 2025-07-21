@@ -10,7 +10,9 @@
     "dev:main": "pnpm nx run main:serve",
     "build:main": "pnpm nx run main:build",
     "dev:dashboard": "pnpm nx run dashboard:dev",
-    "build:dashboard": "pnpm nx run dashboard:build"
+    "build:dashboard": "pnpm nx run dashboard:build",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
