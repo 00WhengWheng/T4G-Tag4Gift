@@ -14,8 +14,17 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
 
   app.enableCors({
-    origin: 'http://localhost:4200', // updated to match frontend port
+    origin: ['http://localhost:4200', 'http://localhost:5173'], // allow Nx and Vite
     credentials: true,
+  });
+
+  // Add a root route handler for '/'
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.get('/', (req: any, res: any) => {
+    // Option 1: redirect to games API
+    res.redirect('/api/games');
+    // Option 2: send a message
+    // res.send('Welcome to T4G API! See /api/games for games.');
   });
 
   await app.listen(port);
