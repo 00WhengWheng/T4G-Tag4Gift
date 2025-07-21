@@ -1,0 +1,12 @@
+{
+  "name": "Shark Frenzy",
+  "short_name": "Shark Frenzy",
+  "id": "com.example.gamename",
+  "description": "Controls:\nPC:\n- Arrow keys to move\n- Left shift to sprint\nMobile:\n- Joystick for movement\n- Button for sprint",
+  "orientation": "landscape",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "black",
+  "categories": ["games", "entertainment"],
+  "icons": []
+}

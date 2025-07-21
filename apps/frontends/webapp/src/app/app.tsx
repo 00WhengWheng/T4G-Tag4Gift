@@ -1,8 +1,8 @@
 // Uncomment this line to use CSS modules
 // import styles from './app.module.css';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import NxWelcome from './nx-welcome';
-import GameTestPage from '../pages/GameTestPage';
+import GamesPage from '../pages/GamesPage';
+import QuizPage from '../pages/QuizPage';
 
 export function App() {
   return (
@@ -10,13 +10,13 @@ export function App() {
       <div className="app-container">
         <nav className="main-nav">
           <ul>
-            <li><Link to="/game-test">Game Test</Link></li>
+          <li><Link to="/games">Games</Link></li>
           </ul>
         </nav>
-        
         <Routes>
-          <Route path="/game-test" element={<GameTestPage />} />
-          <Route path="/" element={<Navigate to="/game-test" replace />} />
+          <Route path="/games" element={<GamesPage />} />
+          <Route path="/games/quiz" element={<QuizPage />} />
+          <Route path="/" element={<Navigate to="/games" replace />} />
         </Routes>
       </div>
     </Router>
