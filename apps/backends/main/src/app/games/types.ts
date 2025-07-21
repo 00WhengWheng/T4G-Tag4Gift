@@ -7,7 +7,7 @@ export class GameCategory {
 }
 
 @ObjectType()
-export class GameType {
+export class GameTypeInfo {
   @Field()
   name: string;
 
@@ -16,35 +16,7 @@ export class GameType {
 }
 
 
-@ObjectType()
-export class GameTemplate {
-  @Field()
-  id: string;
-
-  @Field()
-  name: string;
-
-  @Field({ nullable: true })
-  description?: string;
-
-  @Field()
-  type: string;
-
-  @Field({ nullable: true })
-  category?: string;
-
-  @Field({ nullable: true })
-  difficulty?: string;
-
-  @Field()
-  structure: string;
-
-  @Field()
-  isActive: boolean;
-
-  @Field({ nullable: true })
-  gdevelopProjectUrl?: string;
-}
+// ...existing code...
 
 @ObjectType()
 export class Game {

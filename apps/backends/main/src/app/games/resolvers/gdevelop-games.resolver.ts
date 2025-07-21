@@ -25,7 +25,7 @@ export class GDevelopGamesResolver {
       difficulty: t.difficulty ?? undefined,
       structure: JSON.stringify(t.structure),
       isActive: t.isActive,
-      gdevelopProjectUrl: t.gdevelopProjectUrl ?? this.getDefaultGDevelopUrl(t.type, t.category),
+      gdevelopProjectUrl: (t.gdevelopProjectUrl ?? this.getDefaultGDevelopUrl(t.type, t.category ?? undefined)) ?? undefined,
       createdAt: t.createdAt,
       updatedAt: t.updatedAt,
     }));
@@ -50,7 +50,7 @@ export class GDevelopGamesResolver {
       difficulty: template.difficulty ?? undefined,
       structure: JSON.stringify(template.structure),
       isActive: template.isActive,
-      gdevelopProjectUrl: template.gdevelopProjectUrl ?? this.getDefaultGDevelopUrl(template.type, template.category),
+      gdevelopProjectUrl: (template.gdevelopProjectUrl ?? this.getDefaultGDevelopUrl(template.type, template.category ?? undefined)) ?? undefined,
       createdAt: template.createdAt,
       updatedAt: template.updatedAt,
     };
@@ -87,7 +87,7 @@ export class GDevelopGamesResolver {
       difficulty: template.difficulty ?? undefined,
       structure: JSON.stringify(template.structure),
       isActive: template.isActive,
-      gdevelopProjectUrl: template.gdevelopProjectUrl,
+      gdevelopProjectUrl: template.gdevelopProjectUrl ?? undefined,
       createdAt: template.createdAt,
       updatedAt: template.updatedAt,
     };
@@ -121,7 +121,7 @@ export class GDevelopGamesResolver {
       difficulty: template.difficulty ?? undefined,
       structure: JSON.stringify(template.structure),
       isActive: template.isActive,
-      gdevelopProjectUrl: template.gdevelopProjectUrl,
+      gdevelopProjectUrl: template.gdevelopProjectUrl ?? undefined,
       createdAt: template.createdAt,
       updatedAt: template.updatedAt,
     };

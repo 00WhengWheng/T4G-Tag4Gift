@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: supabase/postgres:latest
+    container_name: supabase_db
+    environment:
+      POSTGRES_DB: t4g_db
+      POSTGRES_USER: t4g_user
+      POSTGRES_PASSWORD: t4g_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  main-backend:
+    build:
+      context: ./apps/backends/main
+      dockerfile: Dockerfile
+    container_name: main_backend
+    env_file:
+      - ./apps/backends/main/.env
+    environment:
+      DATABASE_URL: postgres://t4g_user:t4g_pass@postgres:5432/t4g_db
+    depends_on:
+      - postgres
+    ports:
+      - "4000:4000"
+    command: ["pnpm", "start"]
+
+  business-backend:
+    build:
+      context: ./apps/backends/business
+      dockerfile: Dockerfile
+    container_name: business_backend
+    env_file:
+      - ./apps/backends/business/.env
+    environment:
+      DATABASE_URL: postgres://t4g_user:t4g_pass@postgres:5432/t4g_db
+    depends_on:
+      - postgres
+    ports:
+      - "4001:4001"
+    command: ["pnpm", "start"]
+
+  webapp:
+    build:
+      context: ./apps/frontends/webapp
+      dockerfile: Dockerfile
+    container_name: webapp
+    env_file:
+      - ./apps/frontends/webapp/.env
+    environment:
+      NEXT_PUBLIC_API_URL: http://main-backend:4000
+    depends_on:
+      - main-backend
+    ports:
+      - "3000:3000"
+    command: ["pnpm", "start"]
+
+  dashboard:
+    build:
+      context: ./apps/frontends/dashboard
+      dockerfile: Dockerfile
+    container_name: dashboard
+    env_file:
+      - ./apps/frontends/dashboard/.env
+    environment:
+      NEXT_PUBLIC_API_URL: http://main-backend:4000
+    depends_on:
+      - main-backend
+    ports:
+      - "3001:3001"
+    command: ["pnpm", "start"]
+
+volumes:
+  db_data:

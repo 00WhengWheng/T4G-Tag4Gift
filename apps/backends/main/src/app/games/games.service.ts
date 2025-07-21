@@ -1,38 +1,30 @@
-
 import { Injectable } from '@nestjs/common';
 import { prisma } from '../../../../../../libs/prisma/src/prisma.service';
+import { GameType } from './enums/game.enum';
 
 @Injectable()
 export class GamesService {
   // Use the imported prisma instance
 
-  async createCategoryQuizTemplate(params: { name: string; category: string; questions: any; description?: string; gdevelopProjectUrl?: string }) {
-    const { name, category, questions, description, gdevelopProjectUrl } = params;
+  async createGameTemplate(params: {
+    name: string;
+    type: GameType; // Changed from string to GameType
+    category?: string;
+    difficulty?: string;
+    structure?: any;
+    description?: string;
+    gdevelopProjectUrl?: string;
+  }) {
     return prisma.gameTemplate.create({
       data: {
-        name,
-        description,
-        type: 'QUIZ',
-        category,
-        structure: { questions },
+        name: params.name,
+        type: params.type,
+        category: params.category,
+        difficulty: params.difficulty,
+        structure: params.structure,
+        description: params.description,
         isActive: true,
-        gdevelopProjectUrl,
-      },
-    });
-  }
-
-
-  async createQuizTemplate(params: { name: string; questions: any; description?: string; gdevelopProjectUrl?: string }) {
-    const { name, questions, description, gdevelopProjectUrl } = params;
-    return prisma.gameTemplate.create({
-      data: {
-        name,
-        description,
-        type: 'QUIZ',
-        category: 'knowledge',
-        structure: { questions },
-        isActive: true,
-        gdevelopProjectUrl,
+        gdevelopProjectUrl: params.gdevelopProjectUrl,
       },
     });
   }

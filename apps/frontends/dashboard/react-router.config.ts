@@ -1,5 +1,5 @@
-import type { Config } from '@react-router/dev/config';
 
-export default {
-  ssr: true,
-} satisfies Config;
+
+
+const config = { ssr: true };
+module.exports = config;

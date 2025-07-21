@@ -79,5 +79,28 @@
         "linter": "none"
       }
     }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ],
+        "watch": {
+          "exclude": [
+            "apps/backends/main/.generated",
+            "apps/backends/main/logs",
+            "apps/backends/main/cache",
+            ".nx/cache",
+            "dist",
+            "node_modules"
+          ]
+        }
+      }
+    }
   }
 }

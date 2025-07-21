@@ -9,7 +9,7 @@ import { join } from 'path';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRoot({
-      autoSchemaFile: join(process.cwd(), 'apps/backends/main/src/schema.gql'),
+      autoSchemaFile: join(process.cwd(), 'apps/backends/main/.generated/schema.gql'),
       driver: ApolloDriver,
       playground: true,
     }),
