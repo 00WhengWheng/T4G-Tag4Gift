@@ -147,6 +147,7 @@ model Game {
 
 model GameTemplate {
   id          String   @id @default(uuid())
+  slug        String?  @unique // <-- Make slug optional
   name        String
   description String?
   type        GameType

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from 'urql';
 
@@ -25,10 +24,10 @@ const GamesPage: React.FC = () => {
   const [{ data, fetching, error }] = useQuery({ query: GET_GAMES });
 
   const games = data?.gameTemplates || [];
-  const filteredGames = games.filter((g: any) => g.category === selectedCategory);
-
-  // If no games for selected category, show all games as fallback
-  const displayGames = filteredGames.length > 0 ? filteredGames : games;
+  // Only show games for the selected category
+  const displayGames = games.filter(
+    (g: any) => g.category?.toLowerCase() === selectedCategory.toLowerCase()
+  );
 
   return (
     <div className="games-page" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
@@ -66,7 +65,7 @@ const GamesPage: React.FC = () => {
         alignItems: 'stretch',
       }}>
         {displayGames.length === 0 ? (
-          <div style={{ color: '#888', fontSize: '1.2em', margin: '2rem auto', gridColumn: '1/-1', textAlign: 'center' }}>No games available yet.</div>
+          <div style={{ color: '#888', fontSize: '1.2em', margin: '2rem auto', gridColumn: '1/-1', textAlign: 'center' }}>No games available in this category yet.</div>
         ) : (
           displayGames.map((game: any) => (
             <div key={game.id} className="game-card" style={{
