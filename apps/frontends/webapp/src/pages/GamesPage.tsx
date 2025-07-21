@@ -29,72 +29,60 @@ const GamesPage: React.FC = () => {
     (g: any) => g.category?.toLowerCase() === selectedCategory.toLowerCase()
   );
 
+
   return (
-    <div className="games-page" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-      {fetching && <div style={{ textAlign: 'center', color: '#888', fontSize: '1.2em', margin: '2rem auto' }}>Loading games...</div>}
-      {error && <div style={{ textAlign: 'center', color: '#e00', fontSize: '1.2em', margin: '2rem auto' }}>Error loading games: {error.message}</div>}
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '0.02em' }}>Games</h1>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
+    <div className="games-page max-w-7xl mx-auto px-2 sm:px-6 py-10 min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-yellow-50 flex flex-col">
+      {fetching && <div className="text-center text-gray-500 text-lg my-8">Loading games...</div>}
+      {error && <div className="text-center text-red-600 text-lg my-8">Error loading games: {error.message}</div>}
+      <h1 className="text-5xl font-extrabold mb-10 text-center tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-600 to-yellow-500 font-bebas drop-shadow-lg">Featured Games</h1>
+      <div className="flex flex-wrap justify-center gap-4 mb-12">
         {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            style={{
-              padding: '0.7rem 2rem',
-              borderRadius: '20px',
-              border: selectedCategory === cat ? '2px solid #0070f3' : '1px solid #ccc',
-              background: selectedCategory === cat ? '#0070f3' : '#fff',
-              color: selectedCategory === cat ? '#fff' : '#333',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: selectedCategory === cat ? '0 2px 8px #0070f322' : 'none',
-              transition: 'all 0.2s',
-              minWidth: '120px',
-            }}
+            className={`px-7 py-2 rounded-full font-bold min-w-[120px] transition-all duration-200 border-2 text-lg neon-btn shadow-md btn-glow font-bebas tracking-wide
+              ${selectedCategory === cat
+                ? 'scale-110 ring-2 ring-yellow-300'
+                : 'opacity-80 hover:scale-105'}
+            `}
           >
             {cat}
           </button>
         ))}
       </div>
 
-      <div className="games-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '2.5rem',
-        paddingBottom: '2rem',
-        alignItems: 'stretch',
-      }}>
+      <div className="games-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10 pb-8 items-stretch">
         {displayGames.length === 0 ? (
-          <div style={{ color: '#888', fontSize: '1.2em', margin: '2rem auto', gridColumn: '1/-1', textAlign: 'center' }}>No games available in this category yet.</div>
+          <div className="col-span-full text-center text-gray-500 text-lg">No games available in this category yet.</div>
         ) : (
-          displayGames.map((game: any) => (
-            <div key={game.id} className="game-card" style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              border: '1px solid #eee',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              background: '#fff',
-              boxShadow: '0 2px 12px #0001',
-              minHeight: '420px',
-              transition: 'box-shadow 0.2s',
-            }}>
-              <img
-                src={game.image ? game.image : defaultCover}
-                alt={game.name}
-                style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '10px', marginBottom: '1rem', background: '#f5f5f5' }}
-                onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = defaultCover; }}
-              />
-              <div style={{ flex: 1 }}>
-                <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: 600 }}>{game.name}</h2>
-                <p style={{ color: '#555', marginBottom: '0.5rem', fontSize: '1.05em' }}>{game.description}</p>
+          displayGames.map((game: any, idx: number) => (
+            <div
+              key={game.id}
+              className={
+                `game-card card-animated-border card-lift card-glow flex flex-col justify-between p-0 bg-white/90 shadow-xl min-h-[420px] relative overflow-hidden` +
+                (idx % 2 === 0 ? ' glass' : '')
+              }
+              style={{ border: 'none' }}
+            >
+              {/* Badge */}
+              <span className="absolute top-3 left-4 card-badge badge-pulse text-xs font-bebas tracking-wider z-10">NEW</span>
+              {/* Game Image with shimmer */}
+              <div className="shimmer w-full h-44 rounded-t-2xl overflow-hidden">
+                <img
+                  src={game.image ? game.image : defaultCover}
+                  alt={game.name}
+                  className="w-full h-44 object-cover rounded-t-2xl"
+                  style={{ mixBlendMode: 'multiply' }}
+                />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                <span style={{ fontSize: '0.95em', color: '#888', fontWeight: 500 }}>{game.category}</span>
+              <div className="flex-1 flex flex-col px-6 py-4">
+                <h2 className="text-2xl font-extrabold mb-2 text-blue-700 font-bebas tracking-wide drop-shadow">{game.name}</h2>
+                <p className="text-gray-600 mb-2 text-base leading-relaxed">{game.description}</p>
+              </div>
+              <div className="flex justify-between items-center px-6 pb-5 mt-auto">
+                <span className="text-sm text-purple-600 font-semibold uppercase tracking-wider">{game.category}</span>
                 <button
-                  className="play-btn"
-                  style={{ padding: '0.7rem 2rem', background: '#0070f3', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '1.1em', boxShadow: '0 2px 8px #0070f322', transition: 'background 0.2s', cursor: 'pointer' }}
+                  className="px-6 py-2 rounded-xl neon-btn btn-glow font-bebas text-lg shadow-md hover:scale-105 transition-all duration-150"
                   onClick={() => setModalGame(game)}
                 >
                   Play
