@@ -7,23 +7,22 @@ import Claim from './pages/Claim';
 import Challenges from './pages/Challenges';
 import Profile from './pages/Profile';
 import MapModal from './pages/MapModal';
-
+import HomePage from './pages/HomePage';
 
 export default function AppRouter() {
   return (
-    <Shell>
-      <Routes>
-        <Route path="/" element={<Onboarding />} />
+    <Routes>
+      <Route element={<Shell />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/scan" element={<Scan />} />
         <Route path="/venue/:id" element={<VenueHome />} />
         <Route path="/claim/:id" element={<Claim />} />
         <Route path="/challenges" element={<Challenges />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/map" element={<MapModal />} />
-      </Routes>
-    </Shell>
+      </Route>
+    </Routes>
   );
 }
-
-
 

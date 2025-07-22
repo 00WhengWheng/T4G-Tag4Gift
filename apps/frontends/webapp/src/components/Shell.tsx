@@ -1,21 +1,29 @@
-import { Outlet, Link } from 'react-router-dom';
-import ThemeToggle from './ThemeToggle';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navigation from './Navigation';
+import BottomNav from './BottomNav';
+import Background from './Background';
 
 export default function Shell() {
-    return (
-        <>
-            <header className="navbar bg-base-200 px-4">
-                <div className="flex-1 font-bold text-lg">Tag4Gift</div>
-                <ThemeToggle />
-            </header>
-            <nav className="flex gap-4">
-                <Link to="/challenges" className="btn btn-sm btn-ghost">Challenges</Link>
-                <Link to="/profile" className="btn btn-sm btn-ghost">Profile</Link>
-                <Link to="/map" className="btn btn-sm btn-ghost">Map</Link>
-            </nav>
-            <main className="p-4">
-                <Outlet />
-            </main>
-        </>
-    );
+  return (
+    <div className="flex flex-col min-h-screen relative">
+      {/* Background */}
+      <Background variant="gradient" />
+      
+      {/* Top Navigation */}
+      <Navigation />
+      
+      {/* Main Content */}
+      <main className="flex-grow px-4 py-6 md:py-8 container mx-auto animate-fade-in">
+        <Outlet />
+      </main>
+      
+      {/* Bottom Navigation (Mobile Only) */}
+      <BottomNav />
+      
+      {/* Footer Space (to prevent content from being hidden behind bottom nav on mobile) */}
+      <div className="h-16 md:hidden"></div>
+    </div>
+  );
 }
+
