@@ -47,16 +47,16 @@ T4G-Tag4Gift is a social game gift reward platform that allows users to particip
 pnpm install
 
 # Start backend development server
-pnpm dev:backend
+pnpm dev:main
 
 # Start frontend development server
-pnpm dev:frontend
+pnpm dev:webapp
 
 # Build backend for production
-pnpm build:backend
+pnpm build:main
 
 # Build frontend for production
-pnpm build:frontend
+pnpm build:webapp
 ```
 
 ## Database
