@@ -7,7 +7,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "webpack-cli build",
+        "command": "cd apps/backends/main && pnpm exec webpack-cli build",
         "args": ["--node-env=production"]
       },
       "configurations": {

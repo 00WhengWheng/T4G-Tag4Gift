@@ -1,26 +1,27 @@
-const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
+const path = require('path');
+
+console.log('WEBPACK CONFIG __dirname:', __dirname);
+console.log('WEBPACK CONFIG process.cwd():', process.cwd());
 
 module.exports = {
+  context: __dirname,
+  entry: path.join(__dirname, 'src/main.ts'),
   output: {
-    path: join(__dirname, '../../../dist/apps/backends/main'),
+    path: path.join(__dirname, 'dist'),
     filename: 'main.js',
   },
-  plugins: [
-    new NxAppWebpackPlugin({
-      target: 'node',
-      compiler: 'tsc',
-      main: './src/main.ts',
-      tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
-      optimization: true,
-      outputHashing: 'all',
-      generatePackageJson: true,
-      cache: true,
-    }),
-  ],
-  cache: {
-    type: 'filesystem',
+  resolve: {
+    extensions: ['.ts', '.js'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
   },
   mode: 'production',
+  target: 'node',
 };
