@@ -1,5 +1,2 @@
-
-
-
 const config = { ssr: true };
-module.exports = config;
+export default config;
