@@ -9,7 +9,7 @@ import GamesPage from './pages/GamesPage';
 import MapPage from './pages/MapPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import InfoPage from './pages/InfoPage';
-import AppLayout from './components/layout/AppLayout';
+import { AppLayout } from './components/layout/AppLayout';
 
 const client = createClient({
   url: 'http://localhost:3000/graphql',
@@ -20,7 +20,7 @@ function App() {
   return (
     <Provider value={client}>
       <Router>
-        <Layout>
+        <AppLayout>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/games" element={<GamesPage />} />
@@ -28,7 +28,7 @@ function App() {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/info" element={<InfoPage />} />
           </Routes>
-        </Layout>
+        </AppLayout>
       </Router>
     </Provider>
   );

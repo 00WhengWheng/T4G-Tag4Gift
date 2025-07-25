@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Gamepad2, Trophy, Map, Users, Star, Gift } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../components/ui/card';
 import Navbar from '../components/Navbar';
 
 const features = [
@@ -36,6 +36,29 @@ const features = [
   }
 ];
 
+const games = [
+  {
+    id: '1',
+    name: 'Flappy Bird',
+    description: 'Navigate through pipes in this classic arcade game'
+  },
+  {
+    id: '2',
+    name: 'Music Rhythm',
+    description: 'Hit the beats and create amazing music'
+  },
+  {
+    id: '3',
+    name: 'Road Cross',
+    description: 'Cross the busy road without getting hit'
+  },
+  {
+    id: '4',
+    name: 'Shark Frenzy',
+    description: 'Survive the shark-infested waters'
+  }
+];
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-200 to-yellow-100 flex flex-col space-y-12">
@@ -51,10 +74,10 @@ export default function HomePage() {
             Play amazing games, compete with friends, and win incredible prizes in our social gaming platform
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
+            <Button size="lg">
               <Link to="/games">Start Playing</Link>
             </Button>
-            <Button variant="outline" size="lg" asChild>
+            <Button variant="outline" size="lg">
               <Link to="/info">Learn More</Link>
             </Button>
           </div>
