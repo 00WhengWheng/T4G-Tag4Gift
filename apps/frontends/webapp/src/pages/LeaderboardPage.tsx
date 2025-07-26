@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Trophy, Medal, Crown, Star, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
-import { Button } from '../components/ui/Button';
-import { Avatar } from '../components/ui/Avatar';
+import { Button } from '../components/ui/button';
+import { Avatar } from '../components/ui/avatar';
 
 interface Player {
   id: string;

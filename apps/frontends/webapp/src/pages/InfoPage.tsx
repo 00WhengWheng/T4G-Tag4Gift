@@ -1,7 +1,7 @@
 import React from 'react';
 import { Gift, Trophy, Users, Gamepad2, Star, Heart, Shield, Zap } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { Card, CardContent, CardHeader } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 const InfoPage: React.FC = () => {
   const features = [

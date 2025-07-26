@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import Home from './pages/Home';
+import Home from './pages/HomePage';
 import Scan from './pages/Scan';
 import Share from './pages/SharePage'; // Assuming Share is a page for sharing photos/video with Venues Instagram/Facebook social pages)
 import VenueHome from './pages/VenueHome';

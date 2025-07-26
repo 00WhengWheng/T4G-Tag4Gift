@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Play } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Card, CardContent, CardFooter, CardHeader } from '../components/ui/Card';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '../components/ui/card';
 
 interface Game {
   id: string;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, User, Bell, Search } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { Avatar } from '../ui/Avatar';
+import { Button } from '../ui/button';
+import { Avatar } from '../ui/avatar';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
