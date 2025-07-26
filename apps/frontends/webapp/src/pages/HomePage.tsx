@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Gamepad2, Trophy, Map, Users, Star, Gift } from 'lucide-react';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import Navbar from '../components/Navbar';
 
@@ -71,7 +71,7 @@ export default function HomePage() {
             Welcome to Tag4Gift
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-            Play amazing games, compete with friends, and win incredible prizes in our social gaming platform
+            Play amazing games, compete with friends, and win incredible Gift prizes in our social gaming platform
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg">

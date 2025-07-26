@@ -3,9 +3,10 @@ import { QrCodeIcon } from '@heroicons/react/24/outline';
 
 export default function Onboarding() {
   return (
-    <div className="hero min-h-screen bg-gradient-to-br from-amber-400 to-rose-500 text-white">
+    <div className="hero min-h-screen bg-gradient-to-br from-amber-400 to-rose-500 text-white flex items-center justify-center">
       <div className="hero-content text-center">
         <div>
+          {/* ...icon removed as requested... */}
           <h1 className="text-5xl font-bold">Tag4Gift</h1>
           <p className="py-6">Scan • Play • Share • Win Real Gifts</p>
           <Link to="/scan" className="btn btn-primary">

@@ -1,43 +1,36 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Provider } from 'urql';
-import { TooltipProvider } from "./components/ui/tooltip";
-import { Toaster } from "./components/ui/toaster";
-import { Sonner } from "./components/ui/sonner";
-import { AppLayout } from './components/layout/AppLayout';
-import { HomePage } from './pages/HomePage';
-import { GamesPage } from './pages/GamesPage';
-import { MapPage } from './pages/MapPage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import { InfoPage } from './pages/InfoPage';
-import { NotFound } from "./pages/NotFound";
-import { client } from './lib/urql-client';
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import Scan from './pages/Scan';
+import Share from './pages/SharePage'; // Assuming Share is a page for sharing photos/video with Venues Instagram/Facebook social pages)
+import VenueHome from './pages/VenueHome';
+import Claim from './pages/Claim';
+import Challenges from './pages/Challenges';
+import Profile from './pages/Profile';
+import MapModal from './pages/MapModal';
+import Games from './pages/GamesPage';
+import Leaderboard from './pages/LeaderboardPage';
+import Info from './pages/InfoPage';
+import Onboarding from './pages/Onboarding';
 
-const queryClient = new QueryClient();
-
-export function App() {
+export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Provider value={client}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Router>
-            <AppLayout>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/games" element={<GamesPage />} />
-                <Route path="/map" element={<MapPage />} />
-                <Route path="/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/info" element={<InfoPage />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AppLayout>
-          </Router>
-        </TooltipProvider>
-      </Provider>
-    </QueryClientProvider>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/scan" element={<Scan />} />
+        <Route path="/share" element={<Share />} />
+        <Route path="/map" element={<MapModal />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/challenges" element={<Challenges />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/games" element={<Games />} />
+        <Route path="/venue/:id" element={<VenueHome />} />
+        <Route path="/claim/:id" element={<Claim />} />
+        <Route path="/info" element={<Info />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+      </Routes>
+    </Layout>
   );
 }

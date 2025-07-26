@@ -1,20 +1,16 @@
-import { QrReader } from 'react-qr-reader';
-import { useNavigate } from 'react-router-dom';
-import useNFC from '../hooks/useNFC';
+import { motion } from 'framer-motion';
 
 export default function Scan() {
-  const navigate = useNavigate();
-  useNFC((tag) => navigate(`/venue/${tag}`));
-
   return (
-    <div className="flex flex-col items-center gap-4">
-      <h2 className="text-2xl font-bold">Scan QR / Tap NFC</h2>
-      <div className="w-full max-w-sm">
-        <QrReader
-          constraints={{ facingMode: 'environment' }}
-          onResult={(result) => result && navigate(`/venue/${result?.getText()}`)}
-        />
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100"
+    >
+      <h2 className="text-3xl font-bold mb-4">Scan QR / Tap NFC</h2>
+      {/* Scanner component goes here */}
+    </motion.div>
   );
 }

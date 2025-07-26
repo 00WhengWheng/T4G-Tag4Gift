@@ -1,7 +1,13 @@
 import { Outlet, Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 
-export default function Shell() {
+import React from 'react';
+
+type ShellProps = {
+  children?: React.ReactNode;
+};
+
+export default function Shell({ children }: ShellProps) {
     return (
         <>
             <header className="navbar bg-base-200 px-4">
@@ -14,7 +20,7 @@ export default function Shell() {
                 <Link to="/map" className="btn btn-sm btn-ghost">Map</Link>
             </nav>
             <main className="p-4">
-                <Outlet />
+                {children}
             </main>
         </>
     );
