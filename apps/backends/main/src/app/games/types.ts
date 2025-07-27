@@ -18,6 +18,7 @@ export class GameTypeInfo {
 
 // ...existing code...
 
+
 @ObjectType()
 export class Game {
   @Field()
@@ -40,6 +41,48 @@ export class Game {
 
   @Field({ nullable: true })
   gdevelopProjectUrl?: string;
+}
+
+@ObjectType()
+export class Gift {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field({ nullable: true })
+  description?: string;
+}
+
+@ObjectType()
+export class ChallengeResult {
+  @Field()
+  userId: string;
+
+  @Field()
+  timeMs: number;
+}
+
+@ObjectType()
+export class Challenge {
+  @Field()
+  id: string;
+
+  @Field(() => Game)
+  game: Game;
+
+  @Field(() => [String])
+  participants: string[]; // user IDs
+
+  @Field(() => [ChallengeResult])
+  results: ChallengeResult[];
+
+  @Field({ nullable: true })
+  winnerId?: string;
+
+  @Field(() => Gift)
+  gift: Gift;
 }
 
 export const GAME_CATEGORIES = [
