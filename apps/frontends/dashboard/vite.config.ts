@@ -1,6 +1,5 @@
-/// <reference types='vitest' />
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
-import { reactRouter } from '@react-router/dev/vite';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
@@ -16,7 +15,6 @@ export default defineConfig(() => ({
     host: 'localhost',
   },
   plugins: [
-    !process.env.VITEST && reactRouter(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
   ],

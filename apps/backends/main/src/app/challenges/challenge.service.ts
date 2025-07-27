@@ -1,62 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaClient, ChallengeStatus, ChallengeType } from '@prisma/client';
 import { InputType, Field } from '@nestjs/graphql';
-
-@Injectable()
-export class ChallengeService {
-  // Create a new challenge
-  async createChallenge(dto: CreateChallengeInput) {
-    // TODO: Replace with real DB logic
-    return {
-      id: 'mock-challenge-id',
-      game: { id: dto.gameId, type: 'quiz' },
-      participants: dto.participantIds,
-      results: [],
-      winnerId: undefined,
-      gift: { id: dto.giftId, name: 'Gift', description: '' },
-    };
-  }
-
-  async joinChallenge(challengeId: string, userId: string) {
-    // TODO: Replace with real DB logic
-    return {
-      id: challengeId,
-      game: { id: 'game-id', type: 'quiz' },
-      participants: [userId],
-      results: [],
-      winnerId: undefined,
-      gift: { id: 'gift-id', name: 'Gift', description: '' },
-    };
-  }
-
-  async submitResult(challengeId: string, userId: string, timeMs: number) {
-    // TODO: Replace with real DB logic
-    return {
-      id: challengeId,
-      game: { id: 'game-id', type: 'quiz' },
-      participants: [userId],
-      results: [{ userId, timeMs }],
-      winnerId: userId,
-      gift: { id: 'gift-id', name: 'Gift', description: '' },
-    };
-  }
-
-  async getChallenge(challengeId: string) {
-    // TODO: Replace with real DB logic
-    return {
-      id: challengeId,
-      game: { id: 'game-id', type: 'quiz' },
-      participants: ['user1', 'user2'],
-      results: [{ userId: 'user1', timeMs: 1234 }, { userId: 'user2', timeMs: 2345 }],
-      winnerId: 'user1',
-      gift: { id: 'gift-id', name: 'Gift', description: '' },
-    };
-  }
-
-  async calculateWinner(challengeId: string) {
-    // TODO: Implement winner calculation
-    return 'user1';
-  }
-}
 
 @InputType()
 export class CreateChallengeInput {
@@ -67,22 +11,25 @@ export class CreateChallengeInput {
   description?: string;
 
   @Field()
-  gameId: string;
+  giftId: string;
 
   @Field()
-  giftId: string;
+  tenantId: string;
+
+  @Field()
+  startDate: string;
+
+  @Field()
+  endDate: string;
 
   @Field(() => [String])
   participantIds: string[];
-}
-
-@InputType()
-export class JoinChallengeInput {
-  @Field()
-  challengeId: string;
 
   @Field()
-  userId: string;
+  type: ChallengeType;
+
+  @Field()
+  createdById: string;
 }
 
 @InputType()
@@ -95,4 +42,89 @@ export class SubmitResultInput {
 
   @Field()
   timeMs: number;
+}
+
+@Injectable()
+export class ChallengeService {
+  private prisma = new PrismaClient();
+
+  async createChallenge(dto: CreateChallengeInput) {
+    // Create challenge with gift association and schedule
+    return this.prisma.challenge.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        gift: { connect: { id: dto.giftId } },
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        status: ChallengeStatus.SCHEDULED,
+        tenant: { connect: { id: dto.tenantId } },
+        type: dto.type,
+        createdById: dto.createdById,
+        participants: {
+          create: dto.participantIds.map(userId => ({ userId })),
+        },
+      },
+      include: { gift: true, participants: true },
+    });
+  }
+
+  async addParticipant(challengeId: string, userId: string) {
+    // Add participant to challenge
+    return this.prisma.challengeParticipant.create({
+      data: { challengeId, userId },
+    });
+  }
+
+  async removeParticipant(challengeId: string, userId: string) {
+    // Remove participant from challenge
+    return this.prisma.challengeParticipant.delete({
+      where: { userId_challengeId: { userId, challengeId } },
+    });
+  }
+
+  async updateChallengeStatus(challengeId: string, status: ChallengeStatus) {
+    return this.prisma.challenge.update({
+      where: { id: challengeId },
+      data: { status },
+    });
+  }
+
+  async submitResult(dto: SubmitResultInput) {
+    // Fetch the correct gameId for the challenge
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id: dto.challengeId },
+      include: { games: true },
+    });
+    const gameId = challenge?.games?.[0]?.id;
+    if (!gameId) {
+      throw new Error('No game found for this challenge');
+    }
+    // Store result for participant
+    return this.prisma.gameResult.create({
+      data: {
+        userId: dto.userId,
+        gameId,
+        participantId: `${dto.userId}_${dto.challengeId}`,
+        timeSpent: dto.timeMs,
+      },
+    });
+  }
+
+  async getChallenge(challengeId: string) {
+    return this.prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: { gift: true, participants: true },
+    });
+  }
+
+  async calculateWinner(challengeId: string) {
+    // Find participant with best result (lowest timeMs)
+    const results = await this.prisma.gameResult.findMany({
+      where: { participant: { challengeId } },
+      orderBy: { timeSpent: 'asc' },
+      take: 1,
+    });
+    return results[0]?.userId;
+  }
 }

@@ -1,23 +1,25 @@
-import { gql, useMutation } from '@apollo/client';
 import { useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
 
 const CREATE_CHALLENGE = gql`
   mutation CreateChallenge($input: CreateChallengeInput!) {
     createChallenge(input: $input) {
       id
       name
-      participants
-      game { id type }
+      description
       gift { id name }
+      startDate
+      endDate
     }
   }
 `;
 
-export function CreateChallengeForm() {
+export function CreateChallengeForm({ tenantId }: { tenantId: string }) {
   const [name, setName] = useState('');
-  const [gameId, setGameId] = useState('');
+  const [description, setDescription] = useState('');
   const [giftId, setGiftId] = useState('');
-  const [participants, setParticipants] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [createChallenge, { data, loading, error }] = useMutation(CREATE_CHALLENGE);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,9 +28,11 @@ export function CreateChallengeForm() {
       variables: {
         input: {
           name,
-          gameId,
+          description,
           giftId,
-          participantIds: participants.split(',').map(p => p.trim()),
+          tenantId,
+          startDate,
+          endDate,
         },
       },
     });
@@ -37,12 +41,13 @@ export function CreateChallengeForm() {
   return (
     <form onSubmit={handleSubmit}>
       <input value={name} onChange={e => setName(e.target.value)} placeholder="Challenge Name" required />
-      <input value={gameId} onChange={e => setGameId(e.target.value)} placeholder="Game ID" required />
-      <input value={giftId} onChange={e => setGiftId(e.target.value)} placeholder="Gift ID" required />
-      <input value={participants} onChange={e => setParticipants(e.target.value)} placeholder="Participant IDs (comma separated)" required />
+      <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" />
+      <input value={giftId} onChange={e => setGiftId(e.target.value)} placeholder="Gift ID (required)" required />
+      <input type="datetime-local" value={startDate} onChange={e => setStartDate(e.target.value)} placeholder="Start Date" required />
+      <input type="datetime-local" value={endDate} onChange={e => setEndDate(e.target.value)} placeholder="End Date" required />
       <button type="submit" disabled={loading}>Create Challenge</button>
       {error && <div>Error: {error.message}</div>}
-      {data && <div>Created Challenge ID: {data.createChallenge.id}</div>}
+      {data && <div>Challenge Created: {data.createChallenge.name}</div>}
     </form>
   );
 }
