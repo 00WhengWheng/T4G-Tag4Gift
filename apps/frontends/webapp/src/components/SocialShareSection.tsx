@@ -76,10 +76,12 @@ export const SocialShareSection = () => {
                 <Card 
                   key={post.id} 
                   className="bg-gaming-card border-border hover:border-primary/30 transition-all duration-300 animate-slide-up"
-                  style={{ animationDelay: `${index * 0.15}s` }}
                 >
                   <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
+                    <div
+                      className="flex items-start gap-4"
+                      style={{ animationDelay: `${index * 0.15}s` }}
+                    >
                       <div className={`w-10 h-10 bg-gaming-surface border border-${platformColor} rounded-full flex items-center justify-center flex-shrink-0`}>
                         <PlatformIcon className={`h-5 w-5 text-${platformColor}`} />
                       </div>
@@ -141,7 +143,7 @@ export const SocialShareSection = () => {
                   </Button>
                 </div>
                 
-                <Button variant="hero" size="lg" className="w-full mt-6">
+                <Button variant="primary" size="lg" className="w-full mt-6">
                   <Share2 className="mr-2 h-5 w-5" />
                   Share Now
                 </Button>

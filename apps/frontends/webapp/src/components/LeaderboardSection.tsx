@@ -1,66 +1,162 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, Medal, Award, Crown, TrendingUp } from "lucide-react";
 
-const leaderboard = [
-  { name: 'Alice', score: 1200, avatar: '👑' },
-  { name: 'Bob', score: 950, avatar: '🥈' },
-  { name: 'Charlie', score: 800, avatar: '🥉' },
-  { name: 'David', score: 720, avatar: '🎮' },
-  { name: 'Emma', score: 650, avatar: '🎯' },
+const topPlayers = [
+  {
+    rank: 1,
+    name: "GamingLegend_99",
+    points: 15420,
+    level: 87,
+    streak: 45,
+    badge: "Elite Champion"
+  },
+  {
+    rank: 2,
+    name: "SocialMaster_Pro",
+    points: 14890,
+    level: 84,
+    streak: 38,
+    badge: "Viral King"
+  },
+  {
+    rank: 3,
+    name: "VenueHunter_X",
+    points: 13750,
+    level: 81,
+    streak: 42,
+    badge: "Explorer"
+  },
+  {
+    rank: 4,
+    name: "ChallengeSeeker",
+    points: 12340,
+    level: 76,
+    streak: 29,
+    badge: "Challenger"
+  },
+  {
+    rank: 5,
+    name: "RewardCollector",
+    points: 11890,
+    level: 73,
+    streak: 35,
+    badge: "Collector"
+  }
 ];
 
-const LeaderboardSection: React.FC = () => (
-  <section className="w-full max-w-xl mx-auto bg-white rounded-xl shadow-md p-6 md:p-8 flex flex-col items-center border border-gray-100 my-8">
-    <h2 className="text-xl md:text-2xl font-bold text-blue-900 mb-6 text-center">
-      Leaderboard
-    </h2>
-    <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-      <div className="grid grid-cols-12 bg-gray-100 text-blue-900 text-xs md:text-sm font-bold p-2">
-        <div className="col-span-2 text-center">#</div>
-        <div className="col-span-7 md:col-span-8">Player</div>
-        <div className="col-span-3 md:col-span-2 text-right">Score</div>
-      </div>
-      <div className="divide-y divide-gray-200">
-        {leaderboard.map((entry, idx) => (
-          <motion.div
-            key={entry.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.07 }}
-            className="grid grid-cols-12 items-center p-2 text-blue-900 hover:bg-blue-50 transition-colors"
-          >
-            <div className="col-span-2 text-center font-bold text-base md:text-lg">
-              {idx === 0 ? (
-                <span className="text-yellow-500">1</span>
-              ) : idx === 1 ? (
-                <span className="text-gray-500">2</span>
-              ) : idx === 2 ? (
-                <span className="text-amber-600">3</span>
-              ) : (
-                <span className="text-gray-400">{idx + 1}</span>
-              )}
-            </div>
-            <div className="col-span-7 md:col-span-8 font-medium flex items-center gap-2">
-              <span className="text-lg">{entry.avatar}</span>
-              {entry.name}
-              {idx === 0 && <span className="ml-2 px-2 py-0.5 rounded bg-yellow-100 text-yellow-700 text-xs font-bold">MVP</span>}
-            </div>
-            <div className="col-span-3 md:col-span-2 text-right font-mono font-bold text-xs md:text-base">
-              {entry.score.toLocaleString()}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-    <div className="mt-6 text-gray-600 text-xs md:text-base text-center">
-      Compete with friends and climb the leaderboard to earn exclusive rewards!
-      <div className="mt-3">
-        <button className="px-4 py-1.5 rounded bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-all text-xs md:text-sm">
-          View Full Rankings
-        </button>
-      </div>
-    </div>
-  </section>
-);
+const getRankIcon = (rank: number) => {
+  switch (rank) {
+    case 1: return Crown;
+    case 2: return Trophy;
+    case 3: return Medal;
+    default: return Award;
+  }
+};
 
-export default LeaderboardSection;
+const getRankColor = (rank: number) => {
+  switch (rank) {
+    case 1: return 'neon-orange';
+    case 2: return 'neon-blue';
+    case 3: return 'neon-purple';
+    default: return 'neon-green';
+  }
+};
+
+export const LeaderboardSection = () => {
+  return (
+    <section className="py-20 px-4 bg-gaming-surface/30">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-6xl font-bold mb-4 text-foreground">
+            Leaderboard
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            See how you stack up against the best players in the T4G community.
+          </p>
+        </div>
+        
+        <Card className="bg-gaming-card border-border">
+          <CardHeader>
+            <CardTitle className="text-2xl text-foreground flex items-center gap-2">
+              <TrendingUp className="h-6 w-6 text-neon-orange" />
+              Top Players This Week
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {topPlayers.map((player, index) => {
+              const RankIcon = getRankIcon(player.rank);
+              const rankColor = getRankColor(player.rank);
+              
+              return (
+                <div 
+                  key={player.rank} 
+                  className="flex items-center gap-4 p-4 bg-gaming-surface rounded-lg hover:bg-gaming-surface/80 transition-all duration-300 animate-slide-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {/* Rank */}
+                  <div className={`w-12 h-12 bg-gaming-card border border-${rankColor} rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <RankIcon className={`h-6 w-6 text-${rankColor}`} />
+                  </div>
+                  
+                  {/* Player Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold text-foreground text-lg">{player.name}</span>
+                      <Badge variant="secondary" className="bg-neon-blue/20 text-neon-blue border-neon-blue/30">
+                        {player.badge}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>Level {player.level}</span>
+                      <span>•</span>
+                      <span>{player.streak} day streak</span>
+                    </div>
+                  </div>
+                  
+                  {/* Points */}
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-neon-blue">
+                      {player.points.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-foreground">points</div>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* User's Position */}
+            <div className="mt-8 pt-6 border-t border-border">
+              <div className="flex items-center gap-4 p-4 bg-gradient-primary/10 rounded-lg border border-primary/30">
+                <div className="w-12 h-12 bg-primary/20 border border-primary rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary font-bold">#47</span>
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-bold text-foreground text-lg">You</span>
+                    <Badge variant="outline" className="border-primary text-primary">
+                      Rising Star
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>Level 34</span>
+                    <span>•</span>
+                    <span>12 day streak</span>
+                  </div>
+                </div>
+                
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-primary">
+                    4,567
+                  </div>
+                  <div className="text-sm text-muted-foreground">points</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+};

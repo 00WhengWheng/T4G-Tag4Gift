@@ -56,14 +56,17 @@ export const GameCardsSection = () => {
             <Card 
               key={game.id} 
               className="bg-gaming-card border-border hover:border-primary/50 transition-all duration-500 hover:shadow-gaming hover:scale-105 group animate-slide-up"
-              style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <CardHeader className="relative overflow-hidden rounded-t-lg">
-                <div 
+              <CardHeader 
+                className="relative overflow-hidden rounded-t-lg"
+              >
+                <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${game.image})` }}
+                  style={{ 
+                    backgroundImage: `url(${game.image})`,
+                    animationDelay: `${index * 0.2}s`
+                  }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-gaming-card via-gaming-card/20 to-transparent" />
                 </div>
                 <div className="relative z-10 pt-32">
                   <div className={`w-12 h-12 bg-gaming-surface border border-${game.color} rounded-full flex items-center justify-center mb-4 group-hover:shadow-glow-primary transition-all duration-300`}>
@@ -91,7 +94,7 @@ export const GameCardsSection = () => {
                   </div>
                 </div>
                 
-                <Button variant="gaming" className="w-full">
+                <Button variant="primary" className="w-full">
                   <Play className="mr-2 h-4 w-4" />
                   Play Now
                 </Button>

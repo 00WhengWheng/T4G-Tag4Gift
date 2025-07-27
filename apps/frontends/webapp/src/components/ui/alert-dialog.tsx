@@ -2,7 +2,8 @@ import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+// import { buttonVariants } from "@/components/ui/button"
+// TODO: Ensure buttonVariants is exported from button.tsx, or replace/remove its usage below.
 
 const AlertDialog = AlertDialogPrimitive.Root
 
@@ -95,19 +96,18 @@ const AlertDialogDescription = React.forwardRef<
 ))
 AlertDialogDescription.displayName =
   AlertDialogPrimitive.Description.displayName
-
 const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn(buttonVariants(), className)}
+    className={cn("btn", className)} // Replace buttonVariants() with a default class or your own variant logic
     {...props}
   />
 ))
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName
-
+AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName
 const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
@@ -115,13 +115,14 @@ const AlertDialogCancel = React.forwardRef<
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
-      buttonVariants({ variant: "outline" }),
+      "btn-outline",
       "mt-2 sm:mt-0",
       className
-    )}
+    )} // Replace buttonVariants({ variant: "outline" }) with a default outline class or your own variant logic
     {...props}
   />
 ))
+AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
 
 export {

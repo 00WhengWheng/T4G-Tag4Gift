@@ -12,7 +12,7 @@
       }
     },
     "serve": {
-      "executor": "@nx/vite:serve",
+      "executor": "@nx/vite:dev-server",
       "options": {
         "buildTarget": "webapp:build"
       }

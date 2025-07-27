@@ -30,7 +30,7 @@ export const HeroSection = () => {
         
         {/* Main CTA */}
         <div className="animate-scale-in">
-          <Button variant="scan" size="xl" className="mb-8">
+          <Button variant="primary" size="lg" className="mb-8">
             <Scan className="mr-2 h-6 w-6" />
             Start Scanning
           </Button>

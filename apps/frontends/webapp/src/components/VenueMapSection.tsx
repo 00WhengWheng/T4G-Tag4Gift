@@ -83,7 +83,7 @@ export const VenueMapSection = () => {
           {/* Venue List */}
           <div className="space-y-6">
             <div className="flex items-center gap-4 mb-8">
-              <Button variant="neon" size="lg">
+              <Button variant="primary" size="lg">
                 <Navigation className="mr-2 h-5 w-5" />
                 Find Nearby Venues
               </Button>
@@ -93,10 +93,13 @@ export const VenueMapSection = () => {
               <Card 
                 key={venue.id} 
                 className="bg-gaming-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-glow-primary animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="flex flex-col"
+                  >
+                    <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-foreground">{venue.name}</h3>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-neon-orange fill-current" />
@@ -122,6 +125,7 @@ export const VenueMapSection = () => {
                     <Button variant="ghost" size="sm" className="text-neon-blue hover:text-neon-blue hover:bg-neon-blue/10">
                       Visit Venue
                     </Button>
+                  </div>
                   </div>
                 </CardContent>
               </Card>
