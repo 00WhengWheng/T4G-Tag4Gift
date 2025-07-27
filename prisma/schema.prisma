@@ -128,21 +128,25 @@ model SocialContent {
 }
 
 model Game {
-  id             String        @id @default(uuid())
-  type           GameType
-  config         Json?
-  status         GameStatus    @default(ACTIVE)
-  timeLimit      Int?
-  content        Json?
-  questions      Json?
-  challengeId    String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  gameTemplateId String?
-  challenge      Challenge     @relation(fields: [challengeId], references: [id])
-  gameTemplate   GameTemplate? @relation(fields: [gameTemplateId], references: [id])
-  gameData       GameData[]
-  results        GameResult[]
+  id                  String        @id @default(uuid())
+  type                GameType
+  config              Json?
+  status              GameStatus    @default(ACTIVE)
+  timeLimit           Int?
+  content             Json?
+  questions           Json?
+  challengeId         String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  gameTemplateId      String?
+  category            String?
+  name                String?
+  description         String?
+  gdevelopProjectUrl  String?
+  challenge           Challenge     @relation(fields: [challengeId], references: [id])
+  gameTemplate        GameTemplate? @relation(fields: [gameTemplateId], references: [id])
+  gameData            GameData[]
+  results             GameResult[]
 }
 
 model GameTemplate {

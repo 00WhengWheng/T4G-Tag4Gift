@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, ChallengeStatus, ChallengeType } from '@prisma/client';
 import { InputType, Field } from '@nestjs/graphql';
+import { GameType } from '../games/enums/game.enum';
 
 @InputType()
 export class CreateChallengeInput {
@@ -50,7 +51,7 @@ export class ChallengeService {
 
   async createChallenge(dto: CreateChallengeInput) {
     // Create challenge with gift association and schedule
-    return this.prisma.challenge.create({
+    const challenge = await this.prisma.challenge.create({
       data: {
         name: dto.name,
         description: dto.description,
@@ -65,8 +66,21 @@ export class ChallengeService {
           create: dto.participantIds.map(userId => ({ userId })),
         },
       },
-      include: { gift: true, participants: true },
+      include: { gift: true, participants: true, games: true },
     });
+    return this.toChallengeType(challenge);
+  }
+  async joinChallenge(challengeId: string, userId: string) {
+    // Add participant to challenge
+    await this.prisma.challengeParticipant.create({
+      data: { challengeId, userId },
+    });
+    // Return updated challenge
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: { gift: true, participants: true, games: true },
+    });
+    return this.toChallengeType(challenge);
   }
 
   async addParticipant(challengeId: string, userId: string) {
@@ -90,10 +104,10 @@ export class ChallengeService {
     });
   }
 
-  async submitResult(dto: SubmitResultInput) {
+  async submitResult(challengeId: string, userId: string, timeMs: number) {
     // Fetch the correct gameId for the challenge
     const challenge = await this.prisma.challenge.findUnique({
-      where: { id: dto.challengeId },
+      where: { id: challengeId },
       include: { games: true },
     });
     const gameId = challenge?.games?.[0]?.id;
@@ -101,21 +115,98 @@ export class ChallengeService {
       throw new Error('No game found for this challenge');
     }
     // Store result for participant
-    return this.prisma.gameResult.create({
+    await this.prisma.gameResult.create({
       data: {
-        userId: dto.userId,
+        userId,
         gameId,
-        participantId: `${dto.userId}_${dto.challengeId}`,
-        timeSpent: dto.timeMs,
+        participantId: `${userId}_${challengeId}`,
+        timeSpent: timeMs,
       },
     });
+    // Return updated challenge
+    const updatedChallenge = await this.prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: { gift: true, participants: true, games: true },
+    });
+    return this.toChallengeType(updatedChallenge);
   }
 
   async getChallenge(challengeId: string) {
-    return this.prisma.challenge.findUnique({
+    const challenge = await this.prisma.challenge.findUnique({
       where: { id: challengeId },
-      include: { gift: true, participants: true },
+      include: { gift: true, participants: true, games: true },
     });
+    return this.toChallengeType(challenge);
+  }
+  // Helper to map Prisma challenge to GraphQL Challenge type
+  async toChallengeType(challenge: {
+    id: string;
+    games?: Array<{
+      id: string;
+      type: string;
+      createdAt: Date;
+      updatedAt: Date;
+      status: string;
+      challengeId: string;
+      config: unknown;
+      timeLimit: number;
+      content: unknown;
+      questions: unknown;
+      gameTemplateId: string;
+    }>;
+    participants?: Array<{ userId: string }>;
+    gift?: {
+      id: string;
+      name: string;
+      description?: string;
+    };
+  } | null) {
+    if (!challenge) return null;
+    // Fetch results for this challenge
+    const results = await this.prisma.gameResult.findMany({
+      where: { gameId: challenge.games?.[0]?.id },
+    });
+    const participants = Array.isArray(challenge.participants)
+      ? challenge.participants.map((p) => p.userId)
+      : [];
+    let winnerId: string | null = null;
+    if (results.length) {
+      const best = results.reduce((best, curr) => curr.timeSpent < best.timeSpent ? curr : best);
+      winnerId = best.userId;
+    }
+    // Map Prisma GameType enum to GraphQL GameType enum
+    let game = null;
+    if (challenge.games && challenge.games.length > 0) {
+      const g = challenge.games[0];
+      let mappedType: GameType = GameType.QUIZ;
+      if (typeof g.type === 'string') {
+        if (g.type === GameType.QUIZ) mappedType = GameType.QUIZ;
+        else if (g.type === GameType.PUZZLE) mappedType = GameType.PUZZLE;
+        else if (g.type === GameType.MUSIC) mappedType = GameType.MUSIC;
+        else if (g.type === GameType.REACTION) mappedType = GameType.REACTION;
+        else mappedType = GameType.QUIZ;
+      } else if (Object.values(GameType).includes(g.type)) {
+        mappedType = g.type as GameType;
+      }
+      game = {
+        id: g.id,
+        type: mappedType,
+        status: g.status,
+        // The following fields are not present in Prisma, set as undefined
+        category: undefined,
+        name: undefined,
+        description: undefined,
+        gdevelopProjectUrl: undefined,
+      };
+    }
+    return {
+      id: challenge.id,
+      game,
+      participants,
+      results: results.map(r => ({ userId: r.userId, timeMs: r.timeSpent })),
+      winnerId,
+      gift: challenge.gift,
+    };
   }
 
   async calculateWinner(challengeId: string) {

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { prisma } from '../../../../../../libs/prisma/src/prisma.service';
+import { InputJsonValue } from '@prisma/client/runtime/library';
 import { GameType } from './enums/game.enum';
 
 @Injectable()
@@ -11,7 +12,7 @@ export class GamesService {
     type: GameType; // Changed from string to GameType
     category?: string;
     difficulty?: string;
-    structure?: any;
+    structure?: InputJsonValue | null;
     description?: string;
     gdevelopProjectUrl?: string;
   }) {
@@ -21,7 +22,7 @@ export class GamesService {
         type: params.type,
         category: params.category,
         difficulty: params.difficulty,
-        structure: params.structure,
+        structure: params.structure ?? null,
         description: params.description,
         isActive: true,
         gdevelopProjectUrl: params.gdevelopProjectUrl,
@@ -53,26 +54,60 @@ export class GamesService {
 
   async getGameTemplates(category?: string, type?: string) {
     // Fetch game templates filtered by category/type
-    // Add static URL for GDevelop games
     const templates = await prisma.gameTemplate.findMany({
       where: {
         isActive: true,
         ...(category ? { category } : {}),
-        ...(type ? { type: type as any } : {}),
+        ...(type ? { type: type as GameType } : {}),
       },
     });
-    return templates.map((t: any) => {
+
+    return templates.map((t) => {
+      // Robust gdevelopProjectUrl assignment
       let gdevelopProjectUrl = t.gdevelopProjectUrl;
-      if (!gdevelopProjectUrl) {
-        if (t.type === 'QUIZ') {
-          // Use static route for quiz games
-          gdevelopProjectUrl = '/games/quiz';
-        } else {
-          // Use static URL for GDevelop games (by id and category)
-          gdevelopProjectUrl = `/games/${t.category}/${t.id}/index.html`;
+      if (!gdevelopProjectUrl || gdevelopProjectUrl.trim() === '') {
+        switch (t.type) {
+          case 'QUIZ':
+            gdevelopProjectUrl = '/games/quiz';
+            break;
+          case 'PUZZLE':
+            gdevelopProjectUrl = '/games/puzzle';
+            break;
+          default:
+            // Fallback to category/id-based URL if category and id exist
+            if (t.category && t.id) {
+              gdevelopProjectUrl = `/games/${t.category}/${t.id}/index.html`;
+            } else {
+              gdevelopProjectUrl = '/games/default';
+            }
         }
       }
-      return { ...t, gdevelopProjectUrl };
+
+      // Strict GameType mapping
+      // Always use enum lookup for strict GameType enforcement
+      let mappedType: GameType;
+      if (typeof t.type === 'string' && GameType[t.type as keyof typeof GameType]) {
+        mappedType = GameType[t.type as keyof typeof GameType];
+      } else if (typeof t.type === 'number' && Object.values(GameType).includes(t.type)) {
+        mappedType = t.type as GameType;
+      } else {
+        mappedType = GameType.QUIZ;
+      }
+
+      // Return enhanced template object with correct types for GraphQL
+      return {
+        id: t.id,
+        name: t.name,
+        description: t.description ?? '',
+        type: mappedType,
+        category: t.category ?? '',
+        difficulty: t.difficulty ?? '',
+        structure: t.structure ? JSON.stringify(t.structure) : '',
+        isActive: t.isActive,
+        gdevelopProjectUrl,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+      };
     });
   }
 

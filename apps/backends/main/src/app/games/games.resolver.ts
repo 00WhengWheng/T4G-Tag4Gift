@@ -22,19 +22,27 @@ export class GamesResolver {
       category,
       GameType.QUIZ
     );
-    return templates.map((t: any) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description ?? undefined,
-      type: t.type as import('./enums/game.enum').GameType,
-      category: t.category ?? undefined,
-      difficulty: t.difficulty ?? undefined,
-      structure: JSON.stringify(t.structure),
-      isActive: t.isActive,
-      gdevelopProjectUrl: t.gdevelopProjectUrl ?? `https://gdevelop.io/project/${t.id}`,
-      createdAt: t.createdAt,
-      updatedAt: t.updatedAt,
-    }));
+    return templates.map((t): GameTemplate => {
+      let mappedType: GameType = GameType.QUIZ;
+      if (typeof t.type === 'string' && GameType[t.type as keyof typeof GameType]) {
+        mappedType = GameType[t.type as keyof typeof GameType];
+      } else if (typeof t.type === 'number' && Object.values(GameType).includes(t.type)) {
+        mappedType = t.type as GameType;
+      }
+      return {
+        id: t.id,
+        name: t.name,
+        description: t.description ?? undefined,
+        type: mappedType,
+        category: t.category ?? undefined,
+        difficulty: t.difficulty ?? undefined,
+        structure: JSON.stringify(t.structure),
+        isActive: t.isActive,
+        gdevelopProjectUrl: t.gdevelopProjectUrl ?? `https://gdevelop.io/project/${t.id}`,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+      };
+    });
   }
 
   @Mutation(() => GameTemplate)
@@ -56,6 +64,10 @@ export class GamesResolver {
       description: description ?? undefined,
       gdevelopProjectUrl: gdevelopProjectUrl ?? undefined,
     });
+    let mappedType: GameType = GameType.QUIZ;
+    if (template?.type && typeof template.type === 'string' && GameType[template.type as keyof typeof GameType]) {
+      mappedType = GameType[template.type as keyof typeof GameType];
+    }
     return {
       ...template,
       description: template.description ?? undefined,
@@ -63,7 +75,7 @@ export class GamesResolver {
       difficulty: template.difficulty ?? undefined,
       gdevelopProjectUrl: template.gdevelopProjectUrl ?? undefined,
       structure: JSON.stringify(template.structure),
-      type: template.type as import('./enums/game.enum').GameType,
+      type: mappedType,
       createdAt: template.createdAt,
       updatedAt: template.updatedAt,
     };
@@ -86,19 +98,27 @@ export class GamesResolver {
   ): Promise<GameTemplate[]> {
     const templates = await this.gamesService.getGameTemplates(category, type);
     // Map Prisma results to GraphQL type
-    return templates.map((t: any) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description ?? undefined,
-      type: t.type as import('./enums/game.enum').GameType,
-      category: t.category ?? undefined,
-      difficulty: t.difficulty ?? undefined,
-      structure: JSON.stringify(t.structure),
-      isActive: t.isActive,
-      gdevelopProjectUrl: t.gdevelopProjectUrl ?? undefined,
-      createdAt: t.createdAt,
-      updatedAt: t.updatedAt,
-    }));
+    return templates.map((t): GameTemplate => {
+      let mappedType: GameType = GameType.QUIZ;
+      if (typeof t.type === 'string' && GameType[t.type as keyof typeof GameType]) {
+        mappedType = GameType[t.type as keyof typeof GameType];
+      } else if (typeof t.type === 'number' && Object.values(GameType).includes(t.type)) {
+        mappedType = t.type as GameType;
+      }
+      return {
+        id: t.id,
+        name: t.name,
+        description: t.description ?? undefined,
+        type: mappedType,
+        category: t.category ?? undefined,
+        difficulty: t.difficulty ?? undefined,
+        structure: JSON.stringify(t.structure),
+        isActive: t.isActive,
+        gdevelopProjectUrl: t.gdevelopProjectUrl ?? undefined,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+      };
+    });
   }
 
   @Query(() => [Game], { name: 'gameData' })
@@ -111,13 +131,16 @@ export class GamesResolver {
     const gameTemplates = await this.gamesService.getGameTemplates();
     
     // Map Prisma results to GraphQL type
-    return data.map((d: { id: string; gameId: string; data: any }) => {
+    return data.map((d): Game => {
       // Find matching template if possible
-      const template = gameTemplates.find((t: { id: string }) => t.id === d.gameId);
-      
+      const template = gameTemplates.find((t: GameTemplate) => t.id === d.gameId);
+      let mappedType: GameType = GameType.QUIZ;
+      if (template?.type && typeof template.type === 'string' && GameType[template.type as keyof typeof GameType]) {
+        mappedType = GameType[template.type as keyof typeof GameType];
+      }
       return {
         id: d.id,
-        type: template?.type || 'UNKNOWN',
+        type: mappedType,
         status: 'ACTIVE', // Default status or get from data if available
         category: template?.category || undefined,
         name: template?.name || `Game ${d.id}`,

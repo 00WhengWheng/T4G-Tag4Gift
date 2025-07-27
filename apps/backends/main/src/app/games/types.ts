@@ -1,4 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
+import { GameType } from './enums/game.enum';
 
 @ObjectType()
 export class GameCategory {
@@ -24,8 +25,8 @@ export class Game {
   @Field()
   id: string;
 
-  @Field()
-  type: string;
+  @Field(() => GameType)
+  type: GameType;
 
   @Field({ nullable: true })
   status?: string;
@@ -69,8 +70,8 @@ export class Challenge {
   @Field()
   id: string;
 
-  @Field(() => Game)
-  game: Game;
+  @Field(() => Game, { nullable: true })
+  game: Game | null;
 
   @Field(() => [String])
   participants: string[]; // user IDs
