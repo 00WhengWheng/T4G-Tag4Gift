@@ -9,6 +9,7 @@ import {
 } from './types';
 import { GameTemplate } from './entities/game-template.entity';
 import { GameType } from './enums/game.enum';
+import { CreateGameTemplateDto } from './dto/create-game-template.dto';
 
 @Resolver(() => Game)
 export class GamesResolver {
@@ -29,7 +30,8 @@ export class GamesResolver {
       } else if (typeof t.type === 'number' && Object.values(GameType).includes(t.type)) {
         mappedType = t.type as GameType;
       }
-      return {
+      const instance = new GameTemplate();
+      Object.assign(instance, {
         id: t.id,
         name: t.name,
         description: t.description ?? undefined,
@@ -41,34 +43,27 @@ export class GamesResolver {
         gdevelopProjectUrl: t.gdevelopProjectUrl ?? `https://gdevelop.io/project/${t.id}`,
         createdAt: t.createdAt,
         updatedAt: t.updatedAt,
-      };
+      });
+      return instance;
     });
   }
 
   @Mutation(() => GameTemplate)
   async createGameTemplate(
-    @Args('name', { type: () => String }) name: string,
-    @Args('type', { type: () => String }) type: string,
-    @Args('category', { type: () => String, nullable: true }) category?: string,
-    @Args('difficulty', { type: () => String, nullable: true }) difficulty?: string,
-    @Args('structure', { type: () => String, nullable: true }) structure?: string,
-    @Args('description', { type: () => String, nullable: true }) description?: string,
-    @Args('gdevelopProjectUrl', { type: () => String, nullable: true }) gdevelopProjectUrl?: string,
+    @Args('input') input: CreateGameTemplateDto
   ): Promise<GameTemplate> {
-    const template = await this.gamesService.createGameTemplate({
-      name,
-      type: type as GameType,
-      category,
-      difficulty,
-      structure: structure ? JSON.parse(structure) : undefined,
-      description: description ?? undefined,
-      gdevelopProjectUrl: gdevelopProjectUrl ?? undefined,
-    });
+    // Parse structure if needed (if sent as JSON string)
+    const parsedInput = {
+      ...input,
+      structure: input.structure ? JSON.parse(input.structure) : undefined,
+    };
+    const template = await this.gamesService.createGameTemplate(parsedInput);
     let mappedType: GameType = GameType.QUIZ;
     if (template?.type && typeof template.type === 'string' && GameType[template.type as keyof typeof GameType]) {
       mappedType = GameType[template.type as keyof typeof GameType];
     }
-    return {
+    const instance = new GameTemplate();
+    Object.assign(instance, {
       ...template,
       description: template.description ?? undefined,
       category: template.category ?? undefined,
@@ -78,7 +73,8 @@ export class GamesResolver {
       type: mappedType,
       createdAt: template.createdAt,
       updatedAt: template.updatedAt,
-    };
+    });
+    return instance;
   }
 
   @Query(() => [GameCategory], { name: 'gameCategories' })
@@ -94,7 +90,7 @@ export class GamesResolver {
   @Query(() => [GameTemplate], { name: 'gameTemplates' })
   async getGameTemplates(
     @Args('category', { type: () => String, nullable: true }) category?: string,
-    @Args('type', { type: () => String, nullable: true }) type?: string
+    @Args('type', { type: () => GameType, nullable: true }) type?: GameType
   ): Promise<GameTemplate[]> {
     const templates = await this.gamesService.getGameTemplates(category, type);
     // Map Prisma results to GraphQL type
@@ -105,7 +101,8 @@ export class GamesResolver {
       } else if (typeof t.type === 'number' && Object.values(GameType).includes(t.type)) {
         mappedType = t.type as GameType;
       }
-      return {
+      const instance = new GameTemplate();
+      Object.assign(instance, {
         id: t.id,
         name: t.name,
         description: t.description ?? undefined,
@@ -117,7 +114,8 @@ export class GamesResolver {
         gdevelopProjectUrl: t.gdevelopProjectUrl ?? undefined,
         createdAt: t.createdAt,
         updatedAt: t.updatedAt,
-      };
+      });
+      return instance;
     });
   }
 
@@ -138,7 +136,8 @@ export class GamesResolver {
       if (template?.type && typeof template.type === 'string' && GameType[template.type as keyof typeof GameType]) {
         mappedType = GameType[template.type as keyof typeof GameType];
       }
-      return {
+      const instance = new Game();
+      Object.assign(instance, {
         id: d.id,
         type: mappedType,
         status: 'ACTIVE', // Default status or get from data if available
@@ -146,7 +145,8 @@ export class GamesResolver {
         name: template?.name || `Game ${d.id}`,
         description: template?.description || undefined,
         gdevelopProjectUrl: template?.gdevelopProjectUrl || `/games/${template?.category || 'default'}/index.html`,
-      };
+      });
+      return instance;
     });
   }
 }
