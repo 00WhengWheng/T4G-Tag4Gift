@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Gamepad2, Trophy, Map, Users, Star, Gift } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader, Layout } from '@t4g/ui';
+import { Button, Card, CardContent, CardHeader, Layout } from 'libs/components';
 import Navbar from '../components/Navbar';
 import logo from '../assets/logo.svg';
 
