@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/frontends/webapp/src/*"]
+      "@/*": ["apps/frontends/webapp/src/*"],
+      "@t4g/ui": ["libs/ui/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
