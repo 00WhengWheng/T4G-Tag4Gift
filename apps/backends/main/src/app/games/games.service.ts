@@ -9,7 +9,7 @@ export class GamesService {
 
   async createGameTemplate(params: {
     name: string;
-    type: GameType; // Changed from string to GameType
+    type: string;
     category?: string;
     difficulty?: string;
     structure?: InputJsonValue | null;
@@ -19,7 +19,7 @@ export class GamesService {
     return prisma.gameTemplate.create({
       data: {
         name: params.name,
-        type: params.type,
+        type: params.type as GameType,
         category: params.category,
         difficulty: params.difficulty,
         structure: params.structure ?? null,

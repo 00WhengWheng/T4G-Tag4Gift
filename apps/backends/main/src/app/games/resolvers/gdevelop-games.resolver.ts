@@ -61,7 +61,7 @@ export class GDevelopGamesResolver {
   // @UseGuards(AuthGuard)
   async registerGDevelopGame(
     @Args('name', { type: () => String }) name: string,
-    @Args('type', { type: () => GameType }) type: GameType,
+    @Args('type', { type: () => String }) type: string,
     @Args('category', { type: () => String }) category: string,
     @Args('gdevelopProjectUrl', { type: () => String }) gdevelopProjectUrl: string,
     @Args('description', { type: () => String, nullable: true }) description?: string,

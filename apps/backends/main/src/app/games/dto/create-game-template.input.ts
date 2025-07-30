@@ -1,16 +1,10 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
 import { GameType } from '../enums/game.enums';
 
-@ObjectType()
-export class GameTemplate {
-  @Field(() => ID)
-  id: string;
-
+@InputType()
+export class CreateGameTemplateInput {
   @Field()
   name: string;
-
-  @Field({ nullable: true })
-  description?: string;
 
   @Field(() => GameType)
   type: GameType;
@@ -19,20 +13,14 @@ export class GameTemplate {
   category?: string;
 
   @Field({ nullable: true })
+  description?: string;
+
+  @Field({ nullable: true })
   difficulty?: string;
 
   @Field()
   structure: string;
 
-  @Field()
-  isActive: boolean;
-
   @Field({ nullable: true })
   gdevelopProjectUrl?: string;
-
-  @Field(() => Date)
-  createdAt: Date;
-
-  @Field(() => Date)
-  updatedAt: Date;
 }

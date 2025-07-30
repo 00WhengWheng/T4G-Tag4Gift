@@ -14,9 +14,10 @@ export class CreateGameTemplateDto {
   @IsOptional()
   description?: string;
 
-  @Field(() => GameType)
-  @IsEnum(GameType)
-  type: GameType;
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  type: string;
 
   @Field({ nullable: true })
   @IsString()

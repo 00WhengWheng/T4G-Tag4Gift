@@ -28,7 +28,7 @@ export class GDevelopGamesService {
    */
   async registerGDevelopGame(params: {
     name: string;
-    type: GameType;
+    type: string;
     category: string;
     description?: string;
     difficulty?: string;
@@ -41,7 +41,7 @@ export class GDevelopGamesService {
       data: {
         name,
         description,
-        type,
+        type: type as GameType,
         category,
         difficulty,
         gdevelopProjectUrl,
