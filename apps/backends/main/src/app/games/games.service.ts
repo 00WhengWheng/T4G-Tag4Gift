@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { prisma } from '../../../../../../libs/prisma/src/prisma.service';
 import { InputJsonValue } from '@prisma/client/runtime/library';
-import { GameType } from './enums/game.enum';
+import { GameType } from './enums/game-type.enum';
 
 @Injectable()
 export class GamesService {
@@ -9,7 +9,7 @@ export class GamesService {
 
   async createGameTemplate(params: {
     name: string;
-    type: string;
+    type: GameType;
     category?: string;
     difficulty?: string;
     structure?: InputJsonValue | null;
@@ -19,7 +19,7 @@ export class GamesService {
     return prisma.gameTemplate.create({
       data: {
         name: params.name,
-        type: params.type as GameType,
+        type: params.type,
         category: params.category,
         difficulty: params.difficulty,
         structure: params.structure ?? null,
@@ -52,13 +52,13 @@ export class GamesService {
     return types.map((t: { type: string }) => t.type);
   }
 
-  async getGameTemplates(category?: string, type?: string) {
+  async getGameTemplates(category?: string, type?: GameType) {
     // Fetch game templates filtered by category/type
     const templates = await prisma.gameTemplate.findMany({
       where: {
         isActive: true,
         ...(category ? { category } : {}),
-        ...(type ? { type: type as GameType } : {}),
+        ...(type ? { type } : {}),
       },
     });
 
@@ -83,23 +83,12 @@ export class GamesService {
         }
       }
 
-      // Strict GameType mapping
-      // Always use enum lookup for strict GameType enforcement
-      let mappedType: GameType;
-      if (typeof t.type === 'string' && GameType[t.type as keyof typeof GameType]) {
-        mappedType = GameType[t.type as keyof typeof GameType];
-      } else if (typeof t.type === 'number' && Object.values(GameType).includes(t.type)) {
-        mappedType = t.type as GameType;
-      } else {
-        mappedType = GameType.QUIZ;
-      }
-
       // Return enhanced template object with correct types for GraphQL
       return {
         id: t.id,
         name: t.name,
         description: t.description ?? '',
-        type: mappedType,
+        type: t.type as GameType,
         category: t.category ?? '',
         difficulty: t.difficulty ?? '',
         structure: t.structure ? JSON.stringify(t.structure) : '',

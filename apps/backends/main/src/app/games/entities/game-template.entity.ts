@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { GameType } from '../enums/game.enums';
+import { GameType } from '../enums/game-type.enum';
 
 @ObjectType()
 export class GameTemplate {
@@ -30,9 +30,9 @@ export class GameTemplate {
   @Field({ nullable: true })
   gdevelopProjectUrl?: string;
 
-  @Field(() => Date)
+  @Field()
   createdAt: Date;
 
-  @Field(() => Date)
+  @Field()
   updatedAt: Date;
 }

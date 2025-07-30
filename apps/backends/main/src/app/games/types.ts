@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { GameType } from './enums/game.enum';
+import { GameType } from './enums/game-type.enum';
 
 @ObjectType()
 export class GameCategory {

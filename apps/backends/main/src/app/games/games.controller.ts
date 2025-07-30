@@ -1,8 +1,9 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { GameTemplate } from './entities/game-template.entity';
-import { GameType } from './enums/game.enum';
+// Removed reference to deleted game.enum
 import { CreateGameTemplateDto } from './dto/create-game-template.dto';
+import { GameType } from './enums/game-type.enum';
 
 @Controller('games')
 export class GamesController {
@@ -11,7 +12,7 @@ export class GamesController {
   @Get('templates')
   async getGameTemplates(
     @Query('category') category?: string,
-    @Query('type') type?: string
+    @Query('type') type?: GameType
   ): Promise<GameTemplate[]> {
     return this.gamesService.getGameTemplates(category, type);
   }
@@ -20,7 +21,7 @@ export class GamesController {
   async createGameTemplate(@Body() body: CreateGameTemplateDto): Promise<GameTemplate> {
     const template = await this.gamesService.createGameTemplate({
       name: body.name,
-      type: body.type,
+      type: body.type as GameType,
       category: body.category ?? undefined,
       difficulty: body.difficulty ?? undefined,
       structure: body.structure ? JSON.parse(body.structure) : undefined,
@@ -32,7 +33,7 @@ export class GamesController {
     const { $Enums } = require('@prisma/client');
     const prismaType = template.type;
     // If type is a string, cast to your GameType enum
-    const graphQLType = (prismaType as string) as import('./enums/game.enum').GameType;
+    const graphQLType = (prismaType as string) as import('./enums/game-type.enum').GameType;
 
     return {
       ...template,

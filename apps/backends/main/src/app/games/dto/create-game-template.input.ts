@@ -1,5 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { GameType } from '../enums/game.enums';
+import { GameType } from '../enums/game-type.enum';
 
 @InputType()
 export class CreateGameTemplateInput {

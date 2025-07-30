@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { GDevelopGamesService } from '../services/gdevelop-games.service';
 import { GameTemplate } from '../entities/game-template.entity';
-import { GameType } from '../enums/game.enum';
+import { GameType } from '../enums/game-type.enum';
 import { UseGuards } from '@nestjs/common';
 // Uncomment when you implement authentication
 // import { AuthGuard } from '../../auth/guards/auth.guard';
@@ -13,6 +13,7 @@ export class GDevelopGamesResolver {
   @Query(() => [GameTemplate], { name: 'gdevelopGames' })
   async getGDevelopGames(
     @Args('category', { type: () => String, nullable: true }) category?: string,
+    @Args('type', { type: () => GameType, nullable: true }) type?: GameType,
   ): Promise<GameTemplate[]> {
     const templates = await this.gdevelopGamesService.getGDevelopGameTemplates(category);
     
@@ -20,7 +21,7 @@ export class GDevelopGamesResolver {
       id: t.id,
       name: t.name,
       description: t.description ?? undefined,
-      type: t.type,
+      type: t.type as GameType,
       category: t.category ?? undefined,
       difficulty: t.difficulty ?? undefined,
       structure: JSON.stringify(t.structure),
@@ -70,7 +71,7 @@ export class GDevelopGamesResolver {
   ): Promise<GameTemplate> {
     const template = await this.gdevelopGamesService.registerGDevelopGame({
       name,
-      type,
+      type: type as GameType,
       category,
       description,
       difficulty,

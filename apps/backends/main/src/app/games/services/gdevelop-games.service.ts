@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { prisma } from '../../../../../../../libs/prisma/src/prisma.service';
-import { GameType } from '../enums/game.enum';
+import { GameType } from '../enums/game-type.enum';
 
 @Injectable()
 export class GDevelopGamesService {
@@ -28,7 +28,7 @@ export class GDevelopGamesService {
    */
   async registerGDevelopGame(params: {
     name: string;
-    type: string;
+    type: GameType;
     category: string;
     description?: string;
     difficulty?: string;
@@ -36,12 +36,11 @@ export class GDevelopGamesService {
     structure?: any;
   }) {
     const { name, type, category, description, difficulty, gdevelopProjectUrl, structure } = params;
-    
     return prisma.gameTemplate.create({
       data: {
         name,
         description,
-        type: type as GameType,
+        type,
         category,
         difficulty,
         gdevelopProjectUrl,
@@ -119,7 +118,6 @@ export class GDevelopGamesService {
       where: { id: gameId },
       select: { type: true },
     });
-    
-    return game?.type as GameType || GameType.PUZZLE;
+    return (game?.type as GameType) || GameType.PUZZLE;
   }
 }

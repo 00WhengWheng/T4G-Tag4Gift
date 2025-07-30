@@ -1,5 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { GameType } from '../enums/game.enums';
+import { GameType } from '../enums/game-type.enum';
 
 @InputType()
 export class CreateGameInput {
@@ -17,7 +17,4 @@ export class CreateGameInput {
 
   @Field({ nullable: true })
   gdevelopProjectUrl?: string;
-
-  @Field({ nullable: true })
-  timeLimit?: number;
 }

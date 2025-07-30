@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { GameType } from '../enums/game.enum';
+import { GameType } from '../enums/game-type.enum';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
@@ -14,10 +14,9 @@ export class CreateGameTemplateDto {
   @IsOptional()
   description?: string;
 
-  @Field()
-  @IsString()
-  @IsNotEmpty()
-  type: string;
+  @Field(() => GameType)
+  @IsEnum(GameType)
+  type: GameType;
 
   @Field({ nullable: true })
   @IsString()
