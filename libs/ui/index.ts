@@ -1,6 +1,13 @@
 // Export all shared shadcn/ui components from here
-export { Button } from './components/button';
-export { Card, CardHeader, CardContent, CardTitle, CardFooter } from './components/card';
-export * from './components/layout';
-export * from './components/sidebar';
-export * from './components/theme-provider';
+export * from './components/button';
+export * from './components/card';
+export * from './components/input';
+export * from './components/textarea';
+export * from './components/switch';
+export * from './components/alert';
+export * from './components/avatar';
+export * from './components/badge';
+export * from './components/progress';
+export * from './components/skeleton';
+export * from './components/tooltip';
+export * from './Layout';
