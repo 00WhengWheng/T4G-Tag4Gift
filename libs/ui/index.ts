@@ -10,4 +10,6 @@ export * from './components/badge';
 export * from './components/progress';
 export * from './components/skeleton';
 export * from './components/tooltip';
-export * from './Layout';
+
+// Export the shared shadcn/ui layout
+export * from './components/layout';

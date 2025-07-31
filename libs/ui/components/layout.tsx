@@ -1,6 +1,6 @@
 import React from "react";
-import { Sidebar } from "./components/ui/sidebar";
-import { ThemeProvider } from "./components/ui/theme-provider";
+import { Sidebar } from "./sidebar";
+import { ThemeProvider } from "./theme-provider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
