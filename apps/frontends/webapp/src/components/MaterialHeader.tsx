@@ -113,7 +113,7 @@ export const MaterialHeader: React.FC = () => {
               },
             }}
           >
-            <QrCodeScanner sx={{ fontSize: '1.5rem', fontWeight: 'bold' }} />
+            <QrCodeScanner sx={{ fontSize: '2rem', fontWeight: 900, color: '#d946ef' }} />
           </MotionIconButton>
 
           <MotionIconButton
@@ -135,7 +135,7 @@ export const MaterialHeader: React.FC = () => {
               },
             }}
           >
-            <Share sx={{ fontSize: '1.5rem', fontWeight: 'bold' }} />
+            <Share sx={{ fontSize: '2rem', fontWeight: 900, color: '#06b6d4' }} />
           </MotionIconButton>
 
           <MotionIconButton
@@ -157,7 +157,7 @@ export const MaterialHeader: React.FC = () => {
               },
             }}
           >
-            <Games sx={{ fontSize: '1.5rem', fontWeight: 'bold' }} />
+            <Games sx={{ fontSize: '2rem', fontWeight: 900, color: '#10b981' }} />
           </MotionIconButton>
         </Box>
 

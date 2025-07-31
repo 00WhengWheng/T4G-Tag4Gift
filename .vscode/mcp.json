@@ -3,6 +3,11 @@
     "nx-mcp": {
       "type": "http",
       "url": "http://localhost:9744/mcp"
+    },
+    "mui-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@mui/mcp@latest"]
     }
   }
 }
