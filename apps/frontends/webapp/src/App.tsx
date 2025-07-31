@@ -1,5 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { muiTheme } from './theme/muiTheme';
 import { Layout } from './components/Layout';
 import Home from './pages/HomePage';
 import Scan from './pages/Scan';
@@ -16,21 +19,24 @@ import Onboarding from './pages/Onboarding';
 
 export default function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/scan" element={<Scan />} />
-        <Route path="/share" element={<Share />} />
-        <Route path="/map" element={<MapModal />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/challenges" element={<Challenges />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/games" element={<Games />} />
-        <Route path="/venue/:id" element={<VenueHome />} />
-        <Route path="/claim/:id" element={<Claim />} />
-        <Route path="/info" element={<Info />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-      </Routes>
-    </Layout>
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/scan" element={<Scan />} />
+          <Route path="/share" element={<Share />} />
+          <Route path="/map" element={<MapModal />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/challenges" element={<Challenges />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/venue/:id" element={<VenueHome />} />
+          <Route path="/claim/:id" element={<Claim />} />
+          <Route path="/info" element={<Info />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+        </Routes>
+      </Layout>
+    </ThemeProvider>
   );
 }

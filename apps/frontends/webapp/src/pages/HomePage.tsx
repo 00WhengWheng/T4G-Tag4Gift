@@ -1,221 +1,540 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Gamepad2, Trophy, Map, Gift } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader } from '@t4g/ui';
-import { Layout } from '../components/Layout';
-import Navbar from '../components/Navbar';
-import logo from '../assets/logo.svg';
-import { motion } from 'framer-motion';
+import { PageTransition } from '../components/PageTransition';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent,
+  useTheme,
+  Avatar,
+  Chip,
+  Button,
+  IconButton,
+} from '@mui/material';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { 
+  QrCodeScanner, 
+  Gamepad, 
+  LocalOffer, 
+  Groups, 
+  Business, 
+  SportsEsports, 
+  Share,
+  Place,
+  EmojiEvents,
+  PlayArrow,
+  MusicNote,
+  DirectionsRun,
+  Security,
+  Adjust,
+  Timer,
+  Star,
+  People,
+  TrendingUp,
+  LocationOn,
+  PhotoCamera,
+  Restaurant,
+  LocalBar,
+  Hotel
+} from '@mui/icons-material';
 
-const features = [
+const MotionCard = motion(Card);
+const MotionBox = motion(Box);
+
+// Mixed content data for the asymmetrical grid
+const gridItems = [
+  // Games
   {
-	icon: Gamepad2,
-	title: 'Play Games',
-	description: 'Enjoy a variety of fun and challenging games',
-	href: '/games',
-	color: 'from-blue-500 to-purple-500',
+    id: 'game-1',
+    type: 'game',
+    title: 'Flappy Bird',
+    subtitle: 'Classic Arcade',
+    description: 'Navigate through pipes',
+    icon: <SportsEsports />,
+    players: '24.5k',
+    rating: 4.8,
+    color: '#d946ef',
+    gradient: 'linear-gradient(135deg, #d946ef 0%, #a21caf 100%)',
+    size: 'large', // Takes 2 columns on mobile
   },
   {
-	icon: Trophy,
-	title: 'Compete',
-	description: 'Climb the leaderboards and show your skills',
-	href: '/leaderboard',
-	color: 'from-yellow-500 to-orange-500',
+    id: 'venue-1',
+    type: 'venue',
+    title: 'Sunset Café',
+    subtitle: 'Downtown',
+    description: '15 active challenges',
+    icon: <Restaurant />,
+    rating: 4.6,
+    color: '#06b6d4',
+    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+    size: 'medium',
   },
   {
-	icon: Map,
-	title: 'Explore',
-	description: 'Discover new locations and challenges',
-	href: '/map',
-	color: 'from-green-500 to-teal-500',
+    id: 'challenge-1',
+    type: 'challenge',
+    title: 'Photo Hunt',
+    subtitle: 'Weekly Challenge',
+    description: 'Find 5 hidden spots',
+    icon: <PhotoCamera />,
+    progress: 60,
+    reward: '500 pts',
+    color: '#10b981',
+    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    size: 'medium',
   },
   {
-	icon: Gift,
-	title: 'Win Prizes',
-	description: 'Earn amazing gifts and rewards',
-	href: '/info',
-	color: 'from-pink-500 to-red-500',
+    id: 'social-1',
+    type: 'social',
+    title: 'Viral Post',
+    subtitle: 'Top Share',
+    description: 'Amazing sunset view',
+    icon: <Share />,
+    likes: '2.3k',
+    shares: '847',
+    color: '#f59e0b',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    size: 'small',
+  },
+  {
+    id: 'game-2',
+    type: 'game',
+    title: 'Music Rhythm',
+    subtitle: 'Beat Master',
+    description: 'Hit the perfect beats',
+    icon: <MusicNote />,
+    players: '18.2k',
+    rating: 4.6,
+    color: '#8b5cf6',
+    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+    size: 'medium',
+  },
+  {
+    id: 'venue-2',
+    type: 'venue',
+    title: 'Sports Bar',
+    subtitle: 'Stadium District',
+    description: '8 games available',
+    icon: <LocalBar />,
+    rating: 4.4,
+    color: '#ef4444',
+    gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    size: 'small',
+  },
+  {
+    id: 'challenge-2',
+    type: 'challenge',
+    title: 'Speed Run',
+    subtitle: 'Daily Challenge',
+    description: 'Complete in 2 minutes',
+    icon: <Timer />,
+    progress: 80,
+    reward: '1000 pts',
+    color: '#d946ef',
+    gradient: 'linear-gradient(135deg, #d946ef 0%, #a21caf 100%)',
+    size: 'large',
+  },
+  {
+    id: 'social-2',
+    type: 'social',
+    title: 'Team Victory',
+    subtitle: 'Group Achievement',
+    description: 'Epic gaming session',
+    icon: <EmojiEvents />,
+    likes: '5.1k',
+    shares: '1.2k',
+    color: '#06b6d4',
+    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+    size: 'medium',
+  },
+  {
+    id: 'venue-3',
+    type: 'venue',
+    title: 'Hotel Lobby',
+    subtitle: 'City Center',
+    description: '12 exclusive games',
+    icon: <Hotel />,
+    rating: 4.9,
+    color: '#10b981',
+    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    size: 'medium',
+  },
+  {
+    id: 'game-3',
+    type: 'game',
+    title: 'Road Cross',
+    subtitle: 'Action Adventure',
+    description: 'Dodge the traffic',
+    icon: <DirectionsRun />,
+    players: '31.7k',
+    rating: 4.9,
+    color: '#f59e0b',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    size: 'small',
   },
 ];
 
-const games = [
-  {
-	id: '1',
-	name: 'Flappy Bird',
-	description: 'Navigate through pipes in this classic arcade game',
-  },
-  {
-	id: '2',
-	name: 'Music Rhythm',
-	description: 'Hit the beats and create amazing music',
-  },
-  {
-	id: '3',
-	name: 'Road Cross',
-	description: 'Cross the busy road without getting hit',
-  },
-  {
-	id: '4',
-	name: 'Shark Frenzy',
-	description: 'Survive the shark-infested waters',
-  },
-];
+const HomePage = () => {
+  const theme = useTheme();
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
 
-export default function HomePage() {
+  const getCardHeight = (size: string) => {
+    switch (size) {
+      case 'small': return { xs: 160, sm: 180 };
+      case 'medium': return { xs: 200, sm: 220 };
+      case 'large': return { xs: 240, sm: 280 };
+      default: return { xs: 200, sm: 220 };
+    }
+  };
+
+  const getGridSize = (size: string) => {
+    switch (size) {
+      case 'small': return { xs: 6, sm: 4, md: 3 };
+      case 'medium': return { xs: 6, sm: 4, md: 4 };
+      case 'large': return { xs: 12, sm: 8, md: 6 };
+      default: return { xs: 6, sm: 4, md: 4 };
+    }
+  };
+
+  const renderCardContent = (item: any) => {
+    switch (item.type) {
+      case 'game':
+        return (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  background: item.gradient,
+                  '& svg': { fontSize: '1.5rem' }
+                }}
+              >
+                {item.icon}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b', fontSize: '1rem' }}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  {item.subtitle}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography variant="body2" sx={{ color: '#64748b', mb: 2, fontSize: '0.85rem' }}>
+              {item.description}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Chip
+                icon={<People />}
+                label={`${item.players}`}
+                size="small"
+                sx={{ fontSize: '0.7rem', height: 24 }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Star sx={{ fontSize: '0.9rem', color: '#fbbf24' }} />
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+                  {item.rating}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Button
+              variant="contained"
+              fullWidth
+              startIcon={<PlayArrow />}
+              sx={{
+                background: item.gradient,
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                py: 1,
+              }}
+            >
+              Play
+            </Button>
+          </>
+        );
+        
+      case 'venue':
+        return (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  background: item.gradient,
+                  '& svg': { fontSize: '1.5rem' }
+                }}
+              >
+                {item.icon}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b', fontSize: '1rem' }}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  {item.subtitle}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography variant="body2" sx={{ color: '#64748b', mb: 2, fontSize: '0.85rem' }}>
+              {item.description}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Star sx={{ fontSize: '0.9rem', color: '#fbbf24' }} />
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+                  {item.rating}
+                </Typography>
+              </Box>
+              <IconButton
+                sx={{
+                  background: item.gradient,
+                  color: '#ffffff',
+                  width: 36,
+                  height: 36,
+                  '&:hover': { background: item.gradient, opacity: 0.9 }
+                }}
+              >
+                <LocationOn sx={{ fontSize: '1.2rem' }} />
+              </IconButton>
+            </Box>
+          </>
+        );
+        
+      case 'challenge':
+        return (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  background: item.gradient,
+                  '& svg': { fontSize: '1.5rem' }
+                }}
+              >
+                {item.icon}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b', fontSize: '1rem' }}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  {item.subtitle}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography variant="body2" sx={{ color: '#64748b', mb: 2, fontSize: '0.85rem' }}>
+              {item.description}
+            </Typography>
+            
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+                  Progress
+                </Typography>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 600, color: item.color }}>
+                  {item.progress}%
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  width: '100%',
+                  height: 6,
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                }}
+              >
+                <Box
+                  sx={{
+                    width: `${item.progress}%`,
+                    height: '100%',
+                    background: item.gradient,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </Box>
+            </Box>
+            
+            <Chip
+              label={item.reward}
+              size="small"
+              sx={{
+                background: item.gradient,
+                color: '#ffffff',
+                fontWeight: 600,
+                fontSize: '0.7rem',
+              }}
+            />
+          </>
+        );
+        
+      case 'social':
+        return (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  background: item.gradient,
+                  '& svg': { fontSize: '1.5rem' }
+                }}
+              >
+                {item.icon}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b', fontSize: '1rem' }}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  {item.subtitle}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography variant="body2" sx={{ color: '#64748b', mb: 2, fontSize: '0.85rem' }}>
+              {item.description}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 600, color: item.color }}>
+                    ❤️ {item.likes}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 600, color: item.color }}>
+                    🔄 {item.shares}
+                  </Typography>
+                </Box>
+              </Box>
+              <IconButton
+                sx={{
+                  background: item.gradient,
+                  color: '#ffffff',
+                  width: 36,
+                  height: 36,
+                  '&:hover': { background: item.gradient, opacity: 0.9 }
+                }}
+              >
+                <TrendingUp sx={{ fontSize: '1.2rem' }} />
+              </IconButton>
+            </Box>
+          </>
+        );
+        
+      default:
+        return null;
+    }
+  };
+
   return (
-	<Layout header={<Navbar />}>
-	  {/* Hero Section */}
-	  <section className="text-center py-20 md:py-28">
-		<motion.div
-		  className="max-w-3xl mx-auto"
-		  initial={{ opacity: 0, y: 40 }}
-		  animate={{ opacity: 1, y: 0 }}
-		  transition={{ duration: 0.7, type: 'spring', bounce: 0.22 }}
-		>
-		  <img
-			src={logo}
-			className="logo react mx-auto mb-10 drop-shadow-xl rounded-2xl border-4 border-brand"
-			alt="Tag4Gift logo"
-		  />
-		  <h1 className="text-6xl md:text-8xl font-display font-black bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-8 tracking-tight">
-			Welcome to <span className="inline-block px-2 py-1 rounded-xl bg-brand text-white shadow">Tag4Gift</span>
-		  </h1>
-		  <p className="text-2xl md:text-3xl text-foreground/80 mb-12 leading-relaxed font-sans max-w-2xl mx-auto">
-			Play amazing games, compete with friends, and win incredible Gift prizes in our social gaming platform
-		  </p>
-		  <div className="flex flex-col sm:flex-row gap-6 justify-center">
-			<Link to="/games" className="inline-block">
-			  <Button size="lg" className="rounded-2xl bg-brand text-white font-bold shadow-lg hover:bg-brand-dark transition text-xl px-8 py-4">
-				Start Playing
-			  </Button>
-			</Link>
-			<Link to="/info" className="inline-block">
-			  <Button variant="outline" size="lg" className="rounded-2xl border-brand text-brand font-bold hover:bg-brand-light transition text-xl px-8 py-4">
-				Learn More
-			  </Button>
-			</Link>
-		  </div>
-		</motion.div>
-	  </section>
+    <PageTransition>
+      <Box
+        ref={ref}
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%)',
+          py: { xs: 2, sm: 4 },
+        }}
+      >
+        <Container maxWidth="lg">
+          {/* Header */}
+          <MotionBox
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.8 }}
+            sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 } }}
+          >
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                mb: 2,
+                background: 'linear-gradient(135deg, #d946ef 0%, #06b6d4 50%, #10b981 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                color: 'transparent',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+              }}
+            >
+              Discover & Play
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#64748b',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: { xs: '1rem', sm: '1.1rem' },
+                maxWidth: '600px',
+                mx: 'auto',
+              }}
+            >
+              Games, challenges, venues & social shares in one place
+            </Typography>
+          </MotionBox>
 
-	  {/* Features Grid */}
-	  <section>
-		<h2 className="text-4xl font-display font-black text-center mb-14 text-foreground tracking-tight">
-		  What You Can Do
-		</h2>
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-		  {features.map((feature, i) => (
-			<motion.div
-			  key={feature.title}
-			  initial={{ opacity: 0, y: 40 }}
-			  whileInView={{ opacity: 1, y: 0 }}
-			  viewport={{ once: true, amount: 0.3 }}
-			  transition={{ duration: 0.5 + i * 0.08, type: 'spring', bounce: 0.18 }}
-			>
-			  <Link to={feature.href} className="group block">
-				<Card className="h-full rounded-2xl shadow-lg border border-muted bg-white group-hover:shadow-2xl group-hover:border-brand transition-all">
-				  <CardContent className="p-10 text-center flex flex-col items-center gap-5">
-					<div
-					  className={`w-20 h-20 mb-3 rounded-full bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform`}
-					>
-					  <feature.icon className="w-10 h-10 text-white" />
-					</div>
-					<h3 className="text-2xl font-bold font-display mb-2 text-foreground group-hover:text-brand transition-colors">
-					  {feature.title}
-					</h3>
-					<p className="text-foreground/70 font-sans text-lg">
-					  {feature.description}
-					</p>
-				  </CardContent>
-				</Card>
-			  </Link>
-			</motion.div>
-		  ))}
-		</div>
-	  </section>
-
-	  {/* Stats Section */}
-	  <section className="bg-gradient-to-r from-primary to-accent rounded-2xl p-12 text-white shadow-2xl">
-		<motion.div
-		  className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center"
-		  initial="hidden"
-		  whileInView="visible"
-		  viewport={{ once: true, amount: 0.3 }}
-		  variants={{
-			hidden: {},
-			visible: { transition: { staggerChildren: 0.15 } },
-		  }}
-		>
-		  {[
-			{ value: '10K+', label: 'Active Players' },
-			{ value: '50+', label: 'Games Available' },
-			{ value: '1M+', label: 'Prizes Won' },
-		  ].map((stat, i) => (
-			<motion.div
-			  key={stat.label}
-			  initial={{ opacity: 0, y: 30 }}
-			  whileInView={{ opacity: 1, y: 0 }}
-			  transition={{ duration: 0.5 + i * 0.1, type: 'spring', bounce: 0.18 }}
-			  className=""
-			>
-			  <div className="text-5xl font-black mb-3 font-display drop-shadow">{stat.value}</div>
-			  <div className="text-white/90 font-sans text-lg">{stat.label}</div>
-			</motion.div>
-		  ))}
-		</motion.div>
-	  </section>
-
-	  {/* Games Showcase */}
-	  <section className="w-full py-16 md:py-24">
-		<div className="mx-auto px-2 max-w-screen-2xl">
-		  <div className="flex flex-wrap items-center justify-between mb-14 gap-6">
-			<h2 className="font-display text-5xl md:text-6xl font-black text-primary tracking-tight">
-			  Featured Games
-			</h2>
-			<Link
-			  to="/games"
-			  className="px-8 py-3 rounded-2xl bg-gradient-to-r from-primary via-secondary to-accent text-white font-display text-2xl shadow-lg hover:from-primary/80 hover:to-accent/80 transition-all duration-200 border-2 border-accent font-bold"
-			>
-			  View All
-			</Link>
-		  </div>
-		  <div className="grid min-w-0 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-			{games.map((game, i) => (
-			  <motion.div
-				key={game.id}
-				initial={{ opacity: 0, scale: 0.95, y: 40 }}
-				whileInView={{ opacity: 1, scale: 1, y: 0 }}
-				viewport={{ once: true, amount: 0.2 }}
-				transition={{ duration: 0.5 + i * 0.07, type: 'spring', bounce: 0.16 }}
-			  >
-				<Card
-				  className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl p-10 flex flex-col items-center hover:scale-[1.04] hover:shadow-accent transition-transform duration-200 border-2 border-primary relative overflow-hidden group"
-				>
-				  <div className="absolute -top-6 -left-6 w-20 h-20 bg-primary rounded-full opacity-30 blur-xl z-0" />
-				  <h3 className="relative z-10 text-2xl font-black mb-4 text-primary drop-shadow font-display tracking-tight group-hover:text-brand transition-colors">
-					{game.name}
-				  </h3>
-				  <p className="relative z-10 text-lg text-foreground/80 mb-8 text-center leading-relaxed font-sans">
-					{game.description}
-				  </p>
-				  <Link
-					to={`/games/${game.id}`}
-					className="relative z-10 mt-auto px-8 py-3 rounded-2xl bg-gradient-to-r from-primary via-secondary to-accent text-white font-display text-lg hover:from-primary/80 hover:to-accent/80 transition-colors shadow border-2 border-accent font-bold group-hover:scale-105"
-				  >
-					Play
-				  </Link>
-				</Card>
-			  </motion.div>
-			))}
-		  </div>
-		</div>
-	  </section>
-
-	  {/* Footer */}
-	  <footer className="w-full py-10 bg-gradient-to-r from-primary via-secondary to-accent text-white text-center font-display text-xl tracking-wide mt-auto rounded-2xl shadow-inner font-bold">
-		&copy; {new Date().getFullYear()} T4G. All rights reserved.
-	  </footer>
-	</Layout>
+          {/* Asymmetrical Grid */}
+          <Grid container spacing={{ xs: 2, sm: 3 }}>
+            {gridItems.map((item, index) => (
+              <Grid item {...getGridSize(item.size)} key={item.id}>
+                <MotionCard
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.9 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  whileHover={{
+                    scale: 1.02,
+                    boxShadow: `0 20px 40px ${item.color}20`,
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  sx={{
+                    height: getCardHeight(item.size),
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    background: '#ffffff',
+                    border: `2px solid ${item.color}15`,
+                    borderRadius: 3,
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: item.gradient,
+                      zIndex: 1,
+                    },
+                  }}
+                >
+                  <CardContent sx={{ p: { xs: 2, sm: 3 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    {renderCardContent(item)}
+                  </CardContent>
+                </MotionCard>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+    </PageTransition>
   );
-}
+};
 
+export default HomePage;
