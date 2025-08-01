@@ -1,19 +1,24 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "outDir": "dist",
+    "module": "esnext",
+    "target": "esnext",
     "jsx": "react-jsx",
     "allowJs": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "types": ["vite/client"],
-    "module": "NodeNext"
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "files": [],
-  "include": [],
+  "include": ["src"],
   "references": [
     {
       "path": "./tsconfig.app.json"
     }
-  ],
-  "extends": "../../../tsconfig.base.json"
+  ]
 }

@@ -1,20 +1,24 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "outDir": "dist",
+    "module": "esnext",
+    "target": "esnext",
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "types": ["vitest"]
-  }
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
 }
