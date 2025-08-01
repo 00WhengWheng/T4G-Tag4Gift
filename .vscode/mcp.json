@@ -4,10 +4,9 @@
       "type": "http",
       "url": "http://localhost:9744/mcp"
     },
-    "mui-mcp": {
-      "type": "stdio",
+    "motion": {
       "command": "npx",
-      "args": ["-y", "@mui/mcp@latest"]
+      "args": ["-y", "motion-ai"]
     }
   }
 }
