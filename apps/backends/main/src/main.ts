@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { Request, Response } from 'express';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,6 +26,11 @@ async function bootstrap() {
     res.redirect('/api/games');
     // Option 2: send a message
     // res.send('Welcome to T4G API! See /api/games for games.');
+  });
+
+  const client = new ApolloClient({
+    uri: 'http://localhost:3333/graphql', // Adjust to your backend GraphQL endpoint
+    cache: new InMemoryCache(),
   });
 
   await app.listen(port);
