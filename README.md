@@ -26,13 +26,13 @@ Businesses can create challenges, offer rewards, and engage with customers throu
 ### Tech Stack
 
 **Backend:**
-- NestJS + TypeScript + tRPC
+- NestJS + TypeScript + tRPC (End-to-end type safety)
 - PostgreSQL + Prisma ORM
 - Redis for caching
 - Auth0 for authentication
 
 **Frontend:**
-- **Web**: React + shadcn/ui + TanStack + Tailwind CSS
+- **Web**: React + shadcn/ui + TanStack Query + Tailwind CSS
 - **Mobile**: React Native + NativeWind + React Native Elements
 
 **Games & Maps:**
@@ -50,6 +50,7 @@ Businesses can create challenges, offer rewards, and engage with customers throu
 - Development: Supabase + Vercel
 - Production: AWS (ECS, RDS, ElastiCache)
 - IaC: Terraform
+- APIs: tRPC for type-safe client-server communication
 
 ## 📱 Mobile Features
 
@@ -258,12 +259,13 @@ function submitScore(score) {
 
 ## 🛡️ Security
 
-- Input validation with Zod schemas
-- Rate limiting on all endpoints
+- Input validation with Zod schemas (integrated with tRPC)
+- Rate limiting on all tRPC endpoints
 - SQL injection prevention via Prisma
 - XSS protection and content sanitization
 - Secure headers and CORS policies
 - Certificate pinning for mobile apps
+- End-to-end type safety with tRPC eliminates runtime API errors
 
 ## 🔄 Monitoring
 
