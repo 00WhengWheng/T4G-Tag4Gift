@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient, ChallengeStatus, ChallengeType } from '@prisma/client';
+import { PrismaClient, ChallengeStatus, ChallengeType as PrismaChallengeType } from '@prisma/client';
 import { InputType, Field } from '@nestjs/graphql';
-import { GameType } from '../games/enums/game.enum';
+import { ChallengeType } from './enums/challenge-type.enum';
+import { GameType } from '../games/enums/game-type.enum';
 
 @InputType()
 export class CreateChallengeInput {
@@ -26,7 +27,7 @@ export class CreateChallengeInput {
   @Field(() => [String])
   participantIds: string[];
 
-  @Field()
+  @Field(() => ChallengeType)
   type: ChallengeType;
 
   @Field()
@@ -60,7 +61,7 @@ export class ChallengeService {
         endDate: dto.endDate,
         status: ChallengeStatus.SCHEDULED,
         tenant: { connect: { id: dto.tenantId } },
-        type: dto.type,
+        type: dto.type as unknown as PrismaChallengeType,
         createdById: dto.createdById,
         participants: {
           create: dto.participantIds.map(userId => ({ userId })),
@@ -201,6 +202,7 @@ export class ChallengeService {
     }
     return {
       id: challenge.id,
+      type: (challenge as any).type as ChallengeType, // ensure type is present
       game,
       participants,
       results: results.map(r => ({ userId: r.userId, timeMs: r.timeSpent })),

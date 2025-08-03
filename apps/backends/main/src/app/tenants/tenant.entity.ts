@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { TenantType, TenantStatus } from '@prisma/client';
+import { TenantStatus } from './enums/tenant-status.enum';
+import { TenantType } from './enums/tenant-type.enum';
 
 @ObjectType()
 export class Tenant {

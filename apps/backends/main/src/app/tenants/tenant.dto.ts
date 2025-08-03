@@ -1,6 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsString, IsOptional, IsEnum, IsEmail, IsNumber } from 'class-validator';
-import { TenantType, TenantStatus } from '@prisma/client';
+import { TenantStatus } from './enums/tenant-status.enum';
+import { TenantType } from './enums/tenant-type.enum';
 
 @InputType()
 export class CreateTenantDto {

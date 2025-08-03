@@ -8,8 +8,8 @@ import App from './App';
 const client = new ApolloClient({
   uri:
     process.env.NODE_ENV === 'development'
-      ? 'http://localhost:4000/graphql'
-      : 'http://main-backend:4000/graphql',
+      ? 'http://localhost:3333/graphql'
+      : 'http://main-backend:3333/graphql',
   cache: new InMemoryCache(),
 });
 

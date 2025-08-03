@@ -13,7 +13,7 @@ importers:
     dependencies:
       '@apollo/client':
         specifier: ^3.13.8
-        version: 3.13.9(@types/react@19.1.9)(graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@6.0.5)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(subscriptions-transport-ws@0.11.0(bufferutil@4.0.9)(graphql@16.11.0)(utf-8-validate@6.0.5))
+        version: 3.13.9(@types/react@19.1.9)(graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(subscriptions-transport-ws@0.11.0(bufferutil@4.0.9)(graphql@16.11.0)(utf-8-validate@6.0.5))
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.1.9)(react@19.0.0)
@@ -9838,7 +9838,7 @@ snapshots:
     dependencies:
       graphql: 16.11.0
 
-  '@apollo/client@3.13.9(@types/react@19.1.9)(graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@6.0.5)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(subscriptions-transport-ws@0.11.0(bufferutil@4.0.9)(graphql@16.11.0)(utf-8-validate@6.0.5))':
+  '@apollo/client@3.13.9(@types/react@19.1.9)(graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(subscriptions-transport-ws@0.11.0(bufferutil@4.0.9)(graphql@16.11.0)(utf-8-validate@6.0.5))':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
       '@wry/caches': 1.0.1
@@ -9855,7 +9855,7 @@ snapshots:
       tslib: 2.8.1
       zen-observable-ts: 1.2.5
     optionalDependencies:
-      graphql-ws: 6.0.4(graphql@16.11.0)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@6.0.5))
+      graphql-ws: 6.0.4(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       subscriptions-transport-ws: 0.11.0(bufferutil@4.0.9)(graphql@16.11.0)(utf-8-validate@6.0.5)
@@ -16154,6 +16154,13 @@ snapshots:
     dependencies:
       graphql: 16.11.0
       tslib: 2.8.1
+
+  graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)):
+    dependencies:
+      graphql: 16.11.0
+    optionalDependencies:
+      ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)
+    optional: true
 
   graphql-ws@6.0.4(graphql@16.11.0)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@6.0.5)):
     dependencies:
