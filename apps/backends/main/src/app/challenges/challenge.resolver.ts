@@ -12,24 +12,20 @@ export class ChallengeController {
 
   @Post(':challengeId/join')
   async joinChallenge(@Param('challengeId') challengeId: string, @Body('userId') userId: string) {
-  async joinChallenge(
-    @Args('challengeId') challengeId: string,
-    @Args('userId') userId: string
-  ): Promise<Challenge> {
     return await this.challengeService.joinChallenge(challengeId, userId);
   }
 
-  @Mutation(() => Challenge)
+  @Post(':challengeId/submit')
   async submitResult(
-    @Args('challengeId') challengeId: string,
-    @Args('userId') userId: string,
-    @Args('timeMs') timeMs: number
-  ): Promise<Challenge> {
+    @Param('challengeId') challengeId: string,
+    @Body('userId') userId: string,
+    @Body('timeMs') timeMs: number
+  ) {
     return await this.challengeService.submitResult(challengeId, userId, timeMs);
   }
 
-  @Query(() => Challenge)
-  async getChallenge(@Args('challengeId') challengeId: string): Promise<Challenge> {
+  @Get(':challengeId')
+  async getChallenge(@Param('challengeId') challengeId: string) {
     return await this.challengeService.getChallenge(challengeId);
   }
 }

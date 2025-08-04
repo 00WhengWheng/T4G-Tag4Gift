@@ -1,5 +1,6 @@
 import { Controller, All, Req, Res } from '@nestjs/common';
 import { TrpcService } from './trpc.service';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
 /**
  * Business tRPC Controller
@@ -7,11 +8,27 @@ import { TrpcService } from './trpc.service';
  */
 @Controller('trpc')
 export class TrpcController {
-  constructor(private trpcService: TrpcService) {}
+  private trpcMiddleware: any;
+
+  constructor(private trpcService: TrpcService) {
+    // Create tRPC express middleware
+    this.trpcMiddleware = createExpressMiddleware({
+      router: this.trpcService.getAppRouter(),
+      createContext: ({ req, res }) => ({
+        req,
+        res,
+        // Add business authentication context here
+        business: req.business || null,
+        user: req.user || null,
+      }),
+      onError: ({ error, path, input }) => {
+        console.error(`Business tRPC Error on ${path}:`, error);
+      },
+    });
+  }
 
   @All('*')
   async handleTrpc(@Req() req: any, @Res() res: any) {
-    // TODO: Implement business tRPC handler
-    res.json({ message: 'Business tRPC endpoint' });
+    return this.trpcMiddleware(req, res);
   }
 }

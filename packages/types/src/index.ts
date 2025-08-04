@@ -1,5 +1,30 @@
 // Re-export AppRouter type from main backend for frontend consumption
-export type { AppRouter } from '../../apps/backends/main/src/app/trpc/app.router';
+export type { TAppRouter as AppRouter } from '../../../apps/backends/main/src/app/trpc/app.router';
+
+// User profile interface matching Prisma schema
+export interface UserProfile {
+  id: string;
+  auth0_id: string;
+  email: string;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
+  display_name?: string;
+  date_of_birth?: Date;
+  profile_picture_url?: string;
+  scan_coins: number;
+  share_coins: number;
+  game_coins: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Achievement data interface
+export interface UserAchievements {
+  challengeWins: number;
+  tournamentWins: number;
+  venuesTagged: number;
+}
 
 // Common types used across the platform
 export interface User {

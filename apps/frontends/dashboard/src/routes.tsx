@@ -1,4 +1,3 @@
-import { RouteObject } from 'react-router-dom';
 import { DashboardHome } from './components/DashboardHome';
 import { GiftsChallenges } from './components/GiftsChallenges';
 import { StatsMonitoring } from './components/StatsMonitoring';

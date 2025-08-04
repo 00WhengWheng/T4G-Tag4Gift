@@ -1,68 +1,33 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
-import { GamesService } from '../games/games.service';
+import { Controller, All, Req, Res } from '@nestjs/common';
+import { TrpcService } from './trpc.service';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
+/**
+ * Main tRPC Controller
+ * Handles tRPC requests for user operations
+ */
 @Controller('trpc')
 export class TrpcController {
-  constructor(private readonly gamesService: GamesService) {}
+  private trpcMiddleware: any;
 
-  // Games endpoints following tRPC naming convention
-  @Get('games.getAll')
-  async getGames() {
-    try {
-      const result = await this.gamesService.getGameTemplates();
-      return { result: { data: result } };
-    } catch (error) {
-      return { 
-        error: { 
-          message: 'Failed to fetch games',
-          code: 'INTERNAL_SERVER_ERROR'
-        } 
-      };
-    }
+  constructor(private trpcService: TrpcService) {
+    // Create tRPC express middleware
+    this.trpcMiddleware = createExpressMiddleware({
+      router: this.trpcService.getAppRouter(),
+      createContext: ({ req, res }) => ({
+        req,
+        res,
+        // Add authentication context here
+        user: req.user || null,
+      }),
+      onError: ({ error, path, input }) => {
+        console.error(`tRPC Error on ${path}:`, error);
+      },
+    });
   }
 
-  @Get('games.getCategories')
-  async getGameCategories() {
-    try {
-      const result = await this.gamesService.getCategories();
-      return { result: { data: result } };
-    } catch (error) {
-      return { 
-        error: { 
-          message: 'Failed to fetch game categories',
-          code: 'INTERNAL_SERVER_ERROR'
-        } 
-      };
-    }
-  }
-
-  @Post('games.getByType')
-  async getGamesByType(@Body() input: { type: string }) {
-    try {
-      const result = await this.gamesService.getGameTemplates(undefined, input.type as any);
-      return { result: { data: result } };
-    } catch (error) {
-      return { 
-        error: { 
-          message: 'Failed to fetch games by type',
-          code: 'INTERNAL_SERVER_ERROR'
-        } 
-      };
-    }
-  }
-
-  @Get('games.getByType')
-  async getGamesByTypeQuery(@Query('type') type: string) {
-    try {
-      const result = await this.gamesService.getGameTemplates(undefined, type as any);
-      return { result: { data: result } };
-    } catch (error) {
-      return { 
-        error: { 
-          message: 'Failed to fetch games by type',
-          code: 'INTERNAL_SERVER_ERROR'
-        } 
-      };
-    }
+  @All('*')
+  async handleTrpc(@Req() req: any, @Res() res: any) {
+    return this.trpcMiddleware(req, res);
   }
 }
