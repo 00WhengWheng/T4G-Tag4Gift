@@ -4,7 +4,6 @@ import { VitePWA } from "vite-plugin-pwa";
 import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 
 import { resolve } from 'path';
 
@@ -25,17 +24,9 @@ export default defineConfig(() => ({
     },
   },
   plugins: [
-    TanStackRouterVite({
-      routesDirectory: './src/routes',
-      generatedRouteTree: './src/routeTree.gen.ts',
-    }),
-    react(), 
-    nxViteTsPaths(), 
+    react(),
+    nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
-    VitePWA({
-      registerType: "autoUpdate",
-      manifest: { name: "Tag4Gift", short_name: "T4G", theme_color: "#f59e0b" },
-    })
   ],
   // Uncomment this if you are using workers.
   // worker: {

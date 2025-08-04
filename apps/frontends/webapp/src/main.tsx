@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 import { trpc, trpcClient } from './utils/trpc';
-import { AppState } from '@auth0/auth0-react';
+import { AppState } from '@t4g/auth-users';
 
 const queryClient = new QueryClient();
 
