@@ -1,43 +1,31 @@
-import { Auth0Provider, AppState } from '@auth0/auth0-react';
-import React, { PropsWithChildren } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { ReactNode } from 'react';
 
-interface T4GAuthProviderProps {
-  onRedirectCallback: (appState?: AppState) => void;
+interface AuthBusinessProviderProps {
+  children: ReactNode;
+  onRedirectCallback?: (appState?: any) => void;
 }
 
-export const AuthBusinessProvider = ({ children, onRedirectCallback }: PropsWithChildren<T4GAuthProviderProps>) => {
-  const navigate = useNavigate();
-
-  const handleRedirectCallback = (appState: AppState) => {
-    navigate(appState?.returnTo || window.location.pathname);
-  };
-
-  const domain = import.meta.env.VITE_AUTH0_BUSINESS_DOMAIN;
-  const clientId = import.meta.env.VITE_AUTH0_BUSINESS_CLIENT_ID;
-  const audience = import.meta.env.VITE_AUTH0_BUSINESS_AUDIENCE;
-  const redirectUri = window.location.origin;
-
-  if (!domain || !clientId || !audience) {
-    return (
-      <div>
-        <h1>Auth0 Configuration Error</h1>
-        <p>Please make sure VITE_AUTH0_BUSINESS_DOMAIN, VITE_AUTH0_BUSINESS_CLIENT_ID, and VITE_AUTH0_BUSINESS_AUDIENCE are set in your environment.</p>
-      </div>
-    );
-  }
+export function AuthBusinessProvider({ 
+  children, 
+  onRedirectCallback 
+}: AuthBusinessProviderProps) {
+  // Use environment variables or fallback values
+  const domain = process.env['AUTH0_BUSINESS_DOMAIN'] || 'your-tenant.auth0.com';
+  const clientId = process.env['AUTH0_BUSINESS_CLIENT_ID'] || 'your-client-id';
+  const audience = process.env['AUTH0_BUSINESS_AUDIENCE'] || 'https://api.t4g.space';
 
   return (
     <Auth0Provider
       domain={domain}
       clientId={clientId}
       authorizationParams={{
-        redirect_uri: redirectUri,
+        redirect_uri: typeof window !== 'undefined' ? window.location.origin : undefined,
         audience: audience,
       }}
-      onRedirectCallback={onRedirectCallback || handleRedirectCallback}
+      onRedirectCallback={onRedirectCallback}
     >
       {children}
     </Auth0Provider>
   );
-};
+}

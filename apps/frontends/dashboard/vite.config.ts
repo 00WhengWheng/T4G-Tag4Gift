@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
@@ -15,6 +16,7 @@ export default defineConfig(() => ({
     host: 'localhost',
   },
   plugins: [
+    react(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
   ],
@@ -29,6 +31,9 @@ export default defineConfig(() => ({
     commonjsOptions: {
       transformMixedEsModules: true,
     },
+  },
+  optimizeDeps: {
+    include: ['@t4g/auth-business', '@t4g/ui-web', '@t4g/types'],
   },
   test: {
     watch: false,

@@ -5,11 +5,33 @@ import '../styles.css';
 import { AuthBusinessProvider } from '@t4g/auth-business';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
-import { routeTree } from './routeTree.gen';
+import { Route as rootRoute } from './routes/__root';
+import { Route as dashboardRoute } from './routes/dashboard';
+import { Route as indexRoute } from './routes/index';
+import { Route as giftsRoute } from './routes/gifts';
+import { Route as challengesRoute } from './routes/challenges';
+import { Route as analyticsRoute } from './routes/analytics';
+import { Route as mapRoute } from './routes/map';
+import { Route as usersRoute } from './routes/users';
+import { Route as profileRoute } from './routes/profile';
+import { Route as loginRoute } from './routes/login';
 import { trpc, trpcClient } from './utils/trpc';
 import { AppState } from '@auth0/auth0-react';
 
 const queryClient = new QueryClient();
+
+// Create the route tree
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  dashboardRoute,
+  giftsRoute,
+  challengesRoute,
+  analyticsRoute,
+  mapRoute,
+  usersRoute,
+  profileRoute,
+  loginRoute,
+]);
 
 export const router = createRouter({
   routeTree,
@@ -40,7 +62,7 @@ if (!rootElement.innerHTML) {
       <AuthBusinessProvider onRedirectCallback={onRedirectCallback}>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
+            <App />
           </QueryClientProvider>
         </trpc.Provider>
       </AuthBusinessProvider>

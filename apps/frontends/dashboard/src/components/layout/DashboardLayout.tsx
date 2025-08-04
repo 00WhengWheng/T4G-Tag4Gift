@@ -14,7 +14,7 @@ import {
   Users,
   Bell
 } from 'lucide-react';
-import { cn } from '@t4g/ui-web/lib/utils';
+import { cn } from '@t4g/ui-web';
 import { Button } from '@t4g/ui-web';
 import { Avatar, AvatarFallback, AvatarImage } from '@t4g/ui-web';
 
