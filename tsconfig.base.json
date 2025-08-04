@@ -10,22 +10,48 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/frontends/webapp/src/*"],
-      "@t4g/ui": ["libs/ui/index.ts"],
-      "@t4g/database": ["packages/database/src/index.ts"],
-      "@t4g/shared": ["packages/shared/src/index.ts"],
-      "@t4g/types": ["packages/types/src/index.ts"],
-      "@t4g/ui-web": ["packages/ui-web/src/index.ts"],
-      "@t4g/auth-users": ["packages/auth-users/src/index.ts"],
-      "@t4g/auth-business": ["packages/auth-business/src/index.ts"],
-      "@t4g/auth-admin": ["packages/auth-admin/src/index.ts"],
-      "@t4g/auth-portal": ["packages/auth-portal/src/index.ts"]
+      "@/*": [
+        "apps/frontends/webapp/src/*"
+      ],
+      "@t4g/auth-admin": [
+        "packages/auth-admin/src/index.ts"
+      ],
+      "@t4g/auth-business": [
+        "packages/auth-business/src/index.ts"
+      ],
+      "@t4g/auth-portal": [
+        "packages/auth-portal/src/index.ts"
+      ],
+      "@t4g/auth-users": [
+        "packages/auth-users/src/index.ts"
+      ],
+      "@t4g/database": [
+        "packages/database/src/index.ts"
+      ],
+      "@t4g/shared": [
+        "packages/shared/src/index.ts"
+      ],
+      "@t4g/types": [
+        "packages/types/src/index.ts"
+      ],
+      "@t4g/ui": [
+        "libs/ui/index.ts"
+      ],
+      "@t4g/ui-web": [
+        "packages/ui-web/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

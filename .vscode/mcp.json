@@ -10,7 +10,7 @@
       "command": "npx",
       "args": [
         "@modelcontextprotocol/server-filesystem",
-        "/home/fdm/Tag4Gift"
+        "/home/fdm/T4G-Tag4Gift"
       ]
     },
     "nx": {

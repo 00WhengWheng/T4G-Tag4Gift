@@ -13,8 +13,7 @@
         "tsConfig": "packages/ui-web/tsconfig.lib.json",
         "project": "packages/ui-web/package.json",
         "entryFile": "packages/ui-web/src/index.ts",
-        "external": ["react/jsx-runtime"],
-        "rollupConfig": "@nx/react/plugins/bundle-rollup"
+        "external": ["react/jsx-runtime"]
       }
     },
     "lint": {
