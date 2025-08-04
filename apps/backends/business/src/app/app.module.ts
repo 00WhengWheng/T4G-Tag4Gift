@@ -9,7 +9,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { GiftModule } from './gift/gift.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { TrpcModule } from './trpc/trpc.module';
-import { PrismaModule } from '@t4g/prisma';
+import { PrismaModule } from '@t4g/database';
 
 /**
  * Business Application Module for T4G Business Platform

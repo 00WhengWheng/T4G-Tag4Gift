@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { prisma } from '../../../../../../../libs/prisma/src/prisma.service';
+import { PrismaService } from '@t4g/database';
 import { GameType } from '../enums/game-type.enum';
 
 @Injectable()
 export class GDevelopGamesService {
+  constructor(private readonly prisma: PrismaService) {}
+
   /**
    * Get all GDevelop game templates
    * @param category Optional category filter
@@ -12,7 +14,7 @@ export class GDevelopGamesService {
   async getGDevelopGameTemplates(category?: string) {
     const gameTypes = [GameType.PUZZLE, GameType.REACTION, GameType.MUSIC];
     
-    return prisma.gameTemplate.findMany({
+    return this.prisma.gameTemplate.findMany({
       where: {
         isActive: true,
         type: { in: gameTypes },
@@ -36,7 +38,7 @@ export class GDevelopGamesService {
     structure?: any;
   }) {
     const { name, type, category, description, difficulty, gdevelopProjectUrl, structure } = params;
-    return prisma.gameTemplate.create({
+    return this.prisma.gameTemplate.create({
       data: {
         name,
         description,
@@ -56,7 +58,7 @@ export class GDevelopGamesService {
    * @returns Game template
    */
   async getGDevelopGameById(id: string) {
-    return prisma.gameTemplate.findUnique({
+    return this.prisma.gameTemplate.findUnique({
       where: { id },
     });
   }
@@ -74,7 +76,7 @@ export class GDevelopGamesService {
     gdevelopProjectUrl?: string;
     structure?: any;
   }) {
-    return prisma.gameTemplate.update({
+    return this.prisma.gameTemplate.update({
       where: { id },
       data,
     });
@@ -94,7 +96,7 @@ export class GDevelopGamesService {
   }) {
     const { userId, gameId, score, timeSpent, completedAt } = params;
     
-    return prisma.standaloneGameSession.create({
+    return this.prisma.standaloneGameSession.create({
       data: {
         userId,
         sessionId: `${userId}-${gameId}-${Date.now()}`,
@@ -114,7 +116,7 @@ export class GDevelopGamesService {
    * @returns Game type
    */
   private async getGameTypeById(gameId: string): Promise<GameType> {
-    const game = await prisma.gameTemplate.findUnique({
+    const game = await this.prisma.gameTemplate.findUnique({
       where: { id: gameId },
       select: { type: true },
     });

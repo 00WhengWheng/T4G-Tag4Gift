@@ -1,5 +1,3 @@
-import { registerEnumType } from '@nestjs/graphql';
-
 export enum GameType {
   QUIZ = 'QUIZ',
   PUZZLE = 'PUZZLE',
@@ -13,13 +11,3 @@ export enum GameStatus {
   SCHEDULED = 'SCHEDULED',
   COMPLETED = 'COMPLETED'
 }
-
-registerEnumType(GameType, {
-  name: 'GameType',
-  description: 'The type of game',
-});
-
-registerEnumType(GameStatus, {
-  name: 'GameStatus',
-  description: 'The status of a game',
-});

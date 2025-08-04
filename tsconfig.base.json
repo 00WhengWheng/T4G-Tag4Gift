@@ -17,7 +17,9 @@
     "paths": {
       "@/*": ["apps/frontends/webapp/src/*"],
       "@t4g/ui": ["libs/ui/index.ts"],
-      "@t4g/prisma": ["libs/prisma/src/index.ts"]
+      "@t4g/database": ["packages/database/src/index.ts"],
+      "@t4g/shared": ["packages/shared/src/index.ts"],
+      "@t4g/types": ["packages/types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

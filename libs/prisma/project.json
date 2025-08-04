@@ -1,8 +1,0 @@
-{
-  "name": "prisma",
-  "root": "libs/prisma",
-  "sourceRoot": "libs/prisma/src",
-  "projectType": "library",
-  "targets": {},
-  "tags": []
-}

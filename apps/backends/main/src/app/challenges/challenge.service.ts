@@ -1,48 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, ChallengeStatus, ChallengeType as PrismaChallengeType } from '@prisma/client';
-import { InputType, Field } from '@nestjs/graphql';
 import { ChallengeType } from './enums/challenge-type.enum';
 import { GameType } from '../games/enums/game-type.enum';
 
-@InputType()
 export class CreateChallengeInput {
-  @Field()
   name: string;
-
-  @Field({ nullable: true })
   description?: string;
-
-  @Field()
   giftId: string;
-
-  @Field()
   tenantId: string;
-
-  @Field()
   startDate: string;
 
-  @Field()
   endDate: string;
-
-  @Field(() => [String])
   participantIds: string[];
-
-  @Field(() => ChallengeType)
   type: ChallengeType;
-
-  @Field()
   createdById: string;
 }
 
-@InputType()
 export class SubmitResultInput {
-  @Field()
   challengeId: string;
-
-  @Field()
   userId: string;
-
-  @Field()
   timeMs: number;
 }
 

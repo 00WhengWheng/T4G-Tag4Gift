@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { GameTemplate } from './entities/game-template.entity';
-// Removed reference to deleted game.enum
 import { CreateGameTemplateDto } from './dto/create-game-template.dto';
 import { GameType } from './enums/game-type.enum';
 
@@ -29,15 +28,15 @@ export class GamesController {
       gdevelopProjectUrl: body.gdevelopProjectUrl ?? undefined,
     });
 
-    // Map Prisma enum to GraphQL enum
+    // Map Prisma enum to controller enum
     const { $Enums } = require('@prisma/client');
     const prismaType = template.type;
     // If type is a string, cast to your GameType enum
-    const graphQLType = (prismaType as string) as import('./enums/game-type.enum').GameType;
+    const controllerType = (prismaType as string) as import('./enums/game-type.enum').GameType;
 
     return {
       ...template,
-      type: graphQLType,
+      type: controllerType,
       description: template.description ?? undefined,
       category: template.category ?? undefined,
       difficulty: template.difficulty ?? undefined,

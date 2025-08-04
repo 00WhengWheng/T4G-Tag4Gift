@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { prisma } from '../../../../../../libs/prisma/src/prisma.service';
+import { PrismaService } from '@t4g/database';
 import { InputJsonValue } from '@prisma/client/runtime/library';
 import { GameType } from './enums/game-type.enum';
 
 @Injectable()
 export class GamesService {
-  // Use the imported prisma instance
+  constructor(private readonly prisma: PrismaService) {}
 
   async createGameTemplate(params: {
     name: string;
@@ -16,7 +16,7 @@ export class GamesService {
     description?: string;
     gdevelopProjectUrl?: string;
   }) {
-    return prisma.gameTemplate.create({
+    return this.prisma.gameTemplate.create({
       data: {
         name: params.name,
         type: params.type,
@@ -32,7 +32,7 @@ export class GamesService {
 
   async getCategories(): Promise<string[]> {
     // Fetch distinct categories from GameTemplate
-    const categories = await prisma.gameTemplate.findMany({
+    const categories = await this.prisma.gameTemplate.findMany({
       where: { isActive: true },
       select: { category: true },
       distinct: ['category'],
@@ -44,7 +44,7 @@ export class GamesService {
 
   async getGameTypes(): Promise<string[]> {
     // Fetch distinct types from GameTemplate
-    const types = await prisma.gameTemplate.findMany({
+    const types = await this.prisma.gameTemplate.findMany({
       where: { isActive: true },
       select: { type: true },
       distinct: ['type'],
@@ -54,7 +54,7 @@ export class GamesService {
 
   async getGameTemplates(category?: string, type?: GameType) {
     // Fetch game templates filtered by category/type
-    const templates = await prisma.gameTemplate.findMany({
+    const templates = await this.prisma.gameTemplate.findMany({
       where: {
         isActive: true,
         ...(category ? { category } : {}),
@@ -102,7 +102,7 @@ export class GamesService {
 
   async getGameData(gameId: string) {
     // Fetch game data for a specific game
-    return prisma.gameData.findMany({
+    return this.prisma.gameData.findMany({
       where: { gameId },
     });
   }

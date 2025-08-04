@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { GamesRouter } from './routers/games.router';
+// import { GamesRouter } from './routers/games.router';
 
 @Injectable()
 export class AppRouter {
-  constructor(private readonly gamesRouter: GamesRouter) {}
+  constructor(/* private readonly gamesRouter: GamesRouter */) {}
 
   getAppRouter() {
     return {
-      games: this.gamesRouter.getRoutes(),
+      // games: this.gamesRouter.getRoutes(),
     };
   }
 }

@@ -1,91 +1,43 @@
-import { ObjectType, Field } from '@nestjs/graphql';
 import { GameType } from './enums/game-type.enum';
 import { ChallengeType } from '../challenges/enums/challenge-type.enum';
 
-@ObjectType()
 export class GameCategory {
-  @Field()
   name: string;
 }
 
-@ObjectType()
 export class GameTypeInfo {
-  @Field()
   name: string;
-
-  @Field(() => [String])
   games: string[];
 }
 
-
-// ...existing code...
-
-
-@ObjectType()
 export class Game {
-  @Field()
   id: string;
-
-  @Field(() => GameType)
   type: GameType;
-
-  @Field({ nullable: true })
   status?: string;
-
-  @Field({ nullable: true })
   category?: string;
-
-  @Field({ nullable: true })
   name?: string;
-
-  @Field({ nullable: true })
   description?: string;
-
-  @Field({ nullable: true })
   gdevelopProjectUrl?: string;
 }
 
-@ObjectType()
 export class Gift {
-  @Field()
   id: string;
-
-  @Field()
   name: string;
-
-  @Field({ nullable: true })
   description?: string;
 }
 
-@ObjectType()
 export class ChallengeResult {
-  @Field()
   userId: string;
-
-  @Field()
   timeMs: number;
 }
 
-@ObjectType()
 export class Challenge {
-  @Field()
   id: string;
-
-  @Field(() => ChallengeType)
   type: ChallengeType;
-  @Field(() => Game, { nullable: true })
   game: Game | null;
-
-  @Field(() => [String])
   participants: string[]; // user IDs
-
-  @Field(() => [ChallengeResult])
   results: ChallengeResult[];
-
-  @Field({ nullable: true })
   winnerId?: string;
-
-  @Field(() => Gift)
   gift: Gift;
 }
 
