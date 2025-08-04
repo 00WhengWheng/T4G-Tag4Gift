@@ -3,19 +3,24 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
-  transition: filter 300ms;
+  transition: filter 300ms ease;
 }
+
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em hsl(var(--gaming-purple) / 0.6));
 }
+
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em hsl(var(--gaming-cyan) / 0.6));
 }
 
 @keyframes logo-spin {
@@ -34,18 +39,48 @@
 }
 
 .card {
-  padding: 2em;
-  background: #fff;
+  padding: 2rem;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
   border-radius: 1rem;
-  box-shadow: 0 4px 24px 0 rgba(80, 63, 205, 0.08), 0 1.5px 6px 0 rgba(80, 63, 205, 0.04);
-  border: 1.5px solid #ede9fe;
-  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 4px 24px 0 hsl(var(--gaming-purple) / 0.08), 0 1.5px 6px 0 hsl(var(--gaming-purple) / 0.04);
+  border: 1.5px solid hsl(var(--border));
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
+
 .card:hover {
-  box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.15), 0 3px 12px 0 rgba(168, 85, 247, 0.08);
+  box-shadow: 0 8px 32px 0 hsl(var(--gaming-pink) / 0.15), 0 3px 12px 0 hsl(var(--gaming-purple) / 0.08);
   transform: translateY(-2px) scale(1.03);
+  border-color: hsl(var(--gaming-purple) / 0.3);
 }
 
 .read-the-docs {
-  color: #888;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.2s ease;
+}
+
+.read-the-docs:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Gaming-specific App styles */
+.app-container {
+  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+  min-height: 100vh;
+}
+
+.hero-section {
+  background: var(--gradient-gaming);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dark mode specific adjustments */
+.dark .card {
+  box-shadow: 0 4px 24px 0 hsl(var(--gaming-purple) / 0.12), 0 1.5px 6px 0 hsl(var(--gaming-purple) / 0.06);
+}
+
+.dark .card:hover {
+  box-shadow: 0 8px 32px 0 hsl(var(--gaming-pink) / 0.2), 0 3px 12px 0 hsl(var(--gaming-purple) / 0.12);
 }

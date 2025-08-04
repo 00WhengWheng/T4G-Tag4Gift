@@ -1,4 +1,6 @@
 import { createTRPCReact } from '@trpc/react-query';
 
-// For now, we'll use a basic type. We'll improve this when we have the backend properly set up
-export const trpc = createTRPCReact<any>();
+// Simple placeholder type - we'll replace this when backend is ready  
+type AppRouter = any;
+
+export const trpc = createTRPCReact<AppRouter>();
