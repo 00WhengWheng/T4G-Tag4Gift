@@ -1,0 +1,601 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                     String                  @id @default(uuid())
+  email                  String                  @unique
+  username               String                  @unique
+  firstName              String
+  lastName               String
+  phone                  String?
+  avatar                 String?
+  dateOfBirth            DateTime?
+  role                   UserRole
+  status                 UserStatus
+  authProvider           AuthProvider
+  language               String
+  timezone               String
+  isEmailVerified        Boolean                 @default(false)
+  isPhoneVerified        Boolean                 @default(false)
+  totalPoints            Int                     @default(0)
+  level                  Int                     @default(1)
+  tenantId               String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  password               String
+  lastLoginIp            String?
+  challengeParticipants  ChallengeParticipant[]
+  gameResults            GameResult[]
+  giftWinners            GiftWinner[]
+  participations         Participation[]
+  shares                 Share[]
+  socialContent          SocialContent[]
+  standaloneGameSessions StandaloneGameSession[]
+  tagScans               TagScan[]
+  tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
+  awardedGifts           UserGift[]
+  scannedTags            UserScannedTag[]
+}
+
+model Venue {
+  id            String          @id @default(uuid())
+  name          String
+  address       String?
+  tenantId      String
+  gifts         Gift[]
+  socialContent SocialContent[]
+  tags          Tag[]
+  tenant        Tenant          @relation(fields: [tenantId], references: [id])
+}
+
+model Tag {
+  id              String           @id @default(uuid())
+  name            String
+  identifier      String           @unique
+  type            TagType
+  latitude        Float
+  longitude       Float
+  address         String?
+  isActive        Boolean          @default(true)
+  scanCount       Int              @default(0)
+  lastScannedAt   DateTime?
+  tenantId        String
+  venueId         String
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  venue           Venue            @relation(fields: [venueId], references: [id])
+  tagScans        TagScan[]
+  userScannedTags UserScannedTag[]
+}
+
+model Gift {
+  id                String          @id @default(uuid())
+  identity          String          @unique
+  name              String
+  description       String?
+  type              GiftType
+  value             Float
+  currency          String          @default("USD")
+  image             String?
+  totalQuantity     Int             @default(1)
+  remainingQuantity Int             @default(1)
+  isActive          Boolean         @default(true)
+  tenantId          String
+  venueId           String?
+  giftData          Json
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  challenges        Challenge[]
+  tenant            Tenant          @relation(fields: [tenantId], references: [id])
+  venue             Venue?          @relation(fields: [venueId], references: [id])
+  giftChallenges    GiftChallenge[]
+  giftWinners       GiftWinner[]
+  awardedTo         UserGift[]
+}
+
+model GiftWinner {
+  id        String   @id @default(uuid())
+  giftId    String
+  userId    String
+  createdAt DateTime @default(now())
+  gift      Gift     @relation(fields: [giftId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model GiftChallenge {
+  id          String    @id @default(uuid())
+  giftId      String
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  gift        Gift      @relation(fields: [giftId], references: [id])
+}
+
+model SocialContent {
+  id        String     @id @default(uuid())
+  type      SocialType
+  content   String
+  createdAt DateTime   @default(now())
+  userId    String
+  venueId   String?
+  user      User       @relation(fields: [userId], references: [id])
+  venue     Venue?     @relation(fields: [venueId], references: [id])
+}
+
+model Game {
+  id                  String        @id @default(uuid())
+  type                GameType
+  config              Json?
+  status              GameStatus    @default(ACTIVE)
+  timeLimit           Int?
+  content             Json?
+  questions           Json?
+  challengeId         String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  gameTemplateId      String?
+  category            String?
+  name                String?
+  description         String?
+  gdevelopProjectUrl  String?
+  challenge           Challenge     @relation(fields: [challengeId], references: [id])
+  gameTemplate        GameTemplate? @relation(fields: [gameTemplateId], references: [id])
+  gameData            GameData[]
+  results             GameResult[]
+}
+
+model GameTemplate {
+  id          String   @id @default(uuid())
+  slug        String?  @unique // <-- Make slug optional
+  name        String
+  description String?
+  type        GameType
+  category    String?
+  difficulty  String?
+  structure   Json
+  isActive    Boolean  @default(true)
+  gdevelopProjectUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  games       Game[]
+}
+
+model GameData {
+  id     String @id @default(uuid())
+  gameId String
+  data   Json
+  game   Game   @relation(fields: [gameId], references: [id])
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  question      String
+  options       Json
+  correctAnswer Int
+  difficulty    String
+  category      String
+  explanation   String?
+  tags          String[]
+  templateId    String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model MusicTrack {
+  id         String   @id @default(uuid())
+  title      String
+  artist     String
+  genre      String
+  year       Int?
+  difficulty String
+  audioUrl   String
+  duration   Int      @default(30)
+  tags       String[]
+  templateId String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PuzzleQuestion {
+  id            String   @id @default(uuid())
+  type          String
+  question      String
+  options       Json?
+  correctAnswer Json
+  difficulty    String
+  category      String
+  explanation   String?
+  pattern       String?
+  tags          String[]
+  templateId    String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ReactionGameConfig {
+  id         String   @id @default(uuid())
+  name       String
+  difficulty String
+  minDelay   Int
+  maxDelay   Int
+  timeLimit  Int
+  signalType String
+  config     Json
+  tags       String[]
+  templateId String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model StandaloneGameSession {
+  id          String    @id @default(uuid())
+  userId      String
+  sessionId   String    @unique
+  gameType    GameType
+  difficulty  String
+  category    String?
+  score       Int?
+  timeSpent   Int?
+  answers     Json?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Tournament {
+  id           String          @id @default(uuid())
+  name         String
+  description  String?
+  startAt      DateTime
+  endAt        DateTime
+  prize        String?
+  challenges   Challenge[]
+  jobs         Job[]
+  participants Participation[]
+}
+
+model Participation {
+  id           String       @id @default(uuid())
+  userId       String
+  tournamentId String
+  joinedAt     DateTime     @default(now())
+  gameResults  GameResult[]
+  tournament   Tournament   @relation(fields: [tournamentId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+}
+
+model Challenge {
+  id                String                 @id @default(uuid())
+  name              String
+  description       String?
+  type              ChallengeType
+  status            ChallengeStatus        @default(SCHEDULED)
+  startDate         DateTime
+  endDate           DateTime
+  winnerCount       Int                    @default(1)
+  createdById       String
+  gameConfig        Json?
+  totalParticipants Int                    @default(0)
+  giftId            String?
+  tenantId          String
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  tournamentId      String?
+  gift              Gift?                  @relation(fields: [giftId], references: [id])
+  tenant            Tenant                 @relation(fields: [tenantId], references: [id])
+  tournament        Tournament?            @relation(fields: [tournamentId], references: [id])
+  participants      ChallengeParticipant[]
+  games             Game[]
+  giftChallenges    GiftChallenge[]
+}
+
+model ChallengeParticipant {
+  id          String            @id @default(uuid())
+  userId      String
+  challengeId String
+  status      ParticipantStatus @default(JOINED)
+  score       Int?
+  rank        Int?
+  joinedAt    DateTime          @default(now())
+  completedAt DateTime?
+  challenge   Challenge         @relation(fields: [challengeId], references: [id])
+  user        User              @relation(fields: [userId], references: [id])
+  gameResults GameResult[]
+
+  @@unique([userId, challengeId], name: "userId_challengeId")
+}
+
+model GameResult {
+  id              String               @id @default(uuid())
+  participantId   String
+  gameId          String
+  userId          String
+  answers         Json?
+  timeSpent       Int?
+  completedAt     DateTime?
+  createdAt       DateTime             @default(now())
+  participationId String?
+  game            Game                 @relation(fields: [gameId], references: [id])
+  participant     ChallengeParticipant @relation(fields: [participantId], references: [id])
+  participation   Participation?       @relation(fields: [participationId], references: [id])
+  user            User                 @relation(fields: [userId], references: [id])
+}
+
+model Job {
+  id           String     @id @default(uuid())
+  tournamentId String
+  type         String
+  status       String
+  scheduledFor DateTime
+  executedAt   DateTime?
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  type      LogType
+  message   String
+  createdAt DateTime @default(now())
+  meta      Json?
+}
+
+model UserScannedTag {
+  userId    String
+  tagId     String
+  scannedAt DateTime @default(now())
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([userId, tagId])
+}
+
+model UserGift {
+  userId    String
+  giftId    String
+  awardedAt DateTime @default(now())
+  gift      Gift     @relation(fields: [giftId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([userId, giftId])
+}
+
+model Tenant {
+  id                   String       @id @default(uuid())
+  name                 String
+  slug                 String       @unique
+  email                String       @unique
+  description          String?
+  type                 TenantType
+  status               TenantStatus
+  totalChallenges      Int          @default(0)
+  totalUsers           Int          @default(0)
+  totalGifts           Int          @default(0)
+  maxActiveChallenges  Int          @default(10)
+  maxUsersPerChallenge Int          @default(100)
+  maxTags              Int          @default(1000)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  challenges           Challenge[]
+  gifts                Gift[]
+  tags                 Tag[]
+  tagScans             TagScan[]
+  users                User[]
+  venues               Venue[]
+}
+
+enum ScanType {
+  NFC
+  QR_CODE
+}
+
+model TagScan {
+  id        String   @id @default(uuid())
+  userId    String
+  tagId     String
+  tenantId  String
+  scanType  ScanType @default(NFC)
+  metadata  Json?
+  scannedAt DateTime @default(now())
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([tagId])
+  @@index([tenantId])
+  @@index([scannedAt])
+  @@index([scanType])
+}
+
+model Share {
+  id        String         @id @default(uuid())
+  userId    String
+  type      ShareType
+  platform  SocialPlatform
+  content   String
+  status    ShareStatus    @default(PUBLISHED)
+  views     Int            @default(0)
+  likes     Int            @default(0)
+  comments  Int            @default(0)
+  shares    Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [userId], references: [id])
+}
+
+model Admin {
+  id          String            @id @default(uuid())
+  email       String            @unique
+  username    String            @unique
+  firstName   String
+  lastName    String
+  password    String
+  role        AdminRole
+  status      AdminStatus       @default(ACTIVE)
+  permissions AdminPermission[]
+  lastLoginAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  auditLogs   AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+  admin     Admin    @relation(fields: [adminId], references: [id])
+}
+
+enum TagType {
+  NFC
+  QRCODE
+}
+
+enum GiftStatus {
+  ACTIVE
+  PENDING
+  CLOSE
+}
+
+enum GiftProcessingType {
+  CHALLENGE_BASED
+  TAGS_BASED
+  SHARES_BASED
+  COMBINED
+}
+
+enum SocialType {
+  POST
+  STORY
+}
+
+enum GameStatus {
+  ACTIVE
+  INACTIVE
+  COMPLETED
+}
+
+enum GameType {
+  QUIZ
+  REACTION
+  MUSIC
+  PUZZLE
+}
+
+enum ChallengeStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipantStatus {
+  JOINED
+  COMPLETED
+}
+
+enum LogType {
+  ADMIN
+  BUSINESS
+  SYSTEM
+}
+
+enum TenantType {
+  VENUE
+  BUSINESS
+  ORGANIZATION
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ShareType {
+  CHALLENGE
+  VENUE
+  GIFT
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  TWITTER
+  WHATSAPP
+  TELEGRAM
+}
+
+enum ShareStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+}
+
+enum GiftType {
+  DRINK
+  BOTTLE
+  DISH
+  PIZZA
+  COFFEE
+  DISCOUNT
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  FACEBOOK
+  APPLE
+}
+
+enum ChallengeType {
+  GAME_BASED
+  INDIVIDUAL
+  TEAM
+  GLOBAL
+}
+
+enum AdminRole {
+  SUPERADMIN
+  SUPPORT
+}
+
+enum AdminStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum AdminPermission {
+  MANAGE_USERS
+  MANAGE_ADMINS
+  MANAGE_TENANTS
+  MANAGE_CHALLENGES
+  MANAGE_GIFTS
+  MANAGE_TAGS
+  MANAGE_SHARES
+  VIEW_AUDIT_LOGS
+}

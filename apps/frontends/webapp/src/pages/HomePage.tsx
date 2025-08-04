@@ -1,145 +1,150 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { motion, useMotionValue, PanInfo } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { useQuery, gql } from '@apollo/client';
+import React, { useState } from 'react';
 
-const GAME_TEMPLATES_QUERY = gql`
-  query GameTemplates {
-    gameTemplates {
-      id
-      name
-      description
-      gdevelopProjectUrl
-      category
-      type
+export default function HomePage() {
+  // Temporary mock data until tRPC is properly set up
+  const [games] = useState([
+    {
+      id: '1',
+      name: 'Quiz Master',
+      description: 'Test your knowledge with trivia questions about local venues',
+      type: 'QUIZ',
+      category: 'Knowledge',
+      difficulty: 'Easy'
+    },
+    {
+      id: '2',
+      name: 'Venue Hunter',
+      description: 'Find and visit hidden gems in your city',
+      type: 'PUZZLE',
+      category: 'Adventure',
+      difficulty: 'Medium'
+    },
+    {
+      id: '3',
+      name: 'Speed Tagger',
+      description: 'Race against time to tag as many venues as possible',
+      type: 'ACTION',
+      category: 'Speed',
+      difficulty: 'Hard'
     }
-  }
-`;
+  ]);
 
-const cardVariants = {
-  hover: { scale: 1.04, boxShadow: '0 8px 32px rgba(0,0,0,0.18)' },
-  tap: { scale: 0.98 },
-};
-
-const HomePage: React.FC = () => {
-  const { data, loading, error } = useQuery(GAME_TEMPLATES_QUERY);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [hovered, setHovered] = useState<number>(-1);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const cardWidth = useRef(0);
-  const x = useMotionValue(0);
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      const containerWidth = carouselRef.current.clientWidth;
-      cardWidth.current = containerWidth / 3;
-    }
-  }, []);
-
-  const handleDragEnd = (_: any, info: PanInfo) => {
-    const threshold = cardWidth.current / 2;
-    if (info.offset.x < -threshold && currentIndex < (data?.gameTemplates.length ?? 0) - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else if (info.offset.x > threshold && currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    }
-    x.set(0);
-  };
-
-  if (loading) return <div>Loading games...</div>;
-  if (error) return <div>Error loading games.</div>;
-
-  const templates = data?.gameTemplates ?? [];
-  const visibleCards = [
-    templates[currentIndex % templates.length],
-    templates[(currentIndex + 1) % templates.length],
-    templates[(currentIndex + 2) % templates.length],
-  ];
+  const [categories] = useState(['Knowledge', 'Adventure', 'Speed', 'Strategy']);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Carousel */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-6xl font-bold text-white mb-6">
+            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-600">Tag4Gift</span>
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Tag venues, share experiences, play games, and win real rewards! 
+            Connect with local businesses through QR codes, social media, and competitive gaming.
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div className="text-3xl font-bold text-white mb-2">{games?.length || 0}</div>
+            <div className="text-gray-300">Games Available</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div className="text-3xl font-bold text-white mb-2">{categories?.length || 0}</div>
+            <div className="text-gray-300">Game Categories</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div className="text-3xl font-bold text-white mb-2">∞</div>
+            <div className="text-gray-300">Rewards to Win</div>
+          </div>
+        </div>
+
+        {/* Featured Games */}
         <div className="mb-16">
-          <motion.div ref={carouselRef} className="relative overflow-hidden h-[420px]">
-            <motion.div
-              className="flex w-full h-full"
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.1}
-              onDragEnd={handleDragEnd}
-              style={{ x }}
-            >
-              {visibleCards.map((card, i) =>
-                card ? (
-                  <motion.div
-                    key={card.id}
-                    className="flex-1 min-w-[33.333%] px-3"
-                    whileHover="hover"
-                    whileTap="tap"
-                    variants={cardVariants}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      transition: { type: 'spring', stiffness: 300, damping: 30, delay: i * 0.12 },
-                    }}
-                    onMouseEnter={() => setHovered(i)}
-                    onMouseLeave={() => setHovered(-1)}
-                  >
-                    <div
-                      className="h-full rounded-3xl shadow-xl border-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg overflow-hidden flex flex-col"
-                      style={{
-                        boxShadow:
-                          hovered === i
-                            ? '0 12px 40px rgba(0,0,0,0.18)'
-                            : '0 4px 16px rgba(0,0,0,0.10)',
-                        transition: 'box-shadow 0.2s',
-                      }}
-                    >
-                      <div className="h-48 w-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                        {/* Optionally add a game image here if available */}
-                        <span className="text-2xl font-bold text-gray-500">{card.category}</span>
-                      </div>
-                      <div className="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                          <h2 className="text-xl font-bold mb-1 text-foreground">{card.name}</h2>
-                          <p className="text-sm text-muted mb-2">{card.description}</p>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="mt-2 neon-btn"
-                          asChild
-                        >
-                          <a
-                            href={card.gdevelopProjectUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Play
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : null
-              )}
-            </motion.div>
-            {/* Carousel Navigation Dots */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-              {templates.map((_, i) => (
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">Featured Games</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {games?.slice(0, 6).map((game) => (
+              <div key={game.id} className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-white">{game.name}</h3>
+                  <span className="px-3 py-1 bg-purple-600 text-white text-sm rounded-full">
+                    {game.type}
+                  </span>
+                </div>
+                <p className="text-gray-300 mb-4">{game.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Category: {game.category}</span>
+                  <span className="text-sm text-gray-400">Difficulty: {game.difficulty}</span>
+                </div>
+                <button className="w-full mt-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300">
+                  Play Now
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* How It Works */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📱</span>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Tag Venues</h3>
+              <p className="text-gray-300">Scan QR codes at partner venues to earn scan coins and unlock exclusive challenges.</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🎮</span>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Play Games</h3>
+              <p className="text-gray-300">Compete in mini-games and tournaments to earn game coins and climb the leaderboards.</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🎁</span>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Win Rewards</h3>
+              <p className="text-gray-300">Use your coins to enter challenges and win real gifts like drinks, pizza, and discounts.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Game Categories */}
+        {categories && categories.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">Game Categories</h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              {categories.map((category) => (
                 <button
-                  key={i}
-                  className={`w-2 h-2 rounded-full ${i === currentIndex ? 'bg-blue-500' : 'bg-gray-300'}`}
-                  onClick={() => setCurrentIndex(i)}
-                />
+                  key={category}
+                  className="px-6 py-3 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 transition-all duration-300"
+                >
+                  {category}
+                </button>
               ))}
             </div>
-          </motion.div>
+          </div>
+        )}
+
+        {/* CTA Section */}
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Playing?</h2>
+          <p className="text-xl text-gray-300 mb-8">Join thousands of players earning real rewards every day!</p>
+          <div className="space-x-4">
+            <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 px-8 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300">
+              Start Playing
+            </button>
+            <button className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-purple-900 transition-all duration-300">
+              Learn More
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default HomePage;
+}
