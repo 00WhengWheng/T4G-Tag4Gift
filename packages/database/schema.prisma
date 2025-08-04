@@ -75,28 +75,27 @@ model Tag {
 }
 
 model Gift {
-  id                String          @id @default(uuid())
-  identity          String          @unique
+  id                String   @id @default(uuid())
+  identity          String   @unique
   name              String
   description       String?
   type              GiftType
   value             Float
-  currency          String          @default("USD")
+  currency          String   @default("EUR")
   image             String?
-  totalQuantity     Int             @default(1)
-  remainingQuantity Int             @default(1)
-  isActive          Boolean         @default(true)
+  totalQuantity     Int      @default(1)
+  remainingQuantity Int      @default(1)
+  isActive          Boolean  @default(true)
   tenantId          String
   venueId           String?
   giftData          Json
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  challenges        Challenge[]
-  tenant            Tenant          @relation(fields: [tenantId], references: [id])
-  venue             Venue?          @relation(fields: [venueId], references: [id])
-  giftChallenges    GiftChallenge[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  venue             Venue?   @relation(fields: [venueId], references: [id])
   giftWinners       GiftWinner[]
   awardedTo         UserGift[]
+  challenge         Challenge?
 }
 
 model GiftWinner {
@@ -108,13 +107,10 @@ model GiftWinner {
   user      User     @relation(fields: [userId], references: [id])
 }
 
-model GiftChallenge {
-  id          String    @id @default(uuid())
-  giftId      String
-  challengeId String
-  challenge   Challenge @relation(fields: [challengeId], references: [id])
-  gift        Gift      @relation(fields: [giftId], references: [id])
-}
+
+
+
+
 
 model SocialContent {
   id        String     @id @default(uuid())
@@ -135,7 +131,6 @@ model Game {
   timeLimit           Int?
   content             Json?
   questions           Json?
-  challengeId         String
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   gameTemplateId      String?
@@ -143,7 +138,7 @@ model Game {
   name                String?
   description         String?
   gdevelopProjectUrl  String?
-  challenge           Challenge     @relation(fields: [challengeId], references: [id])
+  challenge           Challenge?
   gameTemplate        GameTemplate? @relation(fields: [gameTemplateId], references: [id])
   gameData            GameData[]
   results             GameResult[]
@@ -285,17 +280,17 @@ model Challenge {
   createdById       String
   gameConfig        Json?
   totalParticipants Int                    @default(0)
-  giftId            String?
   tenantId          String
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
   tournamentId      String?
-  gift              Gift?                  @relation(fields: [giftId], references: [id])
+  giftId            String                 @unique
+  gift              Gift                   @relation(fields: [giftId], references: [id])
+  gameId            String                 @unique
+  game              Game                   @relation(fields: [gameId], references: [id])
   tenant            Tenant                 @relation(fields: [tenantId], references: [id])
   tournament        Tournament?            @relation(fields: [tournamentId], references: [id])
   participants      ChallengeParticipant[]
-  games             Game[]
-  giftChallenges    GiftChallenge[]
 }
 
 model ChallengeParticipant {

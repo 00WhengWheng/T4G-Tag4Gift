@@ -11,7 +11,7 @@
     "build:main": "npx nx run main:build",
     "dev:dashboard": "npx nx run dashboard:dev",
     "build:dashboard": "npx nx run dashboard:build",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "prisma generate --schema=packages/database/schema.prisma",
     "prisma:studio": "prisma studio"
   },
   "keywords": [],
