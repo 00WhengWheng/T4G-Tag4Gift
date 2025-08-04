@@ -4,7 +4,7 @@
   "sourceRoot": "apps/backends/business/src",
   "projectType": "application",
   "tags": [],
-  "implicitDependencies": ["prisma"],
+  "implicitDependencies": ["database"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",

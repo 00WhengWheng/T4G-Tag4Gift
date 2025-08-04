@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ChallengeService } from './challenge.service';
-import { ChallengeController } from './challenge.controller';
 
 /**
  * Challenges Module - Handles competitive challenges and tournaments
  * Users can participate in challenges to win real prizes
+ * Now uses tRPC instead of REST controllers
  */
 @Module({
-  controllers: [ChallengeController],
   providers: [ChallengeService],
   exports: [ChallengeService],
 })

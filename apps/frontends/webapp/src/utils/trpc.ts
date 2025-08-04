@@ -2,24 +2,11 @@ import { createTRPCReact } from '@trpc/react-query';
 import { createTRPCClient, httpBatchLink, loggerLink } from '@trpc/client';
 import { QueryClient } from '@tanstack/react-query';
 
-// Game type definitions based on backend schema
-export type GameTemplate = {
-  id: string;
-  name: string;
-  description: string;
-  type: 'QUIZ' | 'PUZZLE' | 'ACTION' | 'STRATEGY';
-  category: string;
-  difficulty: string;
-  structure: string;
-  isActive: boolean;
-  gdevelopProjectUrl: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+// Import AppRouter type from shared types package
+import type { AppRouter, GameTemplate } from '@t4g/types';
 
-// Create tRPC React Query client with any type for now
-// TODO: Replace with proper AppRouter type when backend exports it
-export const trpc = createTRPCReact<any>();
+// Create tRPC React Query client with proper type safety
+export const trpc = createTRPCReact<AppRouter>();
 
 // tRPC client configuration factory
 export const createT4GTRPCClient = (queryClient: QueryClient) => {

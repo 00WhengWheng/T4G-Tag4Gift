@@ -4,6 +4,7 @@
   "sourceRoot": "apps/frontends/webapp/src",
   "projectType": "application",
   "tags": [],
+  "implicitDependencies": ["types"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",

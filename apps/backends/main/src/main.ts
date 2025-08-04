@@ -8,6 +8,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { Request, Response } from 'express';
 
+// Export AppRouter type for frontend consumption
+export type { AppRouter } from './app/trpc';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],

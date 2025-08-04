@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient, ChallengeStatus, ChallengeType as PrismaChallengeType } from '@prisma/client';
+import { PrismaService } from '@t4g/database';
+import { ChallengeStatus, ChallengeType as PrismaChallengeType } from '@prisma/client';
 import { ChallengeType } from './enums/challenge-type.enum';
 import { GameType } from '../games/enums/game-type.enum';
 
@@ -24,7 +25,7 @@ export class SubmitResultInput {
 
 @Injectable()
 export class ChallengeService {
-  private prisma = new PrismaClient();
+  constructor(private readonly prisma: PrismaService) {}
 
   async createChallenge(dto: CreateChallengeInput) {
     // Create challenge with gift association and schedule

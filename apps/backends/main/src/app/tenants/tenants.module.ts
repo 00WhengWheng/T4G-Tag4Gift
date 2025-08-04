@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TenantService } from './tenant.service';
-import { TenantResolver } from './tenant.resolver';
+import { TenantController } from './tenant.controller';
 import { PrismaService } from '@t4g/database';
 
 @Module({
-  providers: [TenantService, TenantResolver, PrismaService],
+  controllers: [TenantController],
+  providers: [TenantService, PrismaService],
+  exports: [TenantService],
 })
 export class TenantsModule {}

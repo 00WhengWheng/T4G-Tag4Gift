@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/backends/main/src",
   "projectType": "application",
-  "implicitDependencies": ["prisma"],
+  "implicitDependencies": ["database"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",

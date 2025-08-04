@@ -12,6 +12,7 @@
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
-    "embla-carousel-react": "^8.6.0"
+    "embla-carousel-react": "^8.6.0",
+    "@t4g/types": "*"
   }
 }
