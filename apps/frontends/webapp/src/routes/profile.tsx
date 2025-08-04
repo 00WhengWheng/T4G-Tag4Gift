@@ -1,18 +1,23 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import Profile from '../pages/Profile'
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/profile')({
-  beforeLoad: ({ context, location }) => {
-    // Check if user is authenticated
+  beforeLoad: ({ context }) => {
     if (!context.auth.isAuthenticated) {
-      // Redirect to home with redirect parameter for post-login navigation
       throw redirect({
-        to: '/',
-        search: {
-          redirect: location.href,
-        },
-      })
+        to: '/login',
+      });
     }
   },
-  component: Profile,
-})
+  component: ProfileComponent,
+});
+
+function ProfileComponent() {
+  const { user } = Route.useRouteContext().auth;
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold">Profile</h1>
+      <pre>{JSON.stringify(user, null, 2)}</pre>
+    </div>
+  );
+}
