@@ -5,5 +5,47 @@
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project dashboard --web",
-  "targets": {}
+  "targets": {
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "dashboard:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "dashboard:build:development",
+          "hmr": true,
+          "port": 4201
+        },
+        "production": {
+          "buildTarget": "dashboard:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/frontends/dashboard"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "dashboard:build"
+      }
+    }
+  }
 }

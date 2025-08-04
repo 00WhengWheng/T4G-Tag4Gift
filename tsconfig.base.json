@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["apps/frontends/webapp/src/*"],
-      "@t4g/ui": ["libs/ui/index.ts"]
+      "@t4g/ui": ["libs/ui/index.ts"],
+      "@t4g/prisma": ["libs/prisma/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
