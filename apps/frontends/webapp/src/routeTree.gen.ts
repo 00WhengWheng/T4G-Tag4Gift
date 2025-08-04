@@ -13,8 +13,10 @@ import { Route as ShareRouteImport } from './routes/share'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as ChallengesRouteImport } from './routes/challenges'
+import { Route as CallbackRouteImport } from './routes/callback'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VenueIdRouteImport } from './routes/venue.$id'
 import { Route as ClaimIdRouteImport } from './routes/claim.$id'
@@ -39,6 +41,11 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesRoute = GamesRouteImport.update({
   id: '/games',
   path: '/games',
@@ -47,6 +54,11 @@ const GamesRoute = GamesRouteImport.update({
 const ChallengesRoute = ChallengesRouteImport.update({
   id: '/challenges',
   path: '/challenges',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CallbackRoute = CallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -67,8 +79,10 @@ const ClaimIdRoute = ClaimIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/callback': typeof CallbackRoute
   '/challenges': typeof ChallengesRoute
   '/games': typeof GamesRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/profile': typeof ProfileRoute
   '/scan': typeof ScanRoute
@@ -78,8 +92,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/callback': typeof CallbackRoute
   '/challenges': typeof ChallengesRoute
   '/games': typeof GamesRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/profile': typeof ProfileRoute
   '/scan': typeof ScanRoute
@@ -90,8 +106,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/callback': typeof CallbackRoute
   '/challenges': typeof ChallengesRoute
   '/games': typeof GamesRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/profile': typeof ProfileRoute
   '/scan': typeof ScanRoute
@@ -103,8 +121,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/callback'
     | '/challenges'
     | '/games'
+    | '/login'
     | '/map'
     | '/profile'
     | '/scan'
@@ -114,8 +134,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/callback'
     | '/challenges'
     | '/games'
+    | '/login'
     | '/map'
     | '/profile'
     | '/scan'
@@ -125,8 +147,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/callback'
     | '/challenges'
     | '/games'
+    | '/login'
     | '/map'
     | '/profile'
     | '/scan'
@@ -137,8 +161,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CallbackRoute: typeof CallbackRoute
   ChallengesRoute: typeof ChallengesRoute
   GamesRoute: typeof GamesRoute
+  LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   ProfileRoute: typeof ProfileRoute
   ScanRoute: typeof ScanRoute
@@ -177,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games': {
       id: '/games'
       path: '/games'
@@ -189,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/challenges'
       fullPath: '/challenges'
       preLoaderRoute: typeof ChallengesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/callback': {
+      id: '/callback'
+      path: '/callback'
+      fullPath: '/callback'
+      preLoaderRoute: typeof CallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -217,8 +257,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CallbackRoute: CallbackRoute,
   ChallengesRoute: ChallengesRoute,
   GamesRoute: GamesRoute,
+  LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   ProfileRoute: ProfileRoute,
   ScanRoute: ScanRoute,

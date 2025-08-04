@@ -7,6 +7,71 @@ import { GameType } from './enums/game-type.enum';
 export class GamesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findMany(options?: {
+    where?: any;
+    take?: number;
+    skip?: number;
+    orderBy?: any;
+  }) {
+    return this.prisma.gameTemplate.findMany({
+      where: options?.where,
+      take: options?.take,
+      skip: options?.skip,
+      orderBy: options?.orderBy || { createdAt: 'desc' },
+    });
+  }
+
+  async findById(gameId: string) {
+    const game = await this.prisma.gameTemplate.findUnique({
+      where: { id: gameId },
+    });
+    
+    if (!game) return null;
+    
+    const gdevelopProjectUrl = typeof game.gdevelopProjectUrl === 'string' ? game.gdevelopProjectUrl : '';
+    return {
+      id: game.id,
+      name: game.name,
+      description: game.description ?? '',
+      type: game.type as GameType,
+      category: game.category ?? '',
+      difficulty: game.difficulty ?? '',
+      structure: game.structure ? JSON.stringify(game.structure) : '',
+      isActive: game.isActive,
+      gdevelopProjectUrl,
+      createdAt: game.createdAt,
+      updatedAt: game.updatedAt,
+    };
+  }
+
+  async findBySlug(slug: string) {
+    const game = await this.prisma.gameTemplate.findFirst({
+      where: { 
+        OR: [
+          { name: { contains: slug, mode: 'insensitive' } },
+          { id: slug }
+        ]
+      },
+    });
+    
+    if (!game) return null;
+    
+    const gdevelopProjectUrl = typeof game.gdevelopProjectUrl === 'string' ? game.gdevelopProjectUrl : '';
+    return {
+      id: game.id,
+      name: game.name,
+      description: game.description ?? '',
+      type: game.type as GameType,
+      category: game.category ?? '',
+      difficulty: game.difficulty ?? '',
+      structure: game.structure ? JSON.stringify(game.structure) : '',
+      isActive: game.isActive,
+      gdevelopProjectUrl,
+      createdAt: game.createdAt,
+      updatedAt: game.updatedAt,
+    };
+  }
+
   async createGameTemplate(params: {
     name: string;
     type: GameType;

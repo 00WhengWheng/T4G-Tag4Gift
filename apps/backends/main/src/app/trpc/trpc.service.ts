@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../users/user.service';
 import { ChallengeService } from '../challenges/challenge.service';
 import { GamesService } from '../games/games.service';
-import { TagsService } from '../tags/tags.service';
+import { TagService } from '../tags/tag.service';
 import { ShareService } from '../share/share.service';
-import { TenantsService } from '../tenants/tenants.service';
+import { TenantService } from '../tenants/tenant.service';
 
 /**
  * Main tRPC Service
@@ -17,12 +17,12 @@ export class TrpcService {
   private t = initTRPC.create();
 
   constructor(
-    private usersService: UsersService,
+    private usersService: UserService,
     private challengeService: ChallengeService,
     private gamesService: GamesService,
-    private tagsService: TagsService,
+    private tagsService: TagService,
     private shareService: ShareService,
-    private tenantsService: TenantsService
+    private tenantsService: TenantService
   ) {}
 
   createAppRouter() {
@@ -58,10 +58,6 @@ export class TrpcService {
               return await this.usersService.updateProfile(input.auth0Id, {
                 first_name: input.firstName,
                 last_name: input.lastName,
-                display_name: input.displayName,
-                username: input.username,
-                date_of_birth: input.dateOfBirth,
-                profile_picture_url: input.profilePictureUrl,
               });
             } catch (error) {
               throw new TRPCError({

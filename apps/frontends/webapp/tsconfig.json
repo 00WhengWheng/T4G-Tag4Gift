@@ -12,7 +12,9 @@
     "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@t4g/types": ["../../../packages/types/src/index.ts"],
+      "@t4g/auth-users": ["../../../packages/auth-users/src/index.ts"]
     }
   },
   "include": ["src"],

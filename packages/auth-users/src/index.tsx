@@ -1,16 +1,27 @@
 import { Auth0Provider, AppState } from '@auth0/auth0-react';
 import React, { PropsWithChildren } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface T4GAuthProviderProps {
-  onRedirectCallback: (appState?: AppState) => void;
+  onRedirectCallback?: (appState?: AppState) => void;
+}
+
+declare global {
+  interface ImportMeta {
+    env: {
+      VITE_AUTH0_USER_DOMAIN: string;
+      VITE_AUTH0_USER_CLIENT_ID: string;
+      VITE_AUTH0_USER_AUDIENCE: string;
+    }
+  }
 }
 
 export const AuthUsersProvider = ({ children, onRedirectCallback }: PropsWithChildren<T4GAuthProviderProps>) => {
-  const navigate = useNavigate();
-
-  const handleRedirectCallback = (appState: AppState) => {
-    navigate(appState?.returnTo || window.location.pathname);
+  const handleRedirectCallback = (appState?: AppState) => {
+    if (onRedirectCallback) {
+      onRedirectCallback(appState);
+    } else {
+      window.location.href = appState?.returnTo || window.location.pathname;
+    }
   };
 
   const domain = import.meta.env.VITE_AUTH0_USER_DOMAIN;

@@ -53,4 +53,45 @@ export class UserService {
     if (!user) throw new NotFoundException('User not found');
     return this.prisma.user.delete({ where: { id } });
   }
+
+  async findByAuth0Id(auth0Id: string) {
+    // Since auth0Id field doesn't exist, we'll use email or username as identifier
+    const user = await this.prisma.user.findFirst({ 
+      where: { 
+        OR: [
+          { email: auth0Id },
+          { username: auth0Id }
+        ]
+      } 
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async updateProfile(auth0Id: string, profileData: {
+    first_name?: string;
+    last_name?: string;
+    display_name?: string;
+    email?: string;
+  }) {
+    const user = await this.prisma.user.findFirst({ 
+      where: { 
+        OR: [
+          { email: auth0Id },
+          { username: auth0Id }
+        ]
+      } 
+    });
+    if (!user) throw new NotFoundException('User not found');
+    
+    return this.prisma.user.update({ 
+      where: { id: user.id }, 
+      data: {
+        firstName: profileData.first_name || user.firstName,
+        lastName: profileData.last_name || user.lastName,
+        email: profileData.email || user.email,
+        // displayName doesn't exist in schema, skip it
+      }
+    });
+  }
 }

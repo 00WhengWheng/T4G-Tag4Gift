@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router';
-import { DashboardLayout } from '../../components/layouts/DashboardLayout';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
 
 export const Route = createFileRoute('/_dashboard')({
   beforeLoad: ({ context }) => {

@@ -37,4 +37,24 @@ export class TenantService {
   async deleteTenant(id: string) {
     return this.prisma.tenant.delete({ where: { id } });
   }
+
+  async findMany(options: {
+    take?: number;
+    skip?: number;
+    orderBy?: any;
+  }) {
+    return this.prisma.tenant.findMany({
+      take: options.take,
+      skip: options.skip,
+      orderBy: options.orderBy,
+    });
+  }
+
+  async findById(id: string) {
+    return this.prisma.tenant.findUnique({ where: { id } });
+  }
+
+  async findBySlug(slug: string) {
+    return this.prisma.tenant.findUnique({ where: { slug } });
+  }
 }

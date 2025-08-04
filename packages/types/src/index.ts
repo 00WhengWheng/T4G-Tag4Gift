@@ -1,5 +1,6 @@
-// Re-export AppRouter type from main backend for frontend consumption
-export type { TAppRouter as AppRouter } from '../../../apps/backends/main/src/app/trpc/app.router';
+// AppRouter type placeholder - will be generated from tRPC router
+// TODO: Generate this automatically from the backend tRPC router
+export type AppRouter = any; // Temporary placeholder for tRPC router type
 
 // User profile interface matching Prisma schema
 export interface UserProfile {

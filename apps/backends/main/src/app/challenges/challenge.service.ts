@@ -8,9 +8,9 @@ export class CreateChallengeInput {
   name: string;
   description?: string;
   giftId: string;
+  gameId: string;
   tenantId: string;
   startDate: string;
-
   endDate: string;
   participantIds: string[];
   type: ChallengeType;
@@ -34,6 +34,7 @@ export class ChallengeService {
         name: dto.name,
         description: dto.description,
         gift: { connect: { id: dto.giftId } },
+        game: { connect: { id: dto.gameId } },
         startDate: dto.startDate,
         endDate: dto.endDate,
         status: ChallengeStatus.SCHEDULED,
@@ -44,10 +45,35 @@ export class ChallengeService {
           create: dto.participantIds.map(userId => ({ userId })),
         },
       },
-      include: { gift: true, participants: true, games: true },
+      include: { gift: true, participants: true, game: true },
     });
     return this.toChallengeType(challenge);
   }
+
+  async findMany(options: {
+    where?: any;
+    take?: number;
+    skip?: number;
+    orderBy?: any;
+  }) {
+    const challenges = await this.prisma.challenge.findMany({
+      where: options.where,
+      take: options.take,
+      skip: options.skip,
+      orderBy: options.orderBy,
+      include: { gift: true, participants: true, game: true },
+    });
+    return challenges.map(challenge => this.toChallengeType(challenge));
+  }
+
+  async findById(id: string) {
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id },
+      include: { gift: true, participants: true, game: true },
+    });
+    return challenge ? this.toChallengeType(challenge) : null;
+  }
+
   async joinChallenge(challengeId: string, userId: string) {
     // Add participant to challenge
     await this.prisma.challengeParticipant.create({
@@ -56,7 +82,7 @@ export class ChallengeService {
     // Return updated challenge
     const challenge = await this.prisma.challenge.findUnique({
       where: { id: challengeId },
-      include: { gift: true, participants: true, games: true },
+      include: { gift: true, participants: true, game: true },
     });
     return this.toChallengeType(challenge);
   }
@@ -86,9 +112,9 @@ export class ChallengeService {
     // Fetch the correct gameId for the challenge
     const challenge = await this.prisma.challenge.findUnique({
       where: { id: challengeId },
-      include: { games: true },
+      include: { game: true },
     });
-    const gameId = challenge?.games?.[0]?.id;
+    const gameId = challenge?.game?.id;
     if (!gameId) {
       throw new Error('No game found for this challenge');
     }
@@ -104,7 +130,7 @@ export class ChallengeService {
     // Return updated challenge
     const updatedChallenge = await this.prisma.challenge.findUnique({
       where: { id: challengeId },
-      include: { gift: true, participants: true, games: true },
+      include: { gift: true, participants: true, game: true },
     });
     return this.toChallengeType(updatedChallenge);
   }
@@ -112,10 +138,11 @@ export class ChallengeService {
   async getChallenge(challengeId: string) {
     const challenge = await this.prisma.challenge.findUnique({
       where: { id: challengeId },
-      include: { gift: true, participants: true, games: true },
+      include: { gift: true, participants: true, game: true },
     });
     return this.toChallengeType(challenge);
   }
+
   // Helper to map Prisma challenge to GraphQL Challenge type
   async toChallengeType(challenge: {
     id: string;

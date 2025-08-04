@@ -8,6 +8,37 @@ import type { AppRouter, GameTemplate } from '@t4g/types';
 // Create tRPC React Query client with proper type safety
 export const trpc = createTRPCReact<AppRouter>();
 
+// Create default tRPC client instance
+export const trpcClient = createTRPCClient<AppRouter>({
+  links: [
+    loggerLink({
+      enabled: (opts) =>
+        process.env.NODE_ENV === 'development' ||
+        (opts.direction === 'down' && opts.result instanceof Error),
+    }),
+    httpBatchLink({
+      url: '/api/trpc',
+      headers() {
+        const token = typeof window !== 'undefined' 
+          ? localStorage.getItem('auth_token') 
+          : null;
+        
+        return {
+          ...(token && { authorization: `Bearer ${token}` }),
+          'x-trpc-source': 'react',
+          'content-type': 'application/json',
+        };
+      },
+      fetch(url, options) {
+        return fetch(url, {
+          ...options,
+          credentials: 'include',
+        });
+      },
+    }),
+  ],
+});
+
 // tRPC client configuration factory
 export const createT4GTRPCClient = (queryClient: QueryClient) => {
   const getBaseUrl = () => {

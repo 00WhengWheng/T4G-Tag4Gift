@@ -1,6 +1,12 @@
 import { Controller, All, Req, Res } from '@nestjs/common';
 import { TrpcService } from './trpc.service';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
+import { Request, Response } from 'express';
+
+// Extend Express Request to include user property
+interface AuthenticatedRequest extends Request {
+  user?: any;
+}
 
 /**
  * Main tRPC Controller
@@ -14,7 +20,7 @@ export class TrpcController {
     // Create tRPC express middleware
     this.trpcMiddleware = createExpressMiddleware({
       router: this.trpcService.getAppRouter(),
-      createContext: ({ req, res }) => ({
+      createContext: ({ req, res }: { req: AuthenticatedRequest; res: Response }) => ({
         req,
         res,
         // Add authentication context here

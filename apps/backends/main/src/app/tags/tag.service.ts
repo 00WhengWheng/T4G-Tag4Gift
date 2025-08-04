@@ -40,4 +40,57 @@ export class TagService {
 
     return true;
   }
+
+  async createTag(userId: string, venueId: string, latitude: number, longitude: number, nfcTagId?: string) {
+    return this.prisma.tag.create({
+      data: {
+        name: `Tag ${Date.now()}`,
+        identifier: nfcTagId || `tag_${Date.now()}`,
+        type: 'QRCODE', // Using QRCODE as valid TagType
+        latitude,
+        longitude,
+        venueId,
+        tenantId: 'default-tenant', // This should come from the user context
+        isActive: true,
+        scanCount: 0,
+      },
+    });
+  }
+
+  async getUserTags(userId: string, limit: number = 20, offset: number = 0) {
+    // Since Tag doesn't have userId, we need to find tags through TagScan or another relation
+    return this.prisma.tag.findMany({
+      where: { 
+        tagScans: {
+          some: { userId }
+        }
+      },
+      take: limit,
+      skip: offset,
+      orderBy: { id: 'desc' }, // Use id instead of createdAt
+    });
+  }
+
+  async findMany() {
+    return this.prisma.tag.findMany({
+      orderBy: { id: 'desc' }, // Use id instead of createdAt
+    });
+  }
+
+  async findById(id: string) {
+    return this.prisma.tag.findUnique({
+      where: { id },
+    });
+  }
+
+  async findBySlug(slug: string) {
+    return this.prisma.tag.findFirst({
+      where: { 
+        OR: [
+          { identifier: slug },
+          { id: slug }
+        ]
+      },
+    });
+  }
 }
