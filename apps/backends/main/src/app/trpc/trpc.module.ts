@@ -9,6 +9,7 @@ import { TenantsModule } from '../tenants/tenants.module';
 import { GamesRouter } from './routers/games.router';
 import { ChallengesRouter } from './routers/challenges.router';
 import { TagsRouter } from './routers/tags.router';
+import { TrpcService } from './trpc.service';
 import { ShareRouter } from './routers/share.router';
 import { UsersRouter } from './routers/users.router';
 import { TenantsRouter } from './routers/tenants.router';
@@ -17,7 +18,7 @@ import { AppRouter } from './app.router';
 @Module({
   imports: [GamesModule, ChallengesModule, TagModule, ShareModule, UsersModule, TenantsModule],
   controllers: [TrpcController],
-  providers: [GamesRouter, ChallengesRouter, TagsRouter, ShareRouter, UsersRouter, TenantsRouter, AppRouter],
+  providers: [TrpcService, GamesRouter, ChallengesRouter, TagsRouter, ShareRouter, UsersRouter, TenantsRouter, AppRouter],
   exports: [AppRouter],
 })
 export class TrpcModule {}

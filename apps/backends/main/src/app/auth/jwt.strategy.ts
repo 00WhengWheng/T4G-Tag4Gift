@@ -1,35 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-
-interface JwtPayload {
-  sub: string;
-  email?: string;
-  name?: string;
-  iat?: number;
-  exp?: number;
-  iss?: string;
-  aud?: string | string[];
-  // Add more claims as needed
-}
+import * as jwksRsa from 'jwks-rsa';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: process.env.AUTH0_SECRET,
-      audience: process.env.AUTH0_AUDIENCE,
-      issuer: process.env.AUTH0_DOMAIN,
+      audience: process.env.AUTH_USERS_AUTH0_AUDIENCE,
+      issuer: `https://${process.env.AUTH_USERS_AUTH0_DOMAIN}/`,
+      algorithms: ['RS256'],
+      secretOrKeyProvider: jwksRsa.passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `https://${process.env.AUTH_USERS_AUTH0_DOMAIN}/.well-known/jwks.json`,
+      }),
     });
   }
 
-  async validate(payload: JwtPayload) {
-    if (!payload?.sub) {
-      throw new Error('Invalid JWT payload: missing sub');
-    }
-    // Attach user info to request
-    return { userId: payload.sub, ...payload };
+  async validate(payload: any) {
+    // You can add more validation or user lookup here
+    return payload;
   }
 }

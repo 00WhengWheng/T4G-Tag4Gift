@@ -15,7 +15,15 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/index.ts",
+    "src/components/ui/*.ts",
+    "src/components/ui/*.tsx",
+    "src/lib/*.ts",
+    "src/lib/*.tsx"
+  ],
   "references": [
     {
       "path": "./tsconfig.app.json"

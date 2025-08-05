@@ -8,5 +8,6 @@ import { AuthModule } from '../auth/auth.module';
   imports: [AuthModule],
   controllers: [TagController],
   providers: [TagService, PrismaService],
+  exports: [TagService],
 })
 export class TagModule {}

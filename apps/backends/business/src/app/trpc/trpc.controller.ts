@@ -14,13 +14,17 @@ export class TrpcController {
     // Create tRPC express middleware
     this.trpcMiddleware = createExpressMiddleware({
       router: this.trpcService.getAppRouter(),
-      createContext: ({ req, res }) => ({
-        req,
-        res,
-        // Add business authentication context here
-        business: req.business || null,
-        user: req.user || null,
-      }),
+      createContext: ({ req, res }) => {
+        // Safely extract business and user from request if present (e.g., via middleware)
+        const business = (req as any)?.business ?? null;
+        const user = (req as any)?.user ?? null;
+        return {
+          req,
+          res,
+          business,
+          user,
+        };
+      },
       onError: ({ error, path, input }) => {
         console.error(`Business tRPC Error on ${path}:`, error);
       },

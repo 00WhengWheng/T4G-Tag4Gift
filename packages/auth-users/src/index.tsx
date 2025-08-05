@@ -1,54 +1,31 @@
-import { Auth0Provider, AppState } from '@auth0/auth0-react';
-import React, { PropsWithChildren } from 'react';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { ReactNode } from 'react';
 
-interface T4GAuthProviderProps {
-  onRedirectCallback?: (appState?: AppState) => void;
+interface AuthUsersProviderProps {
+  children: ReactNode;
+  onRedirectCallback?: (appState?: any) => void;
 }
 
-declare global {
-  interface ImportMeta {
-    env: {
-      VITE_AUTH0_USER_DOMAIN: string;
-      VITE_AUTH0_USER_CLIENT_ID: string;
-      VITE_AUTH0_USER_AUDIENCE: string;
-    }
-  }
-}
-
-export const AuthUsersProvider = ({ children, onRedirectCallback }: PropsWithChildren<T4GAuthProviderProps>) => {
-  const handleRedirectCallback = (appState?: AppState) => {
-    if (onRedirectCallback) {
-      onRedirectCallback(appState);
-    } else {
-      window.location.href = appState?.returnTo || window.location.pathname;
-    }
-  };
-
-  const domain = import.meta.env.VITE_AUTH0_USER_DOMAIN;
-  const clientId = import.meta.env.VITE_AUTH0_USER_CLIENT_ID;
-  const audience = import.meta.env.VITE_AUTH0_USER_AUDIENCE;
-  const redirectUri = window.location.origin;
-
-  if (!domain || !clientId || !audience) {
-    return (
-      <div>
-        <h1>Auth0 Configuration Error</h1>
-        <p>Please make sure VITE_AUTH0_USER_DOMAIN, VITE_AUTH0_USER_CLIENT_ID, and VITE_AUTH0_USER_AUDIENCE are set in your environment.</p>
-      </div>
-    );
-  }
+export function AuthUsersProvider({ 
+  children, 
+  onRedirectCallback 
+}: AuthUsersProviderProps) {
+  // Use environment variables or fallback values
+  const domain = process.env['AUTH0_USERS_DOMAIN'] || 'your-tenant.auth0.com';
+  const clientId = process.env['AUTH0_USERS_CLIENT_ID'] || 'your-client-id';
+  const audience = process.env['AUTH0_USERS_AUDIENCE'] || 'https://api.t4g.space';
 
   return (
     <Auth0Provider
       domain={domain}
       clientId={clientId}
       authorizationParams={{
-        redirect_uri: redirectUri,
+        redirect_uri: typeof window !== 'undefined' ? window.location.origin : undefined,
         audience: audience,
       }}
-      onRedirectCallback={handleRedirectCallback}
+      onRedirectCallback={onRedirectCallback}
     >
       {children}
     </Auth0Provider>
   );
-};
+}

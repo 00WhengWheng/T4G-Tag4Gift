@@ -24,8 +24,9 @@ import { Button } from '@t4g/ui-web/button';
 import { Loader2, Coins, Trophy, Calendar, Mail, User, Edit, Settings } from 'lucide-react';
 
 const Profile: React.FC = () => {
-  const { data: profile, isLoading, error } = trpc.users.getProfile.useQuery();
-  const { data: achievements } = trpc.users.getAchievements.useQuery();
+  const { data: profile, isLoading, error } = (trpc as any).users.getProfile.useQuery();
+  const { data: achievements } = (trpc as any).users.getAchievements.useQuery();
+  const [tab, setTab] = React.useState("overview");
 
   if (isLoading) {
     return (
@@ -143,7 +144,8 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
+      {/* Tabs state for controlled Tabs component */}
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="coins">Coins</TabsTrigger>

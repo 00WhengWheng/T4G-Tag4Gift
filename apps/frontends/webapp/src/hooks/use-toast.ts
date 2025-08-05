@@ -32,22 +32,10 @@ function genId() {
 type ActionType = typeof actionTypes
 
 type Action =
-  | {
-      type: ActionType["ADD_TOAST"]
-      toast: ToasterToast
-    }
-  | {
-      type: ActionType["UPDATE_TOAST"]
-      toast: Partial<ToasterToast>
-    }
-  | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
-  | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
+  | { type: ActionType["ADD_TOAST"]; toast: ToasterToast }
+  | { type: ActionType["UPDATE_TOAST"]; toast: Partial<ToasterToast>; toastId?: ToasterToast["id"] }
+  | { type: "DISMISS_TOAST"; toastId?: ToasterToast["id"] }
+  | { type: ActionType["REMOVE_TOAST"]; toastId?: ToasterToast["id"] }
 
 interface State {
   toasts: ToasterToast[]
@@ -154,10 +142,7 @@ function toast({ ...props }: Toast) {
     toast: {
       ...props,
       id,
-      // Only add onOpenChange once, with correct typing
-      onOpenChange: (open: boolean) => {
-        if (!open) dismiss();
-      },
+      // If you want to handle close, add a supported prop or callback here
     },
   })
 

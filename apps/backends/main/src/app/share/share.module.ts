@@ -5,5 +5,6 @@ import { ShareController } from './share.controller';
 @Module({
   controllers: [ShareController],
   providers: [ShareService],
+  exports: [ShareService],
 })
 export class ShareModule {}

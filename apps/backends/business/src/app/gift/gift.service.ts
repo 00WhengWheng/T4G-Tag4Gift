@@ -92,7 +92,7 @@ export class GiftService {
   private prisma = new PrismaClient();
 
   async createGift(data: CreateGiftDto): Promise<Gift> {
-    // If challengeId is provided, associate gift to challenge
+    // If challengeId is provided, associate gift to challenge (relation is 'challenge', not 'challenges')
     const gift = await this.prisma.gift.create({
       data: {
         identity: data.identity,
@@ -106,8 +106,8 @@ export class GiftService {
         tenantId: data.tenantId,
         venueId: data.venueId,
         giftData: data.giftData,
-        challenges: data.challengeId
-          ? { connect: [{ id: data.challengeId }] }
+        challenge: data.challengeId
+          ? { connect: { id: data.challengeId } }
           : undefined,
       },
     });
@@ -131,10 +131,11 @@ export class GiftService {
   }
 
   async listGiftsByChallenge(challengeId: string): Promise<Gift[]> {
+    // The relation is 'challenge', not 'challenges', and each gift can have at most one challenge
     return this.prisma.gift.findMany({
       where: {
-        challenges: {
-          some: { id: challengeId },
+        challenge: {
+          id: challengeId,
         },
       },
     });
