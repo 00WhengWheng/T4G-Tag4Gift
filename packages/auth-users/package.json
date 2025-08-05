@@ -1,7 +1,0 @@
-{
-  "name": "@t4g/auth-users",
-  "version": "0.0.1",
-  "type": "commonjs",
-  "main": "../../dist/packages/auth-users/src/index.js",
-  "types": "../../dist/packages/auth-users/src/index.d.ts"
-}

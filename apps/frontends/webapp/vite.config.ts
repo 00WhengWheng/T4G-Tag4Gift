@@ -23,6 +23,7 @@ export default defineConfig(() => ({
       '@t4g/ui-web': resolve(__dirname, '../../../packages/ui-web/src/index.ts'),
       '@t4g/types': resolve(__dirname, '../../../packages/types/src/index.ts'),
       '@t4g/auth-users': resolve(__dirname, '../../../packages/auth-users/src/index.ts'),
+      '@t4g/auth-shared': resolve(__dirname, '../../../dist/packages/auth-shared'),
     },
   },
   plugins: [

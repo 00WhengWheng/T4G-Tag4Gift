@@ -1,0 +1,17 @@
+{
+  "name": "@t4g/auth-shared",
+  "version": "0.1.0",
+  "type": "lib",
+  "sourceRoot": "packages/auth-shared/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/auth-shared",
+        "tsConfig": "packages/auth-shared/tsconfig.lib.json",
+        "main": "packages/auth-shared/src/t4g-auth0-config.ts"
+      }
+    }
+  }
+}
