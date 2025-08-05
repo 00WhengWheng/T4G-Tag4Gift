@@ -24,15 +24,10 @@ interface User {
   };
 }
 
-interface LoginCredentials {
-  email?: string;
-  password?: string;
-}
-
-export interface AuthContext {
+interface AuthContext {
   isAuthenticated: boolean;
   user: User | null;
-  login: (credentials?: LoginCredentials) => Promise<void>;
+  login: (options?: any) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -67,12 +62,9 @@ function RootComponent() {
     isLoading,
   };
 
-  const router = useRouter();
-  router.options.context.auth = auth;
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Suspense fallback={<RootPendingComponent />}>
+    <div>
+      <Suspense>
         <Outlet />
       </Suspense>
       {process.env.NODE_ENV === 'development' && <TanStackRouterDevtools />}

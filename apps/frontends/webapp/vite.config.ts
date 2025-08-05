@@ -20,7 +20,9 @@ export default defineConfig(() => ({
   },
   resolve: {
     alias: {
-      '@t4g/ui': resolve(__dirname, '../../../libs/ui/index.ts'),
+      '@t4g/ui-web': resolve(__dirname, '../../../packages/ui-web/src/index.ts'),
+      '@t4g/types': resolve(__dirname, '../../../packages/types/src/index.ts'),
+      '@t4g/auth-users': resolve(__dirname, '../../../packages/auth-users/src/index.ts'),
     },
   },
   plugins: [

@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/components/ui/use-toast.ts","./src/lib/utils.ts","./src/components/ui/avatar.tsx","./src/components/ui/badge.tsx","./src/components/ui/button.tsx","./src/components/ui/card.tsx","./src/components/ui/separator.tsx","./src/components/ui/tabs.tsx","./src/components/ui/toast.tsx"],"version":"5.8.3"}

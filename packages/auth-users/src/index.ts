@@ -9,15 +9,15 @@ interface T4GAuthProviderProps {
 }
 
 export const AuthUsersProvider = ({ children, onRedirectCallback }: PropsWithChildren<T4GAuthProviderProps>) => {
-  const handleRedirectCallback = (appState: AppState) => {
+  const handleRedirectCallback = (appState?: AppState, user?: any) => {
     if (onRedirectCallback) {
       onRedirectCallback(appState);
     }
   };
 
-  const domain = import.meta.env.VITE_AUTH0_USER_DOMAIN;
-  const clientId = import.meta.env.VITE_AUTH0_USER_CLIENT_ID;
-  const audience = import.meta.env.VITE_AUTH0_USER_AUDIENCE;
+  const domain = import.meta.env['VITE_AUTH0_USER_DOMAIN'];
+  const clientId = import.meta.env['VITE_AUTH0_USER_CLIENT_ID'];
+  const audience = import.meta.env['VITE_AUTH0_USER_AUDIENCE'];
   const redirectUri = window.location.origin;
 
   if (!domain || !clientId || !audience) {

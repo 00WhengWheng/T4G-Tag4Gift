@@ -2,9 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "allowJs": true,
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,
@@ -12,13 +11,12 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "declarationMap": true
   },
-  "files": [],
-  "include": [],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
+    { "path": "./tsconfig.lib.json" }
   ]
 }

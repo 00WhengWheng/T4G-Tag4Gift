@@ -6,21 +6,21 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@t4g/ui-web/card';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '@/components/ui/avatar';
+} from '@t4g/ui-web/avatar';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+} from '@t4g/ui-web/tabs';
+import { Separator } from '@t4g/ui-web/separator';
+import { Badge } from '@t4g/ui-web/badge';
+import { Button } from '@t4g/ui-web/button';
 import { Loader2, Coins, Trophy, Calendar, Mail, User, Edit, Settings } from 'lucide-react';
 
 const Profile: React.FC = () => {
