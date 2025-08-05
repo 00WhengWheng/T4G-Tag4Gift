@@ -67,7 +67,7 @@ function RootComponent() {
       <Suspense>
         <Outlet />
       </Suspense>
-      {process.env.NODE_ENV === 'development' && <TanStackRouterDevtools />}
+      {import.meta.env.MODE === 'development' && <TanStackRouterDevtools />}
     </div>
   );
 }

@@ -7,21 +7,20 @@ import * as jwksRsa from 'jwks-rsa';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      audience: process.env.AUTH_USERS_AUTH0_AUDIENCE,
-      issuer: `https://${process.env.AUTH_USERS_AUTH0_DOMAIN}/`,
-      algorithms: ['RS256'],
       secretOrKeyProvider: jwksRsa.passportJwtSecret({
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: `https://${process.env.AUTH_USERS_AUTH0_DOMAIN}/.well-known/jwks.json`,
+        jwksUri: `https://${process.env.AUTH0_USERS_DOMAIN}/.well-known/jwks.json`,
       }),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      audience: process.env.AUTH0_USERS_AUDIENCE,
+      issuer: `https://${process.env.AUTH0_USERS_DOMAIN}/`,
+      algorithms: ['RS256'],
     });
   }
 
   async validate(payload: any) {
-    // You can add more validation or user lookup here
     return payload;
   }
 }

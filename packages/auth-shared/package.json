@@ -1,0 +1,7 @@
+{
+  "name": "@t4g/auth-shared",
+  "version": "0.1.0",
+  "main": "src/t4g-auth0-config.ts",
+  "types": "src/t4g-auth0-config.ts",
+  "license": "MIT"
+}

@@ -3,7 +3,7 @@ import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/global.css';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { AuthUsersProvider } from '@t4g/auth-users';
+import { T4GAuth0Provider } from '@t4g/auth-shared/t4g-auth0-config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
@@ -38,19 +38,19 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <Auth0Provider
-        domain={import.meta.env.VITE_AUTH0_DOMAIN}
-        clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+        domain={import.meta.env.VITE_AUTH0_USERS_DOMAIN}
+        clientId={import.meta.env.VITE_AUTH0_USERS_CLIENT_ID}
         authorizationParams={{
-          redirect_uri: import.meta.env.VITE_AUTH0_CALLBACK_URL,
-          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-          scope: 'openid profile email',
+          redirect_uri: window.location.origin + '/callback',
+          audience: import.meta.env.VITE_AUTH0_USERS_AUDIENCE,
+          scope: 'openid profile email read:profile write:tags join:challenges manage:coins',
         }}
       >
-        <AuthUsersProvider onRedirectCallback={() => {}}>
+        <T4GAuth0Provider>
           <T4GProviders>
             <RouterContextInjector />
           </T4GProviders>
-        </AuthUsersProvider>
+        </T4GAuth0Provider>
       </Auth0Provider>
     </StrictMode>
   );

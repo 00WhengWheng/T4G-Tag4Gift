@@ -299,7 +299,7 @@ export const useT4GAuth = (): T4GAuthState => {
     console.log(`🔄 Switching from ${platform} to ${targetPlatform} platform...`);
     
     // In development, show alert instead of redirect
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       alert(`Platform switch: Would redirect to ${targetUrl} in production`);
       return;
     }

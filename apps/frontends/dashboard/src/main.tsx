@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import '../styles.css';
-import { AuthBusinessProvider } from '@t4g/auth-business';
+import { T4GAuth0Provider } from '@t4g/auth-shared/t4g-auth0-config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { Route as rootRoute } from './routes/__root';
@@ -59,13 +59,13 @@ if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <AuthBusinessProvider onRedirectCallback={onRedirectCallback}>
+      <T4GAuth0Provider>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
             <App />
           </QueryClientProvider>
         </trpc.Provider>
-      </AuthBusinessProvider>
+      </T4GAuth0Provider>
     </StrictMode>
   );
 }
