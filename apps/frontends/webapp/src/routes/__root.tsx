@@ -6,6 +6,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { QueryClient } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import Navbar from '../components/Navbar';
 
 // Define types directly in this file for now
 interface User {
@@ -63,10 +64,13 @@ function RootComponent() {
   };
 
   return (
-    <div>
-      <Suspense>
-        <Outlet />
-      </Suspense>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main>
+        <Suspense>
+          <Outlet />
+        </Suspense>
+      </main>
       {import.meta.env.MODE === 'development' && <TanStackRouterDevtools />}
     </div>
   );
