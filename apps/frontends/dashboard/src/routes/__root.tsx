@@ -46,7 +46,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
 });
 
-// Root component with simplified layout
+// Root component with proper layout
 function RootComponent() {
   const {
     isLoading,
@@ -67,12 +67,17 @@ function RootComponent() {
   const router = useRouter();
   router.options.context.auth = auth;
 
+  // Show loading spinner while Auth0 is initializing
+  if (isLoading) {
+    return <RootPendingComponent />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Suspense fallback={<RootPendingComponent />}>
         <Outlet />
       </Suspense>
-      {process.env.NODE_ENV === 'development' && <TanStackRouterDevtools />}
+      {import.meta.env.MODE === 'development' && <TanStackRouterDevtools position="bottom-right" />}
     </div>
   );
 }

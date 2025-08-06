@@ -1,91 +1,81 @@
-import { useState, useEffect } from 'react';
-import { Link } from '@tanstack/react-router';
 import { 
   Activity, 
   Users, 
   Gift, 
   Trophy, 
-  MapPin, 
-  TrendingUp, 
-  Plus,
-  Eye,
+  TrendingUp,
   BarChart3,
-  Calendar,
-  Tag as TagIcon
+  Plus,
+  MapPin,
+  Eye
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@t4g/ui-web';
-import { Button } from '@t4g/ui-web';
-import { trpc } from '../utils/trpc';
-
-interface DashboardStats {
-  totalUsers: number;
-  totalGifts: number;
-  activeChallenges: number;
-  totalVenues: number;
-  recentActivity: number;
-  monthlyGrowth: number;
-}
+import { Badge, Button } from '@t4g/ui-web';
+import { Link } from '@tanstack/react-router';
 
 export function DashboardHome() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalUsers: 0,
-    totalGifts: 0,
-    activeChallenges: 0,
-    totalVenues: 0,
-    recentActivity: 0,
-    monthlyGrowth: 0,
-  });
-
-  // Mock data for now - replace with actual tRPC calls when available
-  useEffect(() => {
-    // Simulate loading stats
-    const loadStats = async () => {
-      // This would be actual tRPC calls in a real implementation
-      setStats({
-        totalUsers: 1247,
-        totalGifts: 89,
-        activeChallenges: 12,
-        totalVenues: 8,
-        recentActivity: 345,
-        monthlyGrowth: 23.5,
-      });
-    };
-    
-    loadStats();
-  }, []);
-
-  const statCards = [
+  const stats = [
     {
-      title: 'Total Users',
-      value: stats.totalUsers.toLocaleString(),
-      description: '+12% from last month',
+      name: 'Total Users',
+      value: '2,847',
+      change: '+12%',
+      changeType: 'increase' as const,
       icon: Users,
-      trend: 'up',
-      href: '/users',
+      href: '/users'
     },
     {
-      title: 'Active Gifts',
-      value: stats.totalGifts.toString(),
-      description: 'Ready to be claimed',
+      name: 'Active Gifts',
+      value: '156',
+      change: '+23%',
+      changeType: 'increase' as const,
       icon: Gift,
-      trend: 'up',
-      href: '/gifts',
+      href: '/gifts'
     },
     {
-      title: 'Live Challenges',
-      value: stats.activeChallenges.toString(),
-      description: 'Currently running',
+      name: 'Challenges',
+      value: '34',
+      change: '+5%',
+      changeType: 'increase' as const,
       icon: Trophy,
-      trend: 'stable',
-      href: '/challenges',
+      href: '/challenges'
     },
     {
-      title: 'Venues',
-      value: stats.totalVenues.toString(),
-      description: 'Locations managed',
-      icon: MapPin,
-      trend: 'up',
-      href: '/map',
+      name: 'Revenue',
+      value: '$12,847',
+      change: '+18%',
+      changeType: 'increase' as const,
+      icon: TrendingUp,
+      href: '/analytics'
+    },
+  ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      type: 'gift_claimed',
+      user: 'John Doe',
+      gift: 'Coffee Voucher',
+      time: '2 minutes ago',
+    },
+    {
+      id: 2,
+      type: 'challenge_completed',
+      user: 'Sarah Smith',
+      challenge: 'Weekly Scanner',
+      time: '5 minutes ago',
+    },
+    {
+      id: 3,
+      type: 'new_user',
+      user: 'Mike Johnson',
+      time: '10 minutes ago',
+    },
+    {
+      id: 4,
+      type: 'venue_added',
+      user: 'Business Admin',
+      venue: 'Downtown Cafe',
+      time: '1 hour ago',
     },
   ];
 
@@ -115,39 +105,8 @@ export function DashboardHome() {
       title: 'Manage Venues',
       description: 'Update venue information and settings',
       icon: MapPin,
-      href: '/map',
+      href: '/venues',
       color: 'bg-orange-500',
-    },
-  ];
-
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'gift_claimed',
-      message: 'User claimed "Free Coffee" gift',
-      time: '2 minutes ago',
-      icon: Gift,
-    },
-    {
-      id: 2,
-      type: 'challenge_completed',
-      message: 'Challenge "Quiz Master" completed by 15 users',
-      time: '15 minutes ago',
-      icon: Trophy,
-    },
-    {
-      id: 3,
-      type: 'user_joined',
-      message: '3 new users joined the platform',
-      time: '1 hour ago',
-      icon: Users,
-    },
-    {
-      id: 4,
-      type: 'venue_scanned',
-      message: 'Tag scanned at "Downtown Coffee Shop"',
-      time: '2 hours ago',
-      icon: TagIcon,
     },
   ];
 
@@ -179,29 +138,33 @@ export function DashboardHome() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link to={stat.href} className="block">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stat.description}
-                </p>
-              </CardContent>
-            </Link>
-          </Card>
-        ))}
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.name} className="hover:shadow-md transition-shadow cursor-pointer">
+              <Link to={stat.href} className="block">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {stat.name}
+                  </CardTitle>
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">{stat.change}</span> from last month
+                  </p>
+                </CardContent>
+              </Link>
+            </Card>
+          );
+        })}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Quick Actions */}
-        <Card className="col-span-4">
+        <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>
@@ -232,25 +195,45 @@ export function DashboardHome() {
         </Card>
 
         {/* Recent Activity */}
-        <Card className="col-span-3">
+        <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <Activity className="h-5 w-5" />
+              <span>Recent Activity</span>
+            </CardTitle>
             <CardDescription>
-              Latest events in your business
+              Latest user interactions and system events
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-center space-x-4">
-                <div className="rounded-full bg-accent p-1">
-                  <activity.icon className="h-3 w-3" />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm">{activity.message}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {activity.time}
+            {recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{activity.user}</span>
+                    {activity.type === 'gift_claimed' && (
+                      <Badge variant="secondary">Gift Claimed</Badge>
+                    )}
+                    {activity.type === 'challenge_completed' && (
+                      <Badge variant="secondary">Challenge</Badge>
+                    )}
+                    {activity.type === 'new_user' && (
+                      <Badge variant="secondary">New User</Badge>
+                    )}
+                    {activity.type === 'venue_added' && (
+                      <Badge variant="secondary">Venue Added</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {activity.type === 'gift_claimed' && `Claimed ${activity.gift}`}
+                    {activity.type === 'challenge_completed' && `Completed ${activity.challenge}`}
+                    {activity.type === 'new_user' && 'Joined the platform'}
+                    {activity.type === 'venue_added' && `Added ${activity.venue}`}
                   </p>
                 </div>
+                <span className="text-xs text-muted-foreground">
+                  {activity.time}
+                </span>
               </div>
             ))}
             <Button variant="outline" className="w-full" asChild>
@@ -264,8 +247,8 @@ export function DashboardHome() {
       </div>
 
       {/* Chart Section */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>User Engagement Overview</CardTitle>
             <CardDescription>
@@ -283,7 +266,7 @@ export function DashboardHome() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        <Card>
           <CardHeader>
             <CardTitle>Performance Metrics</CardTitle>
             <CardDescription>
@@ -291,28 +274,123 @@ export function DashboardHome() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Challenge Completion Rate</span>
-              <span className="text-sm font-medium">84%</span>
-            </div>
-            <div className="w-full bg-secondary rounded-full h-2">
-              <div className="bg-primary h-2 rounded-full" style={{ width: '84%' }}></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm">User Retention</span>
-              <span className="text-sm font-medium">76%</span>
-            </div>
-            <div className="w-full bg-secondary rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '76%' }}></div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Gift Redemption Rate</span>
+                <span className="font-medium">78%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full">
+                <div className="h-full bg-primary rounded-full" style={{ width: '78%' }} />
+              </div>
             </div>
             
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Gift Claim Rate</span>
-              <span className="text-sm font-medium">92%</span>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Challenge Completion</span>
+                <span className="font-medium">64%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full">
+                <div className="h-full bg-primary rounded-full" style={{ width: '64%' }} />
+              </div>
             </div>
-            <div className="w-full bg-secondary rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>User Engagement</span>
+                <span className="font-medium">82%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full">
+                <div className="h-full bg-primary rounded-full" style={{ width: '82%' }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Cards */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Venues</CardTitle>
+            <CardDescription>
+              Your connected locations
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center space-x-4 border-b pb-2">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Downtown Coffee Shop</p>
+                <p className="text-xs text-muted-foreground">123 Main Street</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">47 scans</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4 border-b pb-2">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">City Mall Food Court</p>
+                <p className="text-xs text-muted-foreground">456 Shopping Blvd</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">23 scans</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Park Side Restaurant</p>
+                <p className="text-xs text-muted-foreground">789 Park Avenue</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">15 scans</p>
+              </div>
+            </div>
+            <Button variant="outline" className="w-full" asChild>
+              <Link to="/venues">
+                <MapPin className="h-4 w-4 mr-2" />
+                View All Venues
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Stats</CardTitle>
+            <CardDescription>
+              Important numbers at a glance
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Users className="h-4 w-4 text-blue-500" />
+                <span className="text-sm">New Users Today</span>
+              </div>
+              <span className="text-lg font-bold">12</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Gift className="h-4 w-4 text-green-500" />
+                <span className="text-sm">Gifts Claimed Today</span>
+              </div>
+              <span className="text-lg font-bold">8</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Trophy className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm">Active Challenges</span>
+              </div>
+              <span className="text-lg font-bold">5</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Activity className="h-4 w-4 text-purple-500" />
+                <span className="text-sm">Venue Scans Today</span>
+              </div>
+              <span className="text-lg font-bold">34</span>
             </div>
           </CardContent>
         </Card>

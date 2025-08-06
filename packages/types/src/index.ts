@@ -1,4 +1,4 @@
-// AppRouter type from tRPC backend
+// AppRouter type from main tRPC backend (for user platform)
 export type { AppRouterType as AppRouter } from '../../../apps/backends/main/src/app/trpc/app.router';
 
 // User profile interface matching Prisma schema

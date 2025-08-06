@@ -13,7 +13,11 @@ module.exports = {
     join(__dirname, '../../../packages/ui-web/src/**/*.{ts,tsx}'),
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

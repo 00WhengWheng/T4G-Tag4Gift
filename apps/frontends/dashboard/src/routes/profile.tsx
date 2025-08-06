@@ -1,17 +1,15 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@t4g/ui-web';
 import { Card, CardContent, CardHeader, CardTitle } from '@t4g/ui-web';
+import { AuthenticatedLayout } from '../components/layout/AuthenticatedLayout';
 
 export const Route = createFileRoute('/profile')({
-  beforeLoad: ({ context }) => {
-    if (!context.auth.isAuthenticated) {
-      throw redirect({
-        to: '/login',
-      });
-    }
-  },
-  component: ProfileComponent,
+  component: () => (
+    <AuthenticatedLayout>
+      <ProfileComponent />
+    </AuthenticatedLayout>
+  ),
 });
 
 function ProfileComponent() {
@@ -22,8 +20,8 @@ function ProfileComponent() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <Card className="max-w-2xl mx-auto">
+    <div>
+      <Card className="max-w-2xl">
         <CardHeader className="flex flex-row items-center space-x-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={user.picture} alt={user.name} />

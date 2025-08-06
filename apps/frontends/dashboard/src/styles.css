@@ -2,3 +2,25 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import '@t4g/ui-web/styles.css';
+
+/* Dashboard-specific theme overrides */
+@layer base {
+  :root {
+    /* Business Dashboard Brand Colors */
+    --primary: 237 75% 56%; /* Professional blue */
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 244 58% 51%; /* Purple accent */
+    --secondary-foreground: 0 0% 98%;
+    
+    /* Professional sidebar and layout */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 220 13% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --accent: 220 13% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+  }
+}

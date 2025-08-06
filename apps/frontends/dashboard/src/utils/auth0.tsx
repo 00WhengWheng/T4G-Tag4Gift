@@ -24,8 +24,8 @@ const businessAuth0Config: Record<T4GEnvironment, T4GAuth0Config> = {
     domain: import.meta.env.VITE_AUTH0_BUSINESS_DOMAIN || 'dev-t4g-business.auth0.com',
     clientId: import.meta.env.VITE_AUTH0_BUSINESS_CLIENT_ID || 'dev-business-client-id',
     audience: import.meta.env.VITE_AUTH0_BUSINESS_AUDIENCE || 'http://localhost:3002/api',
-    redirectUri: 'http://localhost:4202/callback',
-    logoutUri: 'http://localhost:4202',
+    redirectUri: 'http://localhost:4201/callback',
+    logoutUri: 'http://localhost:4201',
     scope: 'openid profile email read:analytics write:gifts manage:venues manage:challenges',
     platform: 'business',
   },
@@ -108,3 +108,6 @@ export const T4GBusinessAuth0Provider = ({ children }: { children: React.ReactNo
     </Auth0Provider>
   );
 };
+
+// Alias for compatibility with main.tsx import
+export const T4GAuth0Provider = T4GBusinessAuth0Provider;
