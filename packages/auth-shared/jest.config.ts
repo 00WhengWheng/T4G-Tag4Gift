@@ -1,9 +1,12 @@
+import { Config } from 'jest';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const baseConfig = require('../../jest.config.js');
-
-  ...baseConfig,
+const config: Config = {
   displayName: 'auth-shared',
-  testMatch: ['<rootDir>/src/**/*.spec.ts'],
-  rootDir: '.',
+  preset: '../../jest.preset.js',
+  testEnvironment: 'node',
+  transform: { '^.+\\.[tj]s$': 'ts-jest' },
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  coverageDirectory: '../../coverage/packages/auth-shared',
 };
+
+export default config;

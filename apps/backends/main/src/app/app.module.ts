@@ -2,15 +2,16 @@
 // import './games/enums/game-type.enum';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-// import { GamesModule } from './games/games.module';
-// import { UsersModule } from './users/users.module';
+import { GamesModule } from './games/games.module';
+import { UsersModule } from './users/users.module';
 // import { TenantsModule } from './tenants/tenants.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { AuthModule } from './auth/auth.module';
-// import { TagModule } from './tags/tag.module';
-// import { ShareModule } from './share/share.module';
+import { TagModule } from './tags/tag.module';
+import { ShareModule } from './share/share.module';
 // import { ChallengesModule } from './challenges/challenges.module';
 import { PrismaModule } from '@t4g/database';
+import { CoinsModule } from './coins/coins.module';
 
 /**
  * Main Application Module for T4G User Platform
@@ -32,11 +33,14 @@ import { PrismaModule } from '@t4g/database';
     TrpcModule,
     AuthModule,
     
+    // Feature modules
+    GamesModule,
+    UsersModule,
+    TagModule,
+    ShareModule,
+    CoinsModule,
+    
     // Feature modules (temporarily disabled due to GraphQL dependencies)
-    // GamesModule,
-    // UsersModule,
-    // TagModule,
-    // ShareModule,
     // ChallengesModule,
     
     // Business logic (temporarily disabled due to GraphQL dependencies)

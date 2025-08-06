@@ -14,18 +14,18 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@t4g/types": ["../../../dist/out-tsc/packages/types/src/index.d.ts"],
-      "@t4g/ui-web": ["../../../dist/out-tsc/packages/ui-web/src/index.d.ts"],
-      "@t4g/ui-web/utils": ["../../../dist/out-tsc/packages/ui-web/src/lib/utils.d.ts"],
-      "@t4g/ui-web/card": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/card.d.ts"],
-      "@t4g/ui-web/avatar": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/avatar.d.ts"],
-      "@t4g/ui-web/tabs": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/tabs.d.ts"],
-      "@t4g/ui-web/separator": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/separator.d.ts"],
-      "@t4g/ui-web/badge": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/badge.d.ts"],
-      "@t4g/ui-web/button": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/button.d.ts"],
-      "@t4g/ui-web/toast": ["../../../dist/out-tsc/packages/ui-web/src/components/ui/toast.d.ts"],
-      "@t4g/ui-web/use-toast": ["../../../dist/out-tsc/packages/ui-web/src/hooks/use-toast.d.ts"],
-      "@t4g/auth-users": ["../../../dist/out-tsc/packages/auth-users/src/index.d.ts"]
+      "@t4g/types": ["../../../dist/packages/types/src/index.d.ts"],
+      "@t4g/ui-web": ["../../../dist/packages/ui-web/src/index.d.ts"],
+      "@t4g/ui-web/utils": ["../../../dist/packages/ui-web/src/lib/utils.d.ts"],
+      "@t4g/ui-web/card": ["../../../dist/packages/ui-web/src/components/ui/card.d.ts"],
+      "@t4g/ui-web/avatar": ["../../../dist/packages/ui-web/src/components/ui/avatar.d.ts"],
+      "@t4g/ui-web/tabs": ["../../../dist/packages/ui-web/src/components/ui/tabs.d.ts"],
+      "@t4g/ui-web/separator": ["../../../dist/packages/ui-web/src/components/ui/separator.d.ts"],
+      "@t4g/ui-web/badge": ["../../../dist/packages/ui-web/src/components/ui/badge.d.ts"],
+      "@t4g/ui-web/button": ["../../../dist/packages/ui-web/src/components/ui/button.d.ts"],
+      "@t4g/ui-web/toast": ["../../../dist/packages/ui-web/src/components/ui/toast.d.ts"],
+      "@t4g/ui-web/use-toast": ["../../../dist/packages/ui-web/src/hooks/use-toast.d.ts"],
+      "@t4g/auth-shared": ["../../../dist/packages/auth-shared/src/index.d.ts"]
     }
   },
   "include": [
@@ -37,7 +37,7 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "../../../packages/ui-web/tsconfig.json" },
-    { "path": "../../../packages/auth-users/tsconfig.json" },
+    { "path": "../../../packages/auth-shared/tsconfig.json" },
     { "path": "../../../packages/types/tsconfig.json" }
   ]
 }

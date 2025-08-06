@@ -10,7 +10,7 @@
       "options": {
         "outputPath": "dist/packages/auth-shared",
         "tsConfig": "packages/auth-shared/tsconfig.lib.json",
-        "main": "packages/auth-shared/src/t4g-auth0-config.ts"
+        "main": "packages/auth-shared/src/t4g-auth0-config.tsx"
       }
     }
   }

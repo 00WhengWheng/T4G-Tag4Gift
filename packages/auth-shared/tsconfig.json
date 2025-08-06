@@ -6,8 +6,11 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "../../dist/packages/auth-shared",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
-  "include": ["src/**/*.ts"],
+  "jsx": "react-jsx",
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]
 }

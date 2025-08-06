@@ -1,8 +1,0 @@
-import { getJestProjects } from '@nx/jest';
-
-export default {
-  projects: getJestProjects(),
-  testEnvironment: 'node',
-  moduleFileExtensions: ['ts', 'js', 'json'],
-  coverageDirectory: './coverage',
-};

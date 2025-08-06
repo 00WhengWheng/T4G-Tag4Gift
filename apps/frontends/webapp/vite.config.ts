@@ -13,6 +13,9 @@ export default defineConfig(() => ({
   server: {
     port: 4200,
     host: 'localhost',
+    fs: {
+      allow: [__dirname, '../../../', '../../', '/home/fdm/T4G-Tag4Gift']
+    }
   },
   preview: {
     port: 4200,
@@ -22,8 +25,7 @@ export default defineConfig(() => ({
     alias: {
       '@t4g/ui-web': resolve(__dirname, '../../../packages/ui-web/src/index.ts'),
       '@t4g/types': resolve(__dirname, '../../../packages/types/src/index.ts'),
-      '@t4g/auth-users': resolve(__dirname, '../../../packages/auth-users/src/index.ts'),
-      '@t4g/auth-shared': resolve(__dirname, '../../../dist/packages/auth-shared'),
+      '@t4g/auth-shared': resolve(__dirname, '../../../dist/packages/auth-shared/src/index.js'),
     },
   },
   plugins: [

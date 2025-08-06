@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import '../styles.css';
-import { T4GAuth0Provider } from '@t4g/auth-shared/t4g-auth0-config';
+import { T4GAuth0Provider } from '@t4g/auth-shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { Route as rootRoute } from './routes/__root';

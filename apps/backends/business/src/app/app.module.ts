@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 import { VenueModule } from './venue/venue.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { GiftModule } from './gift/gift.module';
-import { SubscriptionModule } from './subscription/subscription.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { PrismaModule } from '@t4g/database';
 
@@ -36,7 +35,6 @@ import { PrismaModule } from '@t4g/database';
     VenueModule,
     AnalyticsModule,
     GiftModule,
-    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

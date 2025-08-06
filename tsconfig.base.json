@@ -30,8 +30,8 @@
       "@t4g/auth-portal": [
         "packages/auth-portal/src/index.ts"
       ],
-      "@t4g/auth-users": [
-        "packages/auth-users/src/index.ts"
+      "@t4g/auth-shared": [
+        "packages/auth-shared/src/index.ts"
       ],
       "@t4g/database": [
         "packages/database/src/index.ts"
