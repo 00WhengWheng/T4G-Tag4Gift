@@ -33,7 +33,7 @@ const VenueDetailsSchema = z.object({
 const ScanVenueSchema = z.object({
   venueId: z.string(),
   userId: z.string(),
-  scanType: z.enum(['QR', 'NFC']),
+  scanType: z.enum(['QR', 'NFC']), // Converted to QR_CODE in service
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   metadata: z.record(z.any()).optional(),
@@ -63,10 +63,15 @@ export class VenuesRouter {
         .input(VenueMapQuerySchema)
         .query(async ({ input }) => {
           try {
-            return await this.venueService.getVenuesForMap(
-              input.userId,
-              input.bounds
-            );
+            const bounds = input.bounds && 
+              input.bounds.north !== undefined && 
+              input.bounds.south !== undefined && 
+              input.bounds.east !== undefined && 
+              input.bounds.west !== undefined
+              ? input.bounds as { north: number; south: number; east: number; west: number }
+              : undefined;
+
+            return await this.venueService.getVenuesForMap(input.userId, bounds);
           } catch (error) {
             throw new TRPCError({
               code: 'INTERNAL_SERVER_ERROR',
@@ -98,14 +103,21 @@ export class VenuesRouter {
         .input(VenueDetailsSchema)
         .query(async ({ input }) => {
           try {
-            return await this.venueService.getVenueDetails(input);
-          } catch (error) {
-            if (error.message?.includes('not found')) {
+            const venue = await this.venueService.getVenueDetails({
+              venueId: input.venueId,
+              userId: input.userId,
+            });
+            
+            if (!venue) {
               throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: error.message,
+                message: 'Venue not found',
               });
             }
+
+            return venue;
+          } catch (error) {
+            if (error instanceof TRPCError) throw error;
             
             throw new TRPCError({
               code: 'INTERNAL_SERVER_ERROR',
@@ -121,7 +133,14 @@ export class VenuesRouter {
         .input(ScanVenueSchema)
         .mutation(async ({ input }) => {
           try {
-            return await this.venueService.scanVenue(input);
+            return await this.venueService.scanVenue({
+              venueId: input.venueId,
+              userId: input.userId,
+              scanType: input.scanType,
+              latitude: input.latitude,
+              longitude: input.longitude,
+              metadata: input.metadata,
+            });
           } catch (error) {
             if (error.message?.includes('not found')) {
               throw new TRPCError({

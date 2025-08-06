@@ -76,7 +76,7 @@ function RouterContextInjector() {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: 'http://localhost:3000/api/trpc',
+          url: 'http://localhost:3001/api/trpc', // Main backend runs on 3001
           headers: async () => {
             try {
               if (isAuthenticated) {
