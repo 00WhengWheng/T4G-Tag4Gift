@@ -1,6 +1,5 @@
-// AppRouter type placeholder - will be generated from tRPC router
-// TODO: Generate this automatically from the backend tRPC router
-export type AppRouter = any; // Temporary placeholder for tRPC router type
+// AppRouter type from tRPC backend
+export type { AppRouterType as AppRouter } from '../../../apps/backends/main/src/app/trpc/app.router';
 
 // User profile interface matching Prisma schema
 export interface UserProfile {

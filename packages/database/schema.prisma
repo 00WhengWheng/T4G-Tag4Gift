@@ -10,6 +10,7 @@ datasource db {
 
 model User {
   id                     String                  @id @default(uuid())
+  auth0Id                String?                 @unique
   email                  String                  @unique
   username               String                  @unique
   firstName              String
@@ -42,6 +43,9 @@ model User {
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
   awardedGifts           UserGift[]
   scannedTags            UserScannedTag[]
+  coinBalance            CoinBalance?
+  coinTransactions       CoinTransaction[]
+  challengePasses        ChallengePass[]
 }
 
 model Venue {
@@ -106,11 +110,6 @@ model GiftWinner {
   gift      Gift     @relation(fields: [giftId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 }
-
-
-
-
-
 
 model SocialContent {
   id        String     @id @default(uuid())
@@ -291,6 +290,7 @@ model Challenge {
   tenant            Tenant                 @relation(fields: [tenantId], references: [id])
   tournament        Tournament?            @relation(fields: [tournamentId], references: [id])
   participants      ChallengeParticipant[]
+  challengePasses   ChallengePass[]
 }
 
 model ChallengeParticipant {
@@ -593,4 +593,79 @@ enum AdminPermission {
   MANAGE_TAGS
   MANAGE_SHARES
   VIEW_AUDIT_LOGS
+}
+
+// Coin System Enums
+enum CoinType {
+  TAG
+  SHARE
+  GAME
+}
+
+enum TransactionSource {
+  TAG_SCAN
+  SOCIAL_SHARE
+  GAME_COMPLETION
+  GAME_PLAY
+  CHALLENGE_REWARD
+  CHALLENGE_PASS
+  ADMIN_ADJUSTMENT
+}
+
+// Coin Balance Model
+model CoinBalance {
+  id         String @id @default(uuid())
+  userId     String @unique
+  tagCoins   Int    @default(0)
+  shareCoins Int    @default(0)
+  gameCoins  Int    @default(0)
+  totalCoins Int    @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Coin Transaction Model
+model CoinTransaction {
+  id          String            @id @default(uuid())
+  userId      String
+  type        CoinType
+  amount      Int
+  source      TransactionSource
+  sourceId    String?           // ID of the tag, share, game, etc.
+  description String?
+  metadata    Json?
+  createdAt   DateTime          @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+// Challenge Pass Model
+model ChallengePass {
+  id          String   @id @default(uuid())
+  userId      String
+  weekStart   DateTime
+  weekEnd     DateTime
+  tagCoins    Int      @default(0)
+  shareCoins  Int      @default(0) 
+  gameCoins   Int      @default(0)
+  isEligible  Boolean  @default(true)
+  isUsed      Boolean  @default(false)
+  usedAt      DateTime?
+  challengeId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+  
+  @@unique([userId, weekStart])
+  @@index([userId])
+  @@index([weekStart])
+  @@index([isUsed])
 }

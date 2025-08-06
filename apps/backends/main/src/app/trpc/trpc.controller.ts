@@ -1,5 +1,5 @@
 import { Controller, All, Req, Res } from '@nestjs/common';
-import { TrpcService } from './trpc.service';
+import { AppRouter } from './app.router';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { Request, Response } from 'express';
 
@@ -16,10 +16,10 @@ interface AuthenticatedRequest extends Request {
 export class TrpcController {
   private trpcMiddleware: any;
 
-  constructor(private trpcService: TrpcService) {
+  constructor(private appRouter: AppRouter) {
     // Create tRPC express middleware
     this.trpcMiddleware = createExpressMiddleware({
-      router: this.trpcService.getAppRouter(),
+      router: this.appRouter.getAppRouter(),
       createContext: ({ req, res }: { req: AuthenticatedRequest; res: Response }) => ({
         req,
         res,

@@ -37,7 +37,6 @@
     "@nx/vite/plugin",
     "@nx/playwright/plugin",
     "@nx/eslint/plugin",
-    "@nx/jest/plugin",
     {
       "plugin": "@nx/react/router-plugin",
       "options": {

@@ -33,4 +33,4 @@ export class AppRouter {
   }
 }
 
-export type TAppRouter = ReturnType<AppRouter['getAppRouter']>;
+export type AppRouterType = ReturnType<AppRouter['getAppRouter']>;

@@ -172,6 +172,13 @@ export class GamesRouter {
             });
           }),
       }),
+
+      // Get game categories
+      getCategories: publicProcedure
+        .query(async () => {
+          // Return the available game categories
+          return ['Puzzle', 'Music', 'Reaction', 'Arcade', 'Quiz'];
+        }),
     });
   }
 

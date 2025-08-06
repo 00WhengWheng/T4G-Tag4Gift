@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useEffect } from 'react'
 
@@ -8,19 +8,29 @@ export const Route = createFileRoute('/callback')({
 
 function AuthCallbackPage() {
   const { handleRedirectCallback, isLoading, error } = useAuth0()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const handleAuth0Callback = async () => {
+    const handleCallback = async () => {
       try {
         await handleRedirectCallback()
-        // Redirect will be handled by Auth0
-      } catch (error) {
-        console.error('Auth callback error:', error)
+        // Use TanStack Router navigation
+        navigate({ to: '/' })
+      } catch (err) {
+        console.error('Callback error:', err)
+        navigate({ to: '/' })
       }
     }
+    
+    handleCallback()
+  }, [handleRedirectCallback, navigate])
 
-    handleAuth0Callback()
-  }, [handleRedirectCallback])
+  // Remove the second useEffect to avoid conflicts
+  // useEffect(() => {
+  //   if (isAuthenticated && !isLoading && !hasHandledCallback) {
+  //     window.location.href = '/'
+  //   }
+  // }, [isAuthenticated, isLoading, hasHandledCallback])
 
   if (error) {
     return (

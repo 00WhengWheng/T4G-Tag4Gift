@@ -1,35 +1,77 @@
 import React, { useState } from 'react';
+import { trpc } from '../utils/trpc';
+import { useNavigate } from '@tanstack/react-router';
+import GameModal from '../components/GameModal';
+
+interface Game {
+  id: string;
+  name: string;
+  description?: string;
+  type: string;
+  category?: string;
+  difficulty?: string;
+  isActive: boolean;
+  gdevelopProjectUrl?: string;
+  slug?: string;
+  coverImage?: string;
+}
 
 export default function HomePage() {
-  // Temporary mock data until tRPC is properly set up
-  const [games] = useState([
+  const navigate = useNavigate();
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Fetch real games data using tRPC
+  const { data: gamesData, isPending: gamesLoading, error: gamesError } = trpc.games.gdevelop.getGames.useQuery({});
+  const { data: categoriesData, isPending: categoriesLoading } = trpc.games.getCategories.useQuery();
+
+  // Open game modal
+  const handleGameClick = (game: Game) => {
+    setSelectedGame(game);
+    setIsModalOpen(true);
+  };
+
+  // Transform games data or use fallback
+  const games: Game[] = gamesData || [
     {
       id: '1',
-      name: 'Quiz Master',
-      description: 'Test your knowledge with trivia questions about local venues',
-      type: 'QUIZ',
-      category: 'Knowledge',
-      difficulty: 'Easy'
+      name: 'Road Cross Adventure',
+      description: 'Navigate through busy roads and obstacles in this thrilling arcade game',
+      type: 'REACTION',
+      category: 'Reaction',
+      difficulty: 'Medium',
+      isActive: true,
+      gdevelopProjectUrl: 'reaction/road-cross',
+      slug: 'road-cross',
+      coverImage: '/games/reaction/road-cross/thumbnail.png'
     },
     {
       id: '2',
-      name: 'Venue Hunter',
-      description: 'Find and visit hidden gems in your city',
-      type: 'PUZZLE',
-      category: 'Adventure',
-      difficulty: 'Medium'
+      name: 'Flappy Plane',
+      description: 'Pilot your plane through challenging obstacles in this addictive reaction game',
+      type: 'REACTION',
+      category: 'Reaction',
+      difficulty: 'Hard',
+      isActive: true,
+      gdevelopProjectUrl: 'reaction/flappy-plane',
+      slug: 'flappy-plane',
+      coverImage: '/games/reaction/flappy-plane/thumbnail.png'
     },
     {
       id: '3',
-      name: 'Speed Tagger',
-      description: 'Race against time to tag as many venues as possible',
-      type: 'ACTION',
-      category: 'Speed',
-      difficulty: 'Hard'
+      name: 'Match Ball',
+      description: 'Match colorful balls in this addictive puzzle game with increasing complexity',
+      type: 'PUZZLE',
+      category: 'Puzzle',
+      difficulty: 'Easy',
+      isActive: true,
+      gdevelopProjectUrl: 'puzzle/match-ball',
+      slug: 'match-ball',
+      coverImage: '/games/puzzle/match-ball/thumbnail.png'
     }
-  ]);
+  ];
 
-  const [categories] = useState(['Knowledge', 'Adventure', 'Speed', 'Strategy']);
+  const categories: string[] = categoriesData || ['Puzzle', 'Music', 'Reaction', 'Arcade', 'Quiz'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -78,7 +120,10 @@ export default function HomePage() {
                   <span className="text-sm text-gray-400">Category: {game.category}</span>
                   <span className="text-sm text-gray-400">Difficulty: {game.difficulty}</span>
                 </div>
-                <button className="w-full mt-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300">
+                <button 
+                  onClick={() => handleGameClick(game)}
+                  className="w-full mt-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300"
+                >
                   Play Now
                 </button>
               </div>
@@ -122,6 +167,7 @@ export default function HomePage() {
               {categories.map((category) => (
                 <button
                   key={category}
+                  onClick={() => navigate({ to: '/games', search: { category: category.toLowerCase() } })}
                   className="px-6 py-3 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 transition-all duration-300"
                 >
                   {category}
@@ -136,15 +182,28 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Playing?</h2>
           <p className="text-xl text-gray-300 mb-8">Join thousands of players earning real rewards every day!</p>
           <div className="space-x-4">
-            <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 px-8 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300">
+            <button 
+              onClick={() => navigate({ to: '/games' })}
+              className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 px-8 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300"
+            >
               Start Playing
             </button>
-            <button className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-purple-900 transition-all duration-300">
+            <button 
+              onClick={() => navigate({ to: '/games' })}
+              className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-purple-900 transition-all duration-300"
+            >
               Learn More
             </button>
           </div>
         </div>
       </div>
+
+      {/* Game Modal */}
+      <GameModal
+        game={selectedGame}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
