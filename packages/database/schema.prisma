@@ -10,7 +10,6 @@ datasource db {
 
 model User {
   id                     String                  @id @default(uuid())
-  auth0Id                String?                 @unique // Auth0 sub field
   email                  String                  @unique
   username               String                  @unique
   firstName              String
@@ -25,8 +24,8 @@ model User {
   timezone               String
   isEmailVerified        Boolean                 @default(false)
   isPhoneVerified        Boolean                 @default(false)
-  totalPoints            Int                     @default(0) // Deprecated - keeping for migration
-  level                  Int                     @default(1) // Deprecated - keeping for migration
+  totalPoints            Int                     @default(0)
+  level                  Int                     @default(1)
   tenantId               String?
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
@@ -43,10 +42,6 @@ model User {
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
   awardedGifts           UserGift[]
   scannedTags            UserScannedTag[]
-  // New Coin System
-  coinBalances           CoinBalance?
-  coinTransactions       CoinTransaction[]
-  challengePasses        ChallengePass[]
 }
 
 model Venue {
@@ -457,59 +452,6 @@ model AuditLog {
   admin     Admin    @relation(fields: [adminId], references: [id])
 }
 
-// === COIN SYSTEM MODELS ===
-
-model CoinBalance {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  tagCoins  Int      @default(0)
-  shareCoins Int     @default(0)
-  gameCoins Int      @default(0)
-  totalCoins Int     @default(0) // Auto-calculated: tagCoins + shareCoins + gameCoins
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model CoinTransaction {
-  id            String          @id @default(uuid())
-  userId        String
-  type          CoinType
-  amount        Int             // Positive for earning, negative for spending
-  source        TransactionSource
-  sourceId      String?         // Reference to tag, share, game, or challenge
-  description   String?
-  metadata      Json?           // Additional data (venue info, game details, etc.)
-  createdAt     DateTime        @default(now())
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([createdAt])
-}
-
-model ChallengePass {
-  id           String              @id @default(uuid())
-  userId       String
-  weekStart    DateTime            // Monday of the week
-  weekEnd      DateTime            // Sunday of the week
-  tagCoins     Int                 @default(0)
-  shareCoins   Int                 @default(0) 
-  gameCoins    Int                 @default(0)
-  isEligible   Boolean             @default(false) // true when 3 tag + 2 share + 4 game
-  isUsed       Boolean             @default(false)
-  usedAt       DateTime?
-  challengeId  String?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, weekStart]) // One challenge pass per user per week
-  @@index([userId])
-  @@index([weekStart])
-  @@index([isEligible])
-}
-
 enum TagType {
   NFC
   QRCODE
@@ -651,22 +593,4 @@ enum AdminPermission {
   MANAGE_TAGS
   MANAGE_SHARES
   VIEW_AUDIT_LOGS
-}
-
-// === COIN SYSTEM ENUMS ===
-
-enum CoinType {
-  TAG
-  SHARE
-  GAME
-}
-
-enum TransactionSource {
-  TAG_SCAN       // Earned by scanning QR/NFC at venues
-  SOCIAL_SHARE   // Earned by posting on social media
-  GAME_PLAY      // Earned by playing games
-  CHALLENGE_ENTRY // Spent to enter challenges
-  CHALLENGE_PASS // Spent to generate challenge pass
-  GIFT_REWARD    // Earned as gift/bonus
-  ADMIN_ADJUSTMENT // Manual adjustment by admin
 }

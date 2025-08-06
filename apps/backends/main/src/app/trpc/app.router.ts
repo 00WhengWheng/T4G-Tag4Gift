@@ -6,7 +6,6 @@ import { TagsRouter } from './routers/tags.router';
 import { ShareRouter } from './routers/share.router';
 import { UsersRouter } from './routers/users.router';
 import { TenantsRouter } from './routers/tenants.router';
-import { CoinsRouter } from './routers/coins.router';
 
 @Injectable()
 export class AppRouter {
@@ -16,8 +15,7 @@ export class AppRouter {
     private readonly tagsRouter: TagsRouter,
     private readonly shareRouter: ShareRouter,
     private readonly usersRouter: UsersRouter,
-    private readonly tenantsRouter: TenantsRouter,
-    private readonly coinsRouter: CoinsRouter,
+    private readonly tenantsRouter: TenantsRouter
   ) {}
 
   getAppRouter() {
@@ -28,7 +26,6 @@ export class AppRouter {
       share: this.shareRouter.getRoutes(),
       users: this.usersRouter.getRoutes(),
       tenants: this.tenantsRouter.getRoutes(),
-      coins: this.coinsRouter.getRoutes(),
     });
   }
 }

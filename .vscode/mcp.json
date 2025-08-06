@@ -63,10 +63,6 @@
       "args": [
         "@maikcyphlock/npm-mcp"
       ]
-    },
-    "nx-mcp": {
-      "type": "http",
-      "url": "http://localhost:9233/mcp"
     }
   }
 }

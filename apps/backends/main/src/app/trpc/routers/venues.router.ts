@@ -1,0 +1,179 @@
+import { Injectable } from '@nestjs/common';
+import { z } from 'zod';
+import { publicProcedure, router } from '../trpc';
+import { VenueService } from '../../venue/venue.service';
+import { PrismaService } from '@t4g/database';
+import { TRPCError } from '@trpc/server';
+
+// Input validation schemas
+const VenueMapQuerySchema = z.object({
+  userId: z.string().optional(),
+  bounds: z.object({
+    north: z.number(),
+    south: z.number(),
+    east: z.number(),
+    west: z.number(),
+  }).optional(),
+});
+
+const VenueDiscoverySchema = z.object({
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  radius: z.number().min(0.1).max(50).optional(),
+  category: z.string().optional(),
+  limit: z.number().min(1).max(100).optional(),
+  offset: z.number().min(0).optional(),
+});
+
+const VenueDetailsSchema = z.object({
+  venueId: z.string(),
+  userId: z.string().optional(),
+});
+
+const ScanVenueSchema = z.object({
+  venueId: z.string(),
+  userId: z.string(),
+  scanType: z.enum(['QR', 'NFC']),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  metadata: z.record(z.any()).optional(),
+});
+
+const PopularVenuesSchema = z.object({
+  limit: z.number().min(1).max(50).optional(),
+});
+
+/**
+ * Venues tRPC Router
+ * Provides type-safe API for venue operations in the user platform
+ */
+@Injectable()
+export class VenuesRouter {
+  constructor(
+    private readonly venueService: VenueService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  getRoutes() {
+    return router({
+      /**
+       * Get venues for map visualization
+       */
+      getMapVenues: publicProcedure
+        .input(VenueMapQuerySchema)
+        .query(async ({ input }) => {
+          try {
+            return await this.venueService.getVenuesForMap(
+              input.userId,
+              input.bounds
+            );
+          } catch (error) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Failed to fetch venues for map',
+            });
+          }
+        }),
+
+      /**
+       * Discover venues by location and filters
+       */
+      discoverVenues: publicProcedure
+        .input(VenueDiscoverySchema)
+        .query(async ({ input }) => {
+          try {
+            return await this.venueService.discoverVenues(input);
+          } catch (error) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Failed to discover venues',
+            });
+          }
+        }),
+
+      /**
+       * Get detailed venue information
+       */
+      getVenueDetails: publicProcedure
+        .input(VenueDetailsSchema)
+        .query(async ({ input }) => {
+          try {
+            return await this.venueService.getVenueDetails(input);
+          } catch (error) {
+            if (error.message?.includes('not found')) {
+              throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: error.message,
+              });
+            }
+            
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Failed to get venue details',
+            });
+          }
+        }),
+
+      /**
+       * Scan venue for coins (QR/NFC)
+       */
+      scanVenue: publicProcedure
+        .input(ScanVenueSchema)
+        .mutation(async ({ input }) => {
+          try {
+            return await this.venueService.scanVenue(input);
+          } catch (error) {
+            if (error.message?.includes('not found')) {
+              throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: error.message,
+              });
+            }
+            
+            if (error.message?.includes('already scanned') || error.message?.includes('near the venue')) {
+              throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: error.message,
+              });
+            }
+            
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Failed to scan venue',
+            });
+          }
+        }),
+
+      /**
+       * Get popular/trending venues
+       */
+      getPopularVenues: publicProcedure
+        .input(PopularVenuesSchema)
+        .query(async ({ input }) => {
+          try {
+            return await this.venueService.getPopularVenues(input.limit);
+          } catch (error) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Failed to get popular venues',
+            });
+          }
+        }),
+
+      /**
+       * Get venue categories for filtering
+       */
+      getVenueCategories: publicProcedure
+        .query(async () => {
+          try {
+            return await this.venueService.getVenueCategories();
+          } catch (error) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Failed to get venue categories',
+            });
+          }
+        }),
+    });
+  }
+}

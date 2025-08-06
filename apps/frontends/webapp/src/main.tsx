@@ -6,46 +6,18 @@ import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { trpc } from './utils/trpc';
+import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '@t4g/types';
 
-const auth0Config = {
-  domain: import.meta.env.VITE_AUTH0_USERS_DOMAIN,
-  clientId: import.meta.env.VITE_AUTH0_USERS_CLIENT_ID,
-  audience: import.meta.env.VITE_AUTH0_USERS_AUDIENCE,
-  scope: 'openid profile email',
-  redirectUri: import.meta.env.VITE_AUTH0_CALLBACK_URL || (window.location.origin + '/callback'),
-  logoutUri: window.location.origin,
-};
-
-function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000, // 1 minute
-      },
-    },
-  });
-}
-
-let browserQueryClient: QueryClient | undefined = undefined;
-
-function getQueryClient() {
-  if (typeof window === 'undefined') {
-    return makeQueryClient();
-  } else {
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
-    return browserQueryClient;
-  }
-}
+const queryClient = new QueryClient();
 
 export const router = createRouter({
   routeTree,
   context: {
     auth: undefined!,
     queryClient: undefined!,
-    trpc: undefined!,
+    trpcClient: undefined!,
   },
 });
 
@@ -55,75 +27,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
-// Router Context Injector with tRPC integration
-function RouterContextInjector() {
-  const { isAuthenticated, user, isLoading, loginWithRedirect, logout } = useAuth0();
-  const queryClient = getQueryClient();
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
 
-  return (
-    <RouterProvider
-      router={router}
-      context={{
-        auth: { 
-          isAuthenticated, 
-          user: user as any, 
-          isLoading,
-          login: loginWithRedirect,
-          logout 
-        },
-        queryClient,
-        trpc,
-      }}
-    />
-  );
-}
 
-// Main App Component
-function App() {
-  const { getAccessTokenSilently } = useAuth0();
-  const queryClient = getQueryClient();
-  
-  const [trpcClient] = React.useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: 'http://localhost:3000/api/trpc',
-          async headers() {
-            try {
-              const token = await getAccessTokenSilently({
-                authorizationParams: {
-                  audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-                },
-              });
-              return {
-                authorization: `Bearer ${token}`,
-              };
-            } catch (error) {
-              console.warn('Failed to get access token:', error);
-              return {};
-            }
-          },
-        }),
-      ],
-    })
-  );
 
-  return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <RouterContextInjector />
-      </QueryClientProvider>
-    </trpc.Provider>
-  );
-}
+
+const auth0Config = {
+  domain: import.meta.env.VITE_AUTH0_USERS_DOMAIN,
+  clientId: import.meta.env.VITE_AUTH0_USERS_CLIENT_ID,
+  audience: import.meta.env.VITE_AUTH0_USERS_AUDIENCE,
+  scope: 'openid profile email',
+  redirectUri: import.meta.env.VITE_AUTH0_CALLBACK_URL || (window.location.origin + '/callback'),
+  logoutUri: window.location.origin,
+};
 
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
@@ -142,8 +57,68 @@ if (!rootElement.innerHTML) {
         cacheLocation="localstorage"
         skipRedirectCallback={false}
       >
-        <App />
+        <T4GProviders>
+          <RouterContextInjector />
+        </T4GProviders>
       </Auth0Provider>
     </StrictMode>
   );
 }
+
+
+// This component injects queryClient and trpcClient into the router context
+function RouterContextInjector() {
+  const { getAccessTokenSilently, isAuthenticated, user, isLoading, loginWithRedirect, logout } = useAuth0();
+  const [queryClient] = React.useState(() => new QueryClient());
+  
+  // Create trpcClient with Auth0 token
+  const [trpcClient] = React.useState(() =>
+    trpc.createClient({
+      links: [
+        httpBatchLink({
+          url: 'http://localhost:3000/api/trpc',
+          headers: async () => {
+            try {
+              if (isAuthenticated) {
+                const token = await getAccessTokenSilently();
+                return { authorization: `Bearer ${token}` };
+              }
+            } catch (error) {
+              console.warn('Failed to get access token:', error);
+            }
+            return {};
+          },
+        }),
+      ],
+    })
+  );
+
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider
+          router={router}
+          context={{
+            auth: { 
+              isAuthenticated, 
+              user: user as any, 
+              isLoading,
+              login: loginWithRedirect,
+              logout 
+            },
+            queryClient,
+            trpcClient,
+          }}
+        />
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+}
+
+
+
+function T4GProviders({ children }: { children: React.ReactNode }) {
+  // This provider can be used for other global providers if needed
+  return <>{children}</>;
+}
+

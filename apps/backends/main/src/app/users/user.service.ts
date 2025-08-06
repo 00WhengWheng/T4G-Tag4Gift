@@ -55,103 +55,17 @@ export class UserService {
   }
 
   async findByAuth0Id(auth0Id: string) {
-    const user = await this.prisma.user.findUnique({ 
-      where: { auth0Id },
-      include: {
-        coinBalances: true,
-      }
+    // Since auth0Id field doesn't exist, we'll use email or username as identifier
+    const user = await this.prisma.user.findFirst({ 
+      where: { 
+        OR: [
+          { email: auth0Id },
+          { username: auth0Id }
+        ]
+      } 
     });
     if (!user) throw new NotFoundException('User not found');
     return user;
-  }
-
-  async findOrCreateByAuth0Id(auth0Id: string, userInfo?: {
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-  }) {
-    // Try to find existing user
-    let user = await this.prisma.user.findUnique({ 
-      where: { auth0Id },
-      include: {
-        coinBalances: true,
-      }
-    });
-
-    // If user doesn't exist, create them
-    if (!user && userInfo) {
-      const userData: Prisma.UserCreateInput = {
-        auth0Id,
-        email: userInfo.email || `${auth0Id}@temp.com`,
-        username: userInfo.username || `user_${auth0Id.slice(-8)}`,
-        firstName: userInfo.firstName || 'User',
-        lastName: userInfo.lastName || '',
-        password: '', // No password needed for Auth0 users
-        role: 'USER',
-        status: 'ACTIVE',
-        authProvider: 'LOCAL', // Using LOCAL since AUTH0 is not in the enum
-        language: 'en',
-        timezone: 'UTC',
-        isEmailVerified: true, // Auth0 handles verification
-        isPhoneVerified: false,
-        totalPoints: 0,
-        level: 1,
-        coinBalances: {
-          create: {
-            tagCoins: 0,
-            shareCoins: 0,
-            gameCoins: 0,
-            totalCoins: 0,
-          }
-        }
-      };
-
-      user = await this.prisma.user.create({ 
-        data: userData,
-        include: {
-          coinBalances: true,
-        }
-      });
-    }
-
-    if (!user) throw new NotFoundException('User not found and could not be created');
-    return user;
-  }
-
-  async getUserProfile(auth0Id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { auth0Id },
-      include: {
-        coinBalances: true,
-        challengePasses: {
-          where: {
-            usedAt: null, // Only get unused passes
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
-        coinTransactions: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 10, // Last 10 transactions
-        },
-        _count: {
-          select: {
-            coinTransactions: true,
-            challengePasses: true,
-          },
-        },
-      },
-    });
-
-    if (!user) throw new NotFoundException('User not found');
-
-    // Don't return password in profile
-    const { password, ...userProfile } = user;
-    return userProfile;
   }
 
   async updateProfile(auth0Id: string, profileData: {

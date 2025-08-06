@@ -23,14 +23,4 @@ export class User {
   updatedAt: Date;
   password?: string;
   lastLoginIp?: string;
-  auth0Id?: string;
-  // Coin-related fields from relations
-  coinBalance?: {
-    tagCoins: number;
-    shareCoins: number;
-    gameCoins: number;
-    totalCoins: number;
-  };
-  challengePasses?: any[];
-  coinTransactions?: any[];
 }
