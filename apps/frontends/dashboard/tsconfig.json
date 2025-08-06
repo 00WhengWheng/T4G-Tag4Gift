@@ -1,31 +1,43 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    "outDir": "dist",
+    "module": "esnext",
+    "target": "esnext", 
     "jsx": "react-jsx",
     "allowJs": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "types": ["vite/client", "vitest", "@react-router/node"],
     "moduleResolution": "bundler",
+    "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@t4g/types": ["../../../packages/types/src/index.ts"],
-      "@t4g/auth-business": ["../../../packages/auth-business/src/index.tsx"],
-      "@t4g/database": ["../../../packages/database/src/index.ts"],
-      "@t4g/shared": ["../../../packages/shared/src/index.ts"],
-      "@t4g/ui-web": ["../../../packages/ui-web/src/index.ts"]
+      "@t4g/types": ["../../../dist/packages/types/src/index.d.ts"],
+      "@t4g/ui-web": ["../../../dist/packages/ui-web/src/index.d.ts"],
+      "@t4g/ui-web/utils": ["../../../dist/packages/ui-web/src/lib/utils.d.ts"],
+      "@t4g/ui-web/card": ["../../../dist/packages/ui-web/src/components/ui/card.d.ts"],
+      "@t4g/ui-web/avatar": ["../../../dist/packages/ui-web/src/components/ui/avatar.d.ts"],
+      "@t4g/ui-web/tabs": ["../../../dist/packages/ui-web/src/components/ui/tabs.d.ts"],
+      "@t4g/ui-web/separator": ["../../../dist/packages/ui-web/src/components/ui/separator.d.ts"],
+      "@t4g/ui-web/badge": ["../../../dist/packages/ui-web/src/components/ui/badge.d.ts"],
+      "@t4g/ui-web/button": ["../../../dist/packages/ui-web/src/components/ui/button.d.ts"],
+      "@t4g/ui-web/toast": ["../../../dist/packages/ui-web/src/components/ui/toast.d.ts"],
+      "@t4g/ui-web/use-toast": ["../../../dist/packages/ui-web/src/hooks/use-toast.d.ts"],
+      "@t4g/auth-shared": ["../../../dist/packages/auth-shared/src/index.d.ts"]
     }
   },
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
+  "include": [
+    "src",
+    "../../../packages/ui-web/src/**/*.ts",
+    "../../../packages/ui-web/src/**/*.tsx",
+    "../../../packages/types/src/**/*.ts"
   ],
-  "extends": "../../../tsconfig.base.json"
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "../../../packages/ui-web/tsconfig.json" },
+    { "path": "../../../packages/auth-shared/tsconfig.json" },
+    { "path": "../../../packages/types/tsconfig.json" }
+  ]
 }

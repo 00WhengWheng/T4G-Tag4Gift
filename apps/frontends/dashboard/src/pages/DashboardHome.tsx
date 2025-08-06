@@ -9,8 +9,7 @@ import {
   MapPin,
   Eye
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@t4g/ui-web';
-import { Badge, Button } from '@t4g/ui-web';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Button } from '@t4g/ui-web';
 import { Link } from '@tanstack/react-router';
 
 export function DashboardHome() {

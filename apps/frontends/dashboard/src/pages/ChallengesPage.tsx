@@ -181,7 +181,7 @@ export function ChallengesPage() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/challenges/new">
+          <Link to="/create-challenge">
             <Plus className="h-4 w-4 mr-2" />
             Create Challenge
           </Link>

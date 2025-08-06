@@ -1,13 +1,12 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '../styles.css';
+import './styles/global.css';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 import { trpc } from './utils/trpc';
 import { httpBatchLink } from '@trpc/client';
-import type { AppRouter } from './utils/trpc';
 
 const queryClient = new QueryClient();
 
@@ -26,27 +25,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
-// Business Auth0 Configuration  
 const auth0Config = {
-  domain: import.meta.env.VITE_AUTH0_BUSINESS_DOMAIN || 'dev-s8w01y10y3szwvfl.us.auth0.com',
-  clientId: import.meta.env.VITE_AUTH0_BUSINESS_CLIENT_ID || 'Dy5tyu2fwnOhsMRGVDJ6O8H6DnDYcIRl',
-  audience: import.meta.env.VITE_AUTH0_BUSINESS_AUDIENCE || 'https://t4g-auth0.space',
-  redirectUri: import.meta.env.VITE_AUTH0_BUSINESS_CALLBACK_URL || 'http://localhost:4201/callback',
-  scope: 'openid profile email read:analytics write:gifts manage:venues manage:challenges',
+  domain: import.meta.env.VITE_AUTH0_BUSINESS_DOMAIN,
+  clientId: import.meta.env.VITE_AUTH0_BUSINESS_CLIENT_ID,
+  audience: import.meta.env.VITE_AUTH0_BUSINESS_AUDIENCE,
+  scope: 'openid profile email',
+  redirectUri: import.meta.env.VITE_AUTH0_CALLBACK_URL || (window.location.origin + '/callback'),
+  logoutUri: window.location.origin,
 };
 
-console.log('🔐 Dashboard Auth0 Config:', {
-  domain: auth0Config.domain,
-  clientId: auth0Config.clientId,
-  audience: auth0Config.audience,
-  redirectUri: auth0Config.redirectUri,
-});
-
 const rootElement = document.getElementById('root')!;
-const root = createRoot(rootElement);
-
-root.render(
-  <StrictMode>
+if (!rootElement.innerHTML) {
+  const root = createRoot(rootElement);
+  root.render(
+    <StrictMode>
       <Auth0Provider
         domain={auth0Config.domain}
         clientId={auth0Config.clientId}
@@ -57,18 +49,22 @@ root.render(
         }}
         useRefreshTokens={true}
         cacheLocation="localstorage"
-        skipRedirectCallback={window.location.pathname === '/callback'}
-        onRedirectCallback={(appState) => {
-          const targetUrl = appState?.returnTo || '/';
-          window.history.replaceState({}, document.title, targetUrl);
-        }}
+        skipRedirectCallback={false}
       >
-      <T4GBusinessProviders>
-        <RouterContextInjector />
-      </T4GBusinessProviders>
-    </Auth0Provider>
-  </StrictMode>
-);
+        <T4GBusinessProviders>
+          <RouterContextInjector />
+        </T4GBusinessProviders>
+      </Auth0Provider>
+    </StrictMode>
+  );
+}
+
+console.log('🔐 Dashboard Auth0 Config:', {
+  domain: auth0Config.domain,
+  clientId: auth0Config.clientId,
+  audience: auth0Config.audience,
+  redirectUri: auth0Config.redirectUri,
+});
 
 // This component injects queryClient and trpcClient into the router context
 function RouterContextInjector() {

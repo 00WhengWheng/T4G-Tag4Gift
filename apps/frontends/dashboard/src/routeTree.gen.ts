@@ -15,6 +15,7 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CreateChallengeRouteImport } from './routes/create-challenge'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as CallbackRouteImport } from './routes/callback'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
@@ -50,6 +51,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreateChallengeRoute = CreateChallengeRouteImport.update({
+  id: '/create-challenge',
+  path: '/create-challenge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChallengesRoute = ChallengesRouteImport.update({
   id: '/challenges',
   path: '/challenges',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AnalyticsRoute
   '/callback': typeof CallbackRoute
   '/challenges': typeof ChallengesRoute
+  '/create-challenge': typeof CreateChallengeRoute
   '/dashboard': typeof DashboardRoute
   '/gifts': typeof GiftsRoute
   '/login': typeof LoginRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AnalyticsRoute
   '/callback': typeof CallbackRoute
   '/challenges': typeof ChallengesRoute
+  '/create-challenge': typeof CreateChallengeRoute
   '/dashboard': typeof DashboardRoute
   '/gifts': typeof GiftsRoute
   '/login': typeof LoginRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/analytics': typeof AnalyticsRoute
   '/callback': typeof CallbackRoute
   '/challenges': typeof ChallengesRoute
+  '/create-challenge': typeof CreateChallengeRoute
   '/dashboard': typeof DashboardRoute
   '/gifts': typeof GiftsRoute
   '/login': typeof LoginRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/callback'
     | '/challenges'
+    | '/create-challenge'
     | '/dashboard'
     | '/gifts'
     | '/login'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/callback'
     | '/challenges'
+    | '/create-challenge'
     | '/dashboard'
     | '/gifts'
     | '/login'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/callback'
     | '/challenges'
+    | '/create-challenge'
     | '/dashboard'
     | '/gifts'
     | '/login'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   AnalyticsRoute: typeof AnalyticsRoute
   CallbackRoute: typeof CallbackRoute
   ChallengesRoute: typeof ChallengesRoute
+  CreateChallengeRoute: typeof CreateChallengeRoute
   DashboardRoute: typeof DashboardRoute
   GiftsRoute: typeof GiftsRoute
   LoginRoute: typeof LoginRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/create-challenge': {
+      id: '/create-challenge'
+      path: '/create-challenge'
+      fullPath: '/create-challenge'
+      preLoaderRoute: typeof CreateChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/challenges': {
       id: '/challenges'
       path: '/challenges'
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsRoute: AnalyticsRoute,
   CallbackRoute: CallbackRoute,
   ChallengesRoute: ChallengesRoute,
+  CreateChallengeRoute: CreateChallengeRoute,
   DashboardRoute: DashboardRoute,
   GiftsRoute: GiftsRoute,
   LoginRoute: LoginRoute,

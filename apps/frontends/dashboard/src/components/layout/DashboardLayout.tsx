@@ -14,9 +14,9 @@ import {
   Users,
   Bell
 } from 'lucide-react';
-import { cn } from '@t4g/ui-web';
-import { Button } from '@t4g/ui-web';
-import { Avatar, AvatarFallback, AvatarImage } from '@t4g/ui-web';
+import { Button } from '@t4g/ui-web/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@t4g/ui-web/components/ui/avatar';
+import { cn } from '@t4g/ui-web/lib/utils';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

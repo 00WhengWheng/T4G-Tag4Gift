@@ -25,6 +25,13 @@ export default defineConfig(() => ({
     port: 4201,
     host: 'localhost',
   },
+  resolve: {
+    alias: {
+      '@t4g/ui-web': path.resolve(__dirname, '../../../packages/ui-web/src/index.ts'),
+      '@t4g/types': path.resolve(__dirname, '../../../packages/types/src/index.ts'),
+      '@t4g/auth-business': path.resolve(__dirname, '../../../packages/auth-business/src/index.tsx'),
+    },
+  },
   plugins: [
     TanStackRouterVite({
       routesDirectory: path.join(__dirname, 'src', 'routes'),
@@ -47,7 +54,7 @@ export default defineConfig(() => ({
     },
   },
   optimizeDeps: {
-    include: ['@t4g/auth-business', '@t4g/ui-web', '@t4g/types'],
+    include: ['@t4g/auth-shared', '@t4g/ui-web', '@t4g/types'],
   },
   test: {
     watch: false,

@@ -1,4 +1,3 @@
-
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/global.css';
@@ -8,7 +7,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 import { trpc } from './utils/trpc';
 import { httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '@t4g/types';
+//import type { AppRouter } from '@t4g/types';
 
 const queryClient = new QueryClient();
 
