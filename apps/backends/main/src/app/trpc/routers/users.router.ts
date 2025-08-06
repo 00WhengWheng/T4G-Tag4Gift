@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
 import { UserService } from '../../users/user.service';
+import { CoinsService } from '../../coins/coins.service';
 
 // Input validation schemas
 const createUserSchema = z.object({
@@ -36,9 +37,16 @@ const userEmailSchema = z.object({
   email: z.string().email(),
 });
 
+const auth0IdSchema = z.object({
+  auth0Id: z.string(),
+});
+
 @Injectable()
 export class UsersRouter {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly coinsService: CoinsService,
+  ) {}
 
   getRoutes() {
     return router({
@@ -86,6 +94,49 @@ export class UsersRouter {
         .input(userIdSchema)
         .mutation(async ({ input }) => {
           return await this.userService.deleteUser(input.id);
+        }),
+
+      // Auth0 integration endpoints
+      findByAuth0Id: publicProcedure
+        .input(auth0IdSchema)
+        .query(async ({ input }) => {
+          return await this.userService.findByAuth0Id(input.auth0Id);
+        }),
+
+      findOrCreateByAuth0Id: publicProcedure
+        .input(z.object({
+          auth0Id: z.string(),
+          userInfo: z.object({
+            email: z.string().optional(),
+            firstName: z.string().optional(),
+            lastName: z.string().optional(),
+            username: z.string().optional(),
+          }).optional(),
+        }))
+        .mutation(async ({ input }) => {
+          return await this.userService.findOrCreateByAuth0Id(input.auth0Id, input.userInfo);
+        }),
+
+      // Profile endpoints with coin integration
+      getProfile: publicProcedure
+        .input(auth0IdSchema)
+        .query(async ({ input }) => {
+          return await this.userService.getUserProfile(input.auth0Id);
+        }),
+
+      // Get full user dashboard data (profile + coins + stats)
+      getDashboard: publicProcedure
+        .input(auth0IdSchema)
+        .query(async ({ input }) => {
+          const profile = await this.userService.getUserProfile(input.auth0Id);
+          
+          // Get additional coin balance (simple approach for now)
+          const coinBalance = await this.coinsService.getUserCoinBalance(input.auth0Id);
+          
+          return {
+            profile,
+            coinBalance,
+          };
         }),
     });
   }

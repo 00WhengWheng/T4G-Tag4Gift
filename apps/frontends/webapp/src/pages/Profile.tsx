@@ -1,629 +1,328 @@
 import React from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Separator } from '../components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { trpc } from '../utils/trpc';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@t4g/ui-web/card';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@t4g/ui-web/avatar';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@t4g/ui-web/tabs';
-import { Separator } from '@t4g/ui-web/separator';
-import { Badge } from '@t4g/ui-web/badge';
-import { Button } from '@t4g/ui-web/button';
-import { Loader2, Coins, Trophy, Calendar, Mail, User, Edit, Settings } from 'lucide-react';
+import { 
+  User, 
+  Coins, 
+  Trophy, 
+  Calendar, 
+  Mail, 
+  Phone, 
+  MapPin,
+  Star,
+  TrendingUp,
+  Gift,
+  Zap
+} from 'lucide-react';
+import { LoadingSpinner } from '../components/ui/loading';
+import { CoinBalance } from '../components/CoinBalance';
 
-const Profile: React.FC = () => {
-  const { data: profile, isLoading, error } = (trpc as any).users.getProfile.useQuery();
-  const { data: achievements } = (trpc as any).users.getAchievements.useQuery();
-  const [tab, setTab] = React.useState("overview");
+export default function Profile() {
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth0();
 
-  if (isLoading) {
+  // Get user profile with coin data
+  const { data: userProfile, isLoading: profileLoading, error } = trpc.users.getProfile.useQuery(
+    { auth0Id: user?.sub || '' },
+    { 
+      enabled: !!user?.sub,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  // Get user dashboard data (includes coin stats)
+  const { data: dashboardData, isLoading: dashboardLoading } = trpc.users.getDashboard.useQuery(
+    { auth0Id: user?.sub || '' },
+    { 
+      enabled: !!user?.sub,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  if (authLoading || profileLoading || dashboardLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading your profile...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>Please log in to view your profile</CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <Card className="w-96">
           <CardHeader>
-            <CardTitle className="text-destructive flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Error Loading Profile
-            </CardTitle>
-            <CardDescription>We couldn't load your profile information</CardDescription>
+            <CardTitle>Profile Error</CardTitle>
+            <CardDescription>Failed to load profile data</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
-            <Button onClick={() => window.location.reload()} className="w-full">
-              Try Again
-            </Button>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (!profile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Profile Not Found</CardTitle>
-            <CardDescription>Please log in to view your profile</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full">
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const getInitials = (firstName?: string, lastName?: string, displayName?: string, email?: string) => {
-    if (firstName && lastName) {
-      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    }
-    if (displayName) {
-      const names = displayName.split(' ');
-      return names.length > 1 
-        ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
-        : names[0].substring(0, 2).toUpperCase();
-    }
-    if (email) {
-      return email.substring(0, 2).toUpperCase();
-    }
-    return 'U';
+  const getInitials = (firstName?: string, lastName?: string) => {
+    if (!firstName && !lastName) return 'U';
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
 
-  const totalCoins = profile.scan_coins + profile.share_coins + profile.game_coins;
+  const formatDate = (date: string | Date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8">
-        <Avatar className="h-24 w-24 lg:h-32 lg:w-32">
-          <AvatarImage 
-            src={profile.profile_picture_url || undefined} 
-            alt={profile.display_name || profile.username || 'Profile'} 
-          />
-          <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-            {getInitials(profile.first_name, profile.last_name, profile.display_name, profile.email)}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1 text-center lg:text-left">
-          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight mb-2">
-            {profile.display_name || profile.username || 'Welcome'}
-          </h1>
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-muted-foreground mb-4">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              <span>{profile.email}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Member since {new Date(profile.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-center lg:justify-start gap-2">
-            <Coins className="h-5 w-5 text-amber-500" />
-            <span className="text-xl font-semibold">{totalCoins.toLocaleString()}</span>
-            <span className="text-muted-foreground">Total Coins</span>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">My Profile</h1>
+          <p className="text-purple-200">Manage your account and track your progress</p>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Profile
-          </Button>
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-        </div>
-      </div>
-
-      {/* Tabs state for controlled Tabs component */}
-      <Tabs value={tab} onValueChange={setTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-8">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="coins">Coins</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          <TabsTrigger value="personal">Personal</TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Coin Summary */}
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Coins className="h-5 w-5 text-amber-500" />
-                  Coin Portfolio
-                </CardTitle>
-                <CardDescription>Your coin balance across all activities</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">{profile.scan_coins}</div>
-                    <div className="text-xs text-muted-foreground">Scan Coins</div>
-                    <div className="w-full bg-blue-100 rounded-full h-2 mt-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all"
-                        style={{ width: `${totalCoins > 0 ? (profile.scan_coins / totalCoins) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600 mb-1">{profile.share_coins}</div>
-                    <div className="text-xs text-muted-foreground">Share Coins</div>
-                    <div className="w-full bg-green-100 rounded-full h-2 mt-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full transition-all"
-                        style={{ width: `${totalCoins > 0 ? (profile.share_coins / totalCoins) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">{profile.game_coins}</div>
-                    <div className="text-xs text-muted-foreground">Game Coins</div>
-                    <div className="w-full bg-purple-100 rounded-full h-2 mt-2">
-                      <div 
-                        className="bg-purple-600 h-2 rounded-full transition-all"
-                        style={{ width: `${totalCoins > 0 ? (profile.game_coins / totalCoins) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                <Separator className="my-4" />
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold">Total Balance</span>
-                  <Badge variant="default" className="text-lg px-4 py-2">
-                    {totalCoins.toLocaleString()} coins
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Profile Info Card */}
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={user.picture || userProfile?.avatar} alt="Profile" />
+                  <AvatarFallback className="bg-purple-600 text-white">
+                    {getInitials(userProfile?.firstName, userProfile?.lastName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <CardTitle className="text-xl">
+                    {userProfile?.firstName} {userProfile?.lastName}
+                  </CardTitle>
+                  <CardDescription>@{userProfile?.username}</CardDescription>
+                  <Badge variant={userProfile?.status === 'ACTIVE' ? 'default' : 'secondary'} className="mt-1">
+                    {userProfile?.status}
                   </Badge>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-amber-500" />
-                  Achievements
-                </CardTitle>
-                <CardDescription>Your accomplishments</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Challenge Wins</span>
-                  <Badge variant="outline">{achievements?.challengeWins || 0}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Tournament Victories</span>
-                  <Badge variant="outline">{achievements?.tournamentWins || 0}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Venues Tagged</span>
-                  <Badge variant="outline">{achievements?.venuesTagged || 0}</Badge>
-                </div>
-                <Separator />
-                <Button variant="outline" className="w-full" size="sm">
-                  View All Achievements
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest actions on Tag4Gift</CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-                  <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    📱
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Tagged Pizza Palace</p>
-                    <p className="text-sm text-muted-foreground">Earned 10 scan coins • 2 hours ago</p>
-                  </div>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2 text-sm">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <span>{userProfile?.email}</span>
+                  {userProfile?.isEmailVerified && (
+                    <Badge variant="outline" className="text-xs">Verified</Badge>
+                  )}
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-                  <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                    📢
+                
+                {userProfile?.phone && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Phone className="w-4 h-4 text-muted-foreground" />
+                    <span>{userProfile.phone}</span>
+                    {userProfile.isPhoneVerified && (
+                      <Badge variant="outline" className="text-xs">Verified</Badge>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Shared Café Luna on Instagram</p>
-                    <p className="text-sm text-muted-foreground">Earned 5 share coins • 1 day ago</p>
-                  </div>
+                )}
+
+                <div className="flex items-center space-x-2 text-sm">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span>Joined {formatDate(userProfile?.createdAt || new Date())}</span>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-                  <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                    🎮
+
+                <div className="flex items-center space-x-2 text-sm">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span>{userProfile?.timezone} • {userProfile?.language.toUpperCase()}</span>
+                </div>
+
+                <Separator />
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm font-medium">Level {userProfile?.level}</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Completed "Speed Challenge"</p>
-                    <p className="text-sm text-muted-foreground">Earned 15 game coins • 2 days ago</p>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{userProfile?.totalPoints} pts</p>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        {/* Coins Tab */}
-        <TabsContent value="coins" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="border-blue-200 bg-blue-50/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-blue-700 flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    📱
-                  </div>
-                  Scan Coins
-                </CardTitle>
-                <CardDescription>Earned by scanning QR/NFC codes at venues</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-blue-700 mb-4">
-                  {profile.scan_coins.toLocaleString()}
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">This week:</span>
-                    <span className="font-medium">+25</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">This month:</span>
-                    <span className="font-medium">+{Math.floor(profile.scan_coins * 0.3)}</span>
-                  </div>
-                </div>
-                <Button size="sm" className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
-                  Find Venues to Scan
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-green-200 bg-green-50/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-green-700 flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                    📢
-                  </div>
-                  Share Coins
-                </CardTitle>
-                <CardDescription>Earned by sharing venues on social media</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-green-700 mb-4">
-                  {profile.share_coins.toLocaleString()}
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">This week:</span>
-                    <span className="font-medium">+15</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">This month:</span>
-                    <span className="font-medium">+{Math.floor(profile.share_coins * 0.4)}</span>
-                  </div>
-                </div>
-                <Button size="sm" className="w-full mt-4 bg-green-600 hover:bg-green-700">
-                  Share a Venue
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-purple-200 bg-purple-50/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-purple-700 flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
-                    🎮
-                  </div>
-                  Game Coins
-                </CardTitle>
-                <CardDescription>Earned by playing games and challenges</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-purple-700 mb-4">
-                  {profile.game_coins.toLocaleString()}
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">This week:</span>
-                    <span className="font-medium">+45</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">This month:</span>
-                    <span className="font-medium">+{Math.floor(profile.game_coins * 0.2)}</span>
-                  </div>
-                </div>
-                <Button size="sm" className="w-full mt-4 bg-purple-600 hover:bg-purple-700">
-                  Play Games
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
+          {/* Coins & Stats */}
+          <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Coin Usage Tips</CardTitle>
-              <CardDescription>Maximize your coin earning potential</CardDescription>
+              <CardTitle className="flex items-center space-x-2">
+                <Coins className="w-5 h-5" />
+                <span>Coin Balance & Stats</span>
+              </CardTitle>
+              <CardDescription>
+                Track your earnings and spending across the platform
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold mb-2">💡 Pro Tip: Daily Scanning</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Visit different venues daily to maximize your scan coin earnings. Each venue can be scanned once per day.
-                  </p>
+            <CardContent>
+              {userProfile?.coinBalance ? (
+                <div className="space-y-6">
+                  {/* Coin Balance Display */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-600">
+                        {userProfile.coinBalance.tagCoins}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Tag Coins</div>
+                    </div>
+                    <div className="text-center p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {userProfile.coinBalance.shareCoins}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Share Coins</div>
+                    </div>
+                    <div className="text-center p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {userProfile.coinBalance.gameCoins}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Game Coins</div>
+                    </div>
+                    <div className="text-center p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {userProfile.coinBalance.totalCoins}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Total Coins</div>
+                    </div>
+                  </div>
+
+                  {/* Challenge Passes */}
+                  {userProfile.challengePasses && userProfile.challengePasses.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 flex items-center space-x-2">
+                        <Gift className="w-5 h-5" />
+                        <span>Available Challenge Passes</span>
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {userProfile.challengePasses.map((pass: any, index: number) => (
+                          <div key={index} className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
+                            <Trophy className="w-5 h-5 text-gold" />
+                            <div>
+                              <p className="font-medium">Challenge Pass #{pass.id}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Generated {formatDate(pass.generatedAt)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent Transactions */}
+                  {userProfile.coinTransactions && userProfile.coinTransactions.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 flex items-center space-x-2">
+                        <TrendingUp className="w-5 h-5" />
+                        <span>Recent Activity</span>
+                      </h3>
+                      <div className="space-y-2">
+                        {userProfile.coinTransactions.slice(0, 5).map((transaction: any, index: number) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-2 h-2 rounded-full ${
+                                transaction.type === 'EARN' ? 'bg-green-500' : 'bg-red-500'
+                              }`} />
+                              <div>
+                                <p className="font-medium">{transaction.coinType} Coins</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {transaction.description}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className={`font-bold ${
+                                transaction.type === 'EARN' ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {transaction.type === 'EARN' ? '+' : '-'}{transaction.amount}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatDate(transaction.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stats Summary */}
+                  {dashboardData?.coinStats && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Statistics</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                          <div className="text-xl font-bold">{userProfile._count?.coinTransactions || 0}</div>
+                          <div className="text-sm text-muted-foreground">Total Transactions</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold">{userProfile._count?.challengePasses || 0}</div>
+                          <div className="text-sm text-muted-foreground">Challenge Passes</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold">{userProfile.coinBalance.totalCoins}</div>
+                          <div className="text-sm text-muted-foreground">Total Earned</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold">{userProfile.level}</div>
+                          <div className="text-sm text-muted-foreground">Current Level</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold mb-2">📱 Social Sharing Strategy</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Share your venue visits with creative posts and hashtags to earn bonus share coins and engage your followers.
-                  </p>
+              ) : (
+                <div className="text-center py-8">
+                  <Zap className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No coin data available</p>
                 </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold mb-2">🎯 Challenge Participation</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Join daily challenges and tournaments to earn game coins faster. Higher difficulty = better rewards!
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold mb-2">🏆 Winning Strategy</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Combine all three activities for maximum coin generation. Use coins wisely in premium challenges.
-                  </p>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
 
-        {/* Achievements Tab */}
-        <TabsContent value="achievements" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-amber-500" />
-                  Competition Achievements
-                </CardTitle>
-                <CardDescription>Your competitive accomplishments</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-                      🥇
-                    </div>
-                    <div>
-                      <p className="font-medium">Challenge Champion</p>
-                      <p className="text-sm text-muted-foreground">{achievements?.challengeWins || 0} challenge wins</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">{achievements?.challengeWins || 0}</Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      🏆
-                    </div>
-                    <div>
-                      <p className="font-medium">Tournament Victor</p>
-                      <p className="text-sm text-muted-foreground">{achievements?.tournamentWins || 0} tournament victories</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">{achievements?.tournamentWins || 0}</Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                      📍
-                    </div>
-                    <div>
-                      <p className="font-medium">Venue Explorer</p>
-                      <p className="text-sm text-muted-foreground">{achievements?.venuesTagged || 0} venues tagged</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">{achievements?.venuesTagged || 0}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Achievement Progress</CardTitle>
-                <CardDescription>Work towards your next milestone</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Venue Master</span>
-                    <span className="text-sm text-muted-foreground">{achievements?.venuesTagged || 0}/50</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min(((achievements?.venuesTagged || 0) / 50) * 100, 100)}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Tag 50 different venues</p>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Challenge Dominator</span>
-                    <span className="text-sm text-muted-foreground">{achievements?.challengeWins || 0}/25</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min(((achievements?.challengeWins || 0) / 25) * 100, 100)}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Win 25 challenges</p>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Coin Collector</span>
-                    <span className="text-sm text-muted-foreground">{totalCoins}/1000</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-amber-600 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min((totalCoins / 1000) * 100, 100)}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Collect 1,000 total coins</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Personal Info Tab */}
-        <TabsContent value="personal" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Personal Information
-                </CardTitle>
-                <CardDescription>Your profile details</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">First Name</label>
-                    <p className="text-base">{profile.first_name || 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Last Name</label>
-                    <p className="text-base">{profile.last_name || 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Display Name</label>
-                    <p className="text-base">{profile.display_name || 'Not set'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Username</label>
-                    <p className="text-base">{profile.username || 'Not set'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                    <p className="text-base">{profile.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Date of Birth
-                    </label>
-                    <p className="text-base">
-                      {profile.date_of_birth 
-                        ? new Date(profile.date_of_birth).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })
-                        : 'Not provided'
-                      }
-                    </p>
-                  </div>
-                </div>
-                <Separator />
-                <Button className="w-full">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Personal Information
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Information</CardTitle>
-                <CardDescription>System and security details</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Account ID</label>
-                  <code className="text-xs bg-muted px-2 py-1 rounded block mt-1 font-mono">
-                    {profile.auth0_id}
-                  </code>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Account Created</label>
-                  <p className="text-base">
-                    {new Date(profile.created_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
-                  <p className="text-base">
-                    {new Date(profile.updated_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Account Settings
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Privacy Settings
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+        {/* Action Buttons */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Refresh Profile
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+              >
+                Sign Out
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-};
-
-export default Profile;
+}

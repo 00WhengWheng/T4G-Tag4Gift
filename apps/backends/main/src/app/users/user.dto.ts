@@ -64,4 +64,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   lastLoginIp?: string;
+
+  @IsOptional()
+  @IsString()
+  auth0Id?: string;
 }
