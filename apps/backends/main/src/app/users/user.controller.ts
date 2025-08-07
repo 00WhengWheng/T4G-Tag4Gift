@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, HttpException, HttpStatus, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto, UserResponseDto } from './user.dto';
 import { User } from './user.entity';
 
 @Controller('users')
@@ -8,51 +8,58 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     try {
       const user = await this.userService.createUser(createUserDto);
-      // Don't return password in response
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword as User;
+      return new UserResponseDto(user);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<User> {
+  async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
     try {
       const user = await this.userService.findUserById(id);
-      // Don't return password in response
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword as User;
+      return new UserResponseDto(user);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 
   @Get('email/:email')
-  async getUserByEmail(@Param('email') email: string): Promise<User> {
+  async getUserByEmail(@Param('email') email: string): Promise<UserResponseDto> {
     try {
       const user = await this.userService.findUserByEmail(email);
-      // Don't return password in response
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword as User;
+      return new UserResponseDto(user);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 
   @Put(':id')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async updateUser(
     @Param('id') id: string,
-    @Body() updateUserDto: Partial<CreateUserDto>
-  ): Promise<User> {
+    @Body() updateUserDto: UpdateUserDto
+  ): Promise<UserResponseDto> {
     try {
       const user = await this.userService.updateUser(id, updateUserDto);
-      // Don't return password in response
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword as User;
+      return new UserResponseDto(user);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+  @Patch(':id')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async patchUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: Partial<UpdateUserDto>
+  ): Promise<UserResponseDto> {
+    try {
+      const user = await this.userService.updateUser(id, updateUserDto);
+      return new UserResponseDto(user);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
@@ -66,5 +73,14 @@ export class UserController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
+  }
+  @Get()
+  async listUsers(@Query('limit') limit = 20, @Query('offset') offset = 0): Promise<{ users: UserResponseDto[]; total: number; hasMore: boolean }> {
+    const { users, total, hasMore } = await this.userService.listUsers(limit, offset);
+    return {
+      users: users.map(u => new UserResponseDto(u)),
+      total,
+      hasMore
+    };
   }
 }

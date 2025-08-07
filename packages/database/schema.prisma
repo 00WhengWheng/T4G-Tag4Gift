@@ -1,671 +1,354 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id                     String                  @id @default(uuid())
-  auth0Id                String?                 @unique
-  email                  String                  @unique
-  username               String                  @unique
-  firstName              String
-  lastName               String
-  phone                  String?
-  avatar                 String?
-  dateOfBirth            DateTime?
-  role                   UserRole
-  status                 UserStatus
-  authProvider           AuthProvider
-  language               String
-  timezone               String
-  isEmailVerified        Boolean                 @default(false)
-  isPhoneVerified        Boolean                 @default(false)
-  totalPoints            Int                     @default(0)
-  level                  Int                     @default(1)
-  tenantId               String?
-  createdAt              DateTime                @default(now())
-  updatedAt              DateTime                @updatedAt
-  password               String
-  lastLoginIp            String?
-  challengeParticipants  ChallengeParticipant[]
-  gameResults            GameResult[]
-  giftWinners            GiftWinner[]
-  participations         Participation[]
-  shares                 Share[]
-  socialContent          SocialContent[]
-  standaloneGameSessions StandaloneGameSession[]
-  tagScans               TagScan[]
-  tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
-  awardedGifts           UserGift[]
-  scannedTags            UserScannedTag[]
-  coinBalance            CoinBalance?
-  coinTransactions       CoinTransaction[]
-  challengePasses        ChallengePass[]
+// Enum definitions
+enum CoinType {
+  SCAN
+  SHARE
+  GAME
+  REFERRAL
 }
 
-model Venue {
-  id            String          @id @default(uuid())
-  name          String
-  address       String?
-  tenantId      String
-  gifts         Gift[]
-  socialContent SocialContent[]
-  tags          Tag[]
-  tenant        Tenant          @relation(fields: [tenantId], references: [id])
-}
-
-model Tag {
-  id              String           @id @default(uuid())
-  name            String
-  identifier      String           @unique
-  type            TagType
-  latitude        Float
-  longitude       Float
-  address         String?
-  isActive        Boolean          @default(true)
-  scanCount       Int              @default(0)
-  lastScannedAt   DateTime?
-  tenantId        String
-  venueId         String
-  tenant          Tenant           @relation(fields: [tenantId], references: [id])
-  venue           Venue            @relation(fields: [venueId], references: [id])
-  tagScans        TagScan[]
-  userScannedTags UserScannedTag[]
-}
-
-model Gift {
-  id                String   @id @default(uuid())
-  identity          String   @unique
-  name              String
-  description       String?
-  type              GiftType
-  value             Float
-  currency          String   @default("EUR")
-  image             String?
-  totalQuantity     Int      @default(1)
-  remainingQuantity Int      @default(1)
-  isActive          Boolean  @default(true)
-  tenantId          String
-  venueId           String?
-  giftData          Json
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  tenant            Tenant   @relation(fields: [tenantId], references: [id])
-  venue             Venue?   @relation(fields: [venueId], references: [id])
-  giftWinners       GiftWinner[]
-  awardedTo         UserGift[]
-  challenge         Challenge?
-}
-
-model GiftWinner {
-  id        String   @id @default(uuid())
-  giftId    String
-  userId    String
-  createdAt DateTime @default(now())
-  gift      Gift     @relation(fields: [giftId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-}
-
-model SocialContent {
-  id        String     @id @default(uuid())
-  type      SocialType
-  content   String
-  createdAt DateTime   @default(now())
-  userId    String
-  venueId   String?
-  user      User       @relation(fields: [userId], references: [id])
-  venue     Venue?     @relation(fields: [venueId], references: [id])
-}
-
-model Game {
-  id                  String        @id @default(uuid())
-  type                GameType
-  config              Json?
-  status              GameStatus    @default(ACTIVE)
-  timeLimit           Int?
-  content             Json?
-  questions           Json?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  gameTemplateId      String?
-  category            String?
-  name                String?
-  description         String?
-  gdevelopProjectUrl  String?
-  challenge           Challenge?
-  gameTemplate        GameTemplate? @relation(fields: [gameTemplateId], references: [id])
-  gameData            GameData[]
-  results             GameResult[]
-}
-
-model GameTemplate {
-  id          String   @id @default(uuid())
-  slug        String?  @unique // <-- Make slug optional
-  name        String
-  description String?
-  type        GameType
-  category    String?
-  difficulty  String?
-  structure   Json
-  isActive    Boolean  @default(true)
-  gdevelopProjectUrl String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  games       Game[]
-}
-
-model GameData {
-  id     String @id @default(uuid())
-  gameId String
-  data   Json
-  game   Game   @relation(fields: [gameId], references: [id])
-}
-
-model QuizQuestion {
-  id            String   @id @default(uuid())
-  question      String
-  options       Json
-  correctAnswer Int
-  difficulty    String
-  category      String
-  explanation   String?
-  tags          String[]
-  templateId    String?
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model MusicTrack {
-  id         String   @id @default(uuid())
-  title      String
-  artist     String
-  genre      String
-  year       Int?
-  difficulty String
-  audioUrl   String
-  duration   Int      @default(30)
-  tags       String[]
-  templateId String?
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model PuzzleQuestion {
-  id            String   @id @default(uuid())
-  type          String
-  question      String
-  options       Json?
-  correctAnswer Json
-  difficulty    String
-  category      String
-  explanation   String?
-  pattern       String?
-  tags          String[]
-  templateId    String?
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model ReactionGameConfig {
-  id         String   @id @default(uuid())
-  name       String
-  difficulty String
-  minDelay   Int
-  maxDelay   Int
-  timeLimit  Int
-  signalType String
-  config     Json
-  tags       String[]
-  templateId String?
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model StandaloneGameSession {
-  id          String    @id @default(uuid())
-  userId      String
-  sessionId   String    @unique
-  gameType    GameType
-  difficulty  String
-  category    String?
-  score       Int?
-  timeSpent   Int?
-  answers     Json?
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
-  user        User      @relation(fields: [userId], references: [id])
-}
-
-model Tournament {
-  id           String          @id @default(uuid())
-  name         String
-  description  String?
-  startAt      DateTime
-  endAt        DateTime
-  prize        String?
-  challenges   Challenge[]
-  jobs         Job[]
-  participants Participation[]
-}
-
-model Participation {
-  id           String       @id @default(uuid())
-  userId       String
-  tournamentId String
-  joinedAt     DateTime     @default(now())
-  gameResults  GameResult[]
-  tournament   Tournament   @relation(fields: [tournamentId], references: [id])
-  user         User         @relation(fields: [userId], references: [id])
-}
-
-model Challenge {
-  id                String                 @id @default(uuid())
-  name              String
-  description       String?
-  type              ChallengeType
-  status            ChallengeStatus        @default(SCHEDULED)
-  startDate         DateTime
-  endDate           DateTime
-  winnerCount       Int                    @default(1)
-  createdById       String
-  gameConfig        Json?
-  totalParticipants Int                    @default(0)
-  tenantId          String
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  tournamentId      String?
-  giftId            String                 @unique
-  gift              Gift                   @relation(fields: [giftId], references: [id])
-  gameId            String                 @unique
-  game              Game                   @relation(fields: [gameId], references: [id])
-  tenant            Tenant                 @relation(fields: [tenantId], references: [id])
-  tournament        Tournament?            @relation(fields: [tournamentId], references: [id])
-  participants      ChallengeParticipant[]
-  challengePasses   ChallengePass[]
-}
-
-model ChallengeParticipant {
-  id          String            @id @default(uuid())
-  userId      String
-  challengeId String
-  status      ParticipantStatus @default(JOINED)
-  score       Int?
-  rank        Int?
-  joinedAt    DateTime          @default(now())
-  completedAt DateTime?
-  challenge   Challenge         @relation(fields: [challengeId], references: [id])
-  user        User              @relation(fields: [userId], references: [id])
-  gameResults GameResult[]
-
-  @@unique([userId, challengeId], name: "userId_challengeId")
-}
-
-model GameResult {
-  id              String               @id @default(uuid())
-  participantId   String
-  gameId          String
-  userId          String
-  answers         Json?
-  timeSpent       Int?
-  completedAt     DateTime?
-  createdAt       DateTime             @default(now())
-  participationId String?
-  game            Game                 @relation(fields: [gameId], references: [id])
-  participant     ChallengeParticipant @relation(fields: [participantId], references: [id])
-  participation   Participation?       @relation(fields: [participationId], references: [id])
-  user            User                 @relation(fields: [userId], references: [id])
-}
-
-model Job {
-  id           String     @id @default(uuid())
-  tournamentId String
-  type         String
-  status       String
-  scheduledFor DateTime
-  executedAt   DateTime?
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
-}
-
-model Log {
-  id        String   @id @default(uuid())
-  type      LogType
-  message   String
-  createdAt DateTime @default(now())
-  meta      Json?
-}
-
-model UserScannedTag {
-  userId    String
-  tagId     String
-  scannedAt DateTime @default(now())
-  tag       Tag      @relation(fields: [tagId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@id([userId, tagId])
-}
-
-model UserGift {
-  userId    String
-  giftId    String
-  awardedAt DateTime @default(now())
-  gift      Gift     @relation(fields: [giftId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@id([userId, giftId])
-}
-
-model Tenant {
-  id                   String       @id @default(uuid())
-  name                 String
-  slug                 String       @unique
-  email                String       @unique
-  description          String?
-  type                 TenantType
-  status               TenantStatus
-  totalChallenges      Int          @default(0)
-  totalUsers           Int          @default(0)
-  totalGifts           Int          @default(0)
-  maxActiveChallenges  Int          @default(10)
-  maxUsersPerChallenge Int          @default(100)
-  maxTags              Int          @default(1000)
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  challenges           Challenge[]
-  gifts                Gift[]
-  tags                 Tag[]
-  tagScans             TagScan[]
-  users                User[]
-  venues               Venue[]
-}
-
-enum ScanType {
-  NFC
-  QR_CODE
-}
-
-model TagScan {
-  id        String   @id @default(uuid())
-  userId    String
-  tagId     String
-  tenantId  String
-  scanType  ScanType @default(NFC)
-  metadata  Json?
-  scannedAt DateTime @default(now())
-  tag       Tag      @relation(fields: [tagId], references: [id])
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([tagId])
-  @@index([tenantId])
-  @@index([scannedAt])
-  @@index([scanType])
-}
-
-model Share {
-  id        String         @id @default(uuid())
-  userId    String
-  type      ShareType
-  platform  SocialPlatform
-  content   String
-  status    ShareStatus    @default(PUBLISHED)
-  views     Int            @default(0)
-  likes     Int            @default(0)
-  comments  Int            @default(0)
-  shares    Int            @default(0)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  user      User           @relation(fields: [userId], references: [id])
-}
-
-model Admin {
-  id          String            @id @default(uuid())
-  email       String            @unique
-  username    String            @unique
-  firstName   String
-  lastName    String
-  password    String
-  role        AdminRole
-  status      AdminStatus       @default(ACTIVE)
-  permissions AdminPermission[]
-  lastLoginAt DateTime?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  auditLogs   AuditLog[]
-}
-
-model AuditLog {
-  id        String   @id @default(uuid())
-  adminId   String
-  action    String
-  details   String?
-  createdAt DateTime @default(now())
-  admin     Admin    @relation(fields: [adminId], references: [id])
-}
-
-enum TagType {
-  NFC
-  QRCODE
-}
-
-enum GiftStatus {
-  ACTIVE
-  PENDING
-  CLOSE
-}
-
-enum GiftProcessingType {
-  CHALLENGE_BASED
-  TAGS_BASED
-  SHARES_BASED
-  COMBINED
-}
-
-enum SocialType {
-  POST
-  STORY
-}
-
-enum GameStatus {
+enum TagStatus {
   ACTIVE
   INACTIVE
-  COMPLETED
+  MAINTENANCE
+}
+
+enum ShareType {
+  FACEBOOK
+  TWITTER
+  INSTAGRAM
+  WHATSAPP
 }
 
 enum GameType {
   QUIZ
+  PUZZLE
   REACTION
   MUSIC
-  PUZZLE
+}
+
+enum GameStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
 }
 
 enum ChallengeStatus {
-  SCHEDULED
   ACTIVE
   COMPLETED
-  CANCELLED
-}
-
-enum ParticipantStatus {
-  JOINED
-  COMPLETED
-}
-
-enum LogType {
-  ADMIN
-  BUSINESS
-  SYSTEM
-}
-
-enum TenantType {
-  VENUE
-  BUSINESS
-  ORGANIZATION
-}
-
-enum TenantStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum ShareType {
-  CHALLENGE
-  VENUE
-  GIFT
-}
-
-enum SocialPlatform {
-  FACEBOOK
-  INSTAGRAM
-  TIKTOK
-  TWITTER
-  WHATSAPP
-  TELEGRAM
-}
-
-enum ShareStatus {
-  PUBLISHED
-  DRAFT
-  ARCHIVED
+  EXPIRED
+  CLAIMED
 }
 
 enum GiftType {
+  COFFEE
   DRINK
-  BOTTLE
   DISH
   PIZZA
-  COFFEE
+  BOTTLE
   DISCOUNT
 }
 
-enum UserRole {
-  USER
-  ADMIN
+enum GiftStatus {
+  AVAILABLE
+  CLAIMED
+  EXPIRED
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
+enum VenueType {
+  RESTAURANT
+  CAFE
+  BAR
+  CLUB
+  STORE
+  ORGANIZATION
 }
 
-enum AuthProvider {
-  LOCAL
-  GOOGLE
-  FACEBOOK
-  APPLE
-}
-
-enum ChallengeType {
-  GAME_BASED
-  INDIVIDUAL
-  TEAM
-  GLOBAL
-}
-
-enum AdminRole {
-  SUPERADMIN
-  SUPPORT
-}
-
-enum AdminStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum AdminPermission {
-  MANAGE_USERS
-  MANAGE_ADMINS
-  MANAGE_TENANTS
-  MANAGE_CHALLENGES
-  MANAGE_GIFTS
-  MANAGE_TAGS
-  MANAGE_SHARES
-  VIEW_AUDIT_LOGS
-}
-
-// Coin System Enums
-enum CoinType {
-  TAG
-  SHARE
-  GAME
-}
-
-enum TransactionSource {
-  TAG_SCAN
-  SOCIAL_SHARE
-  GAME_COMPLETION
-  GAME_PLAY
-  CHALLENGE_REWARD
-  CHALLENGE_PASS
-  ADMIN_ADJUSTMENT
-}
-
-// Coin Balance Model
-model CoinBalance {
-  id         String @id @default(uuid())
-  userId     String @unique
-  tagCoins   Int    @default(0)
-  shareCoins Int    @default(0)
-  gameCoins  Int    @default(0)
-  totalCoins Int    @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-// Coin Transaction Model
-model CoinTransaction {
-  id          String            @id @default(uuid())
-  userId      String
-  type        CoinType
-  amount      Int
-  source      TransactionSource
-  sourceId    String?           // ID of the tag, share, game, etc.
-  description String?
-  metadata    Json?
-  createdAt   DateTime          @default(now())
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([createdAt])
-  @@index([type])
-}
-
-// Challenge Pass Model
-model ChallengePass {
-  id          String   @id @default(uuid())
-  userId      String
-  weekStart   DateTime
-  weekEnd     DateTime
-  tagCoins    Int      @default(0)
-  shareCoins  Int      @default(0) 
-  gameCoins   Int      @default(0)
-  isEligible  Boolean  @default(true)
-  isUsed      Boolean  @default(false)
-  usedAt      DateTime?
-  challengeId String?
+// Core entities
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  firstName   String?
+  lastName    String?
+  avatar      String?
+  phoneNumber String?
+  dateOfBirth DateTime?
+  totalCoins  Int      @default(0)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenge Challenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
-  
-  @@unique([userId, weekStart])
+
+  // Relationships
+  scans         Scan[]
+  shares        Share[]
+  games         Game[]
+  coins         Coin[]
+  gifts         Gift[]  // New relationship to gifts
+  referralsSent Referral[] @relation("ReferrerUser")
+  referralsReceived Referral[] @relation("ReferredUser")
+  challengeParticipants ChallengeParticipant[] @relation("ChallengeParticipant")
+
+  @@map("users")
+}
+
+model Tenant {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  email       String  @unique
+  phoneNumber String?
+  address     String?
+  city        String?
+  country     String?
+  vatNumber   String?
+  legalName   String?
+  googleMap   String?
+  facebook    String?
+  instagram   String?
+  tiktok      String?
+  website     String?
+  logo        String?
+  venueType   VenueType
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  tags       Tag[]
+  shares     Share[]
+  gifts      Gift[]
+  challenges Challenge[]
+
+  @@map("tenants")
+}
+
+model Tag {
+  id          String    @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  nfcId       String?   @unique
+  qrCode      String?   @unique
+  location    String?
+  status      TagStatus @default(ACTIVE)
+  scanCount   Int       @default(0)
+  maxScansPerUser Int   @default(10) // Daily limit per user
+  coinsPerScan Int      @default(10)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  scans  Scan[]
+
+  @@map("tags")
+  @@index([tenantId])
+  @@index([nfcId])
+  @@index([qrCode])
+}
+
+model Scan {
+  id        String   @id @default(cuid())
+  userId    String
+  tagId     String
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  expiredAt DateTime // Default 12-hour expiration
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  coin Coin?
+
+  @@map("scans")
   @@index([userId])
-  @@index([weekStart])
-  @@index([isUsed])
+  @@index([tagId])
+  @@index([createdAt])
+  @@unique([userId, tagId, createdAt]) // Prevent duplicate scans within same timestamp
+}
+
+model Share {
+  id          String   @id @default(cuid())
+  userId      String
+  tenantId    String
+  socialType  ShareType
+  shareUrl    String?
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  coin   Coin?
+
+  @@map("shares")
+  @@index([userId])
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+model Game {
+  id          String     @id @default(cuid())
+  userId      String
+  earnCoin    Boolean    @default(true) // Whether the game is eligible for coin rewards
+  gameChallenge Boolean  @default(false) // Whether the game is part of a challenge
+  gameType    GameType
+  status      GameStatus @default(ACTIVE)
+  isWinner    Boolean    @default(false)
+  coinsEarned Int        @default(0)
+  coinsSpent  Int        @default(0)
+  gameData    Json?      // Store game-specific data for Quiz game
+  gameUrl     String?    // URL to the GDevelop game if hosted externally
+  gameImage   String?
+  gameTitle   String?
+  gameDescription String?
+  startedAt   DateTime   @default(now())
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relationships
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coin Coin?
+
+  @@map("games")
+  @@index([userId])
+  @@index([gameChallenge])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Coin {
+  id          String   @id @default(cuid())
+  userId      String
+  coinType    CoinType
+  amount      Int
+  description String?
+  
+  // Reference to the source event (nullable - only one will be set)
+  scanId      String?  @unique
+  shareId     String?  @unique
+  gameId      String?  @unique
+  referralId  String?  @unique
+  
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scan     Scan?     @relation(fields: [scanId], references: [id])
+  share    Share?    @relation(fields: [shareId], references: [id])
+  game     Game?     @relation(fields: [gameId], references: [id])
+  referral Referral? @relation(fields: [referralId], references: [id])
+
+  @@map("coins")
+  @@index([userId])
+  @@index([coinType])
+  @@index([createdAt])
+}
+
+model Challenge {
+  id              String          @id @default(cuid())
+  tenantId        String
+  title           String
+  description     String
+  coinScanCost    Int?
+  coinShareCost   Int?
+  coinGameCost    Int?
+  maxParticipants Int?
+  currentParticipants Int @default(0)
+  startDate       DateTime
+  endDate         DateTime
+  status          ChallengeStatus @default(ACTIVE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  gifts  Gift[]
+  challengeParticipants ChallengeParticipant[] @relation("ChallengeParticipant")
+
+  @@map("challenges")
+  @@index([tenantId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+model ChallengeParticipant {
+  id          String   @id @default(cuid())
+  challengeId String
+  userId      String
+  joinedAt    DateTime @default(now())
+
+  // Relationships
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade, name: "ChallengeParticipant")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, name: "ChallengeParticipant")
+
+  @@map("challenge_participants")
+  @@unique([challengeId, userId]) // Prevent duplicate participation
+  @@index([challengeId])
+  @@index([userId])
+}
+
+
+model Gift {
+  id          String     @id @default(cuid())
+  tenantId    String
+  name        String
+  description String
+  giftType    GiftType
+  imageUrl    String?
+  value       Decimal?   @db.Decimal(10, 2)
+  quantity    Int        @default(1)
+  status      GiftStatus @default(AVAILABLE)
+  expiresAt   DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // New optional relationships
+  userId      String?
+  challengeId String?
+
+  // Relationships
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id])
+  challenge Challenge? @relation(fields: [challengeId], references: [id])
+
+  @@map("gifts")
+  @@index([tenantId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([userId])
+  @@index([challengeId])
+}
+
+
+model Referral {
+  id          String   @id @default(cuid())
+  referrerId  String
+  referredId  String
+  coinsEarned Int      @default(50) // Coins earned by referrer
+  bonusCoins  Int      @default(25) // Bonus coins for referred user
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  referrer User @relation("ReferrerUser", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred User @relation("ReferredUser", fields: [referredId], references: [id], onDelete: Cascade)
+  coin     Coin?
+
+  @@map("referrals")
+  @@unique([referrerId, referredId]) // Prevent duplicate referrals
+  @@index([referrerId])
+  @@index([referredId])
 }

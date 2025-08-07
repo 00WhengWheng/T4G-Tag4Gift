@@ -1,60 +1,63 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@t4g/database';
 import { CreateTenantDto } from './tenant.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class TenantService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createTenant(data: CreateTenantDto) {
-    // Convert local enums to Prisma enums
-    const prismaData = {
-      ...data,
-      type: data.type as any, // Cast to Prisma enum
-      status: data.status as any, // Cast to Prisma enum
-    };
-    return this.prisma.tenant.create({ data: prismaData });
-  }
-
-  async findTenantById(id: string) {
-    return this.prisma.tenant.findUnique({ where: { id } });
-  }
-
-  async findTenantBySlug(slug: string) {
-    return this.prisma.tenant.findUnique({ where: { slug } });
-  }
-
-  async updateTenant(id: string, data: Partial<CreateTenantDto>) {
-    // Convert local enums to Prisma enums for update
-    const prismaData = {
-      ...data,
-      ...(data.type && { type: data.type as any }),
-      ...(data.status && { status: data.status as any }),
-    };
-    return this.prisma.tenant.update({ where: { id }, data: prismaData });
-  }
-
-  async deleteTenant(id: string) {
-    return this.prisma.tenant.delete({ where: { id } });
-  }
-
-  async findMany(options: {
-    take?: number;
-    skip?: number;
-    orderBy?: any;
-  }) {
-    return this.prisma.tenant.findMany({
-      take: options.take,
-      skip: options.skip,
-      orderBy: options.orderBy,
+  /**
+   * Create tenant and automatically create a default tag and venue for it
+   * @param data - tenant creation DTO
+   * @param tagInfo - { name, latitude, longitude, description? }
+   * @param venueInfo - { name, address, latitude, longitude, description? }
+   */
+  async createTenantWithDefaults(
+    data: CreateTenantDto,
+    tagInfo: { name: string; latitude: number; longitude: number; description?: string },
+    venueInfo: { name: string; address: string; latitude: number; longitude: number; description?: string }
+  ) {
+    // Create tenant
+    const tenant = await this.prisma.tenant.create({
+      data: {
+        ...data,
+        venueType: data.venueType as any,
+      },
     });
-  }
 
-  async findById(id: string) {
-    return this.prisma.tenant.findUnique({ where: { id } });
-  }
+    // Generate unique QR code and NFC ID
+    const qrCode = uuidv4();
+    const nfcId = uuidv4();
 
-  async findBySlug(slug: string) {
-    return this.prisma.tenant.findUnique({ where: { slug } });
+    // Create default tag for tenant
+    const tag = await this.prisma.tag.create({
+      data: {
+        tenantId: tenant.id,
+        name: tagInfo.name,
+        description: tagInfo.description ?? '',
+        location: `${tagInfo.latitude},${tagInfo.longitude}`,
+        status: 'ACTIVE',
+        scanCount: 0,
+        maxScansPerUser: 10,
+        coinsPerScan: 10,
+        qrCode,
+        nfcId,
+      },
+    });
+
+    // Create default venue for tenant
+    const venue = await this.prisma.venue.create({
+      data: {
+        tenantId: tenant.id,
+        name: venueInfo.name,
+        address: venueInfo.address,
+        description: venueInfo.description ?? '',
+        latitude: venueInfo.latitude,
+        longitude: venueInfo.longitude,
+        isActive: true,
+      },
+    });
+
+    return { tenant, tag, venue };
   }
-}

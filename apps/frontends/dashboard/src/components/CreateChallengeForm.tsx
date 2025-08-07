@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { Calendar, Clock, Trophy, Coins, Users, Gift, Star, ArrowLeft } from 'lucide-react'
 import { trpc } from '../utils/trpc'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Button } from '@t4g/ui-web'
@@ -27,8 +27,9 @@ interface ChallengeFormData {
   giftQuantity: number
 }
 
-export function CreateChallengeForm() {
   const navigate = useNavigate()
+  const params = useParams()
+  const tenantId = params.tenantId as string
   const [formData, setFormData] = useState<ChallengeFormData>({
     name: '',
     description: '',
@@ -66,48 +67,41 @@ export function CreateChallengeForm() {
   })
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
     // Validate gift fields
     if (!formData.giftName.trim()) {
-      alert('Please enter a gift name')
-      return
+      alert('Please enter a gift name');
+      return;
     }
-    
     if (formData.giftValue <= 0) {
-      alert('Gift value must be greater than 0')
-      return
+      alert('Gift value must be greater than 0');
+      return;
     }
-    
     if (formData.giftQuantity <= 0) {
-      alert('Gift quantity must be at least 1')
-      return
+      alert('Gift quantity must be at least 1');
+      return;
     }
-    
-    // Process form data with tRPC
-    const challengeData = {
-      name: formData.name,
+    // Build payload matching backend DTO
+    const challengePayload = {
+      title: formData.name,
       description: formData.description,
-      startDateTime: `${formData.startDate}T${formData.startTime}`,
-      endDateTime: `${formData.endDate}T${formData.endTime}`,
-      entryCost: {
-        scanCoins: formData.scanCoinsRequired,
-        shareCoins: formData.shareCoinsRequired,
-        gameCoins: formData.gameCoinsRequired,
-      },
+      coinScanCost: formData.scanCoinsRequired,
+      coinShareCost: formData.shareCoinsRequired,
+      coinGameCost: formData.gameCoinsRequired,
+      startDate: `${formData.startDate}T${formData.startTime}:00Z`,
+      endDate: `${formData.endDate}T${formData.endTime}:00Z`,
+      tenantId,
       gift: {
         name: formData.giftName,
         description: formData.giftDescription,
-        type: formData.giftType,
+        giftType: formData.giftType,
         value: formData.giftValue,
-        currency: formData.giftCurrency,
-        totalQuantity: formData.giftQuantity,
-        remainingQuantity: formData.giftQuantity,
+        quantity: formData.giftQuantity,
+        tenantId,
       }
-    }
-    
-    console.log('Creating challenge:', challengeData)
-    createChallengeMutation.mutate(challengeData)
+    };
+    console.log('Creating challenge:', challengePayload);
+    createChallengeMutation.mutate(challengePayload);
   }
 
   const handleInputChange = (field: keyof ChallengeFormData, value: string | number) => {

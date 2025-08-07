@@ -1,20 +1,27 @@
-import { TenantStatus } from './enums/tenant-status.enum';
-import { TenantType } from './enums/tenant-type.enum';
+import { VenueType } from './enums/tenant-type.enum';
 
+/**
+ * Tenant entity: matches schema2.prisma Tenant model
+ */
 export class Tenant {
-  id: string;
-  name: string;
-  slug: string;
-  email: string;
+  id!: string;
+  name!: string;
   description?: string;
-  type: TenantType;
-  status: TenantStatus;
-  totalChallenges: number;
-  totalUsers: number;
-  totalGifts: number;
-  maxActiveChallenges: number;
-  maxUsersPerChallenge: number;
-  maxTags: number;
-  createdAt: Date;
-  updatedAt: Date;
+  email!: string;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  vatNumber?: string;
+  legalName?: string;
+  googleMap?: string;
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
+  website?: string;
+  logo?: string;
+  venueType!: VenueType;
+  isActive!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

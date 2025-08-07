@@ -1,111 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient, Gift, GiftType } from '@prisma/client';
-import { IsEnum, IsString, IsOptional, IsNumber } from 'class-validator';
-
-export class CreateGiftDto {
-  @IsString()
-  identity: string;
-
-  @IsString()
-  name: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsEnum(GiftType)
-  type: GiftType;
-
-  @IsNumber()
-  value: number;
-
-  @IsOptional()
-  @IsString()
-  currency?: string;
-
-  @IsOptional()
-  @IsString()
-  image?: string;
-
-  @IsOptional()
-  @IsNumber()
-  totalQuantity?: number;
-
-  @IsString()
-  tenantId: string;
-
-  @IsOptional()
-  @IsString()
-  venueId?: string;
-
-  @IsOptional()
-  @IsString()
-  challengeId?: string;
-
-  @IsOptional()
-  giftData?: any;
-}
-
-export class UpdateGiftDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsEnum(GiftType)
-  type?: GiftType;
-
-  @IsOptional()
-  @IsNumber()
-  value?: number;
-
-  @IsOptional()
-  @IsString()
-  currency?: string;
-
-  @IsOptional()
-  @IsString()
-  image?: string;
-
-  @IsOptional()
-  @IsNumber()
-  totalQuantity?: number;
-
-  @IsOptional()
-  @IsString()
-  venueId?: string;
-
-  @IsOptional()
-  @IsString()
-  challengeId?: string;
-
-  @IsOptional()
-  giftData?: any;
-}
+import { PrismaClient, Gift } from '@prisma/client';
+import { CreateGiftDto, UpdateGiftDto } from './dto/gift.dto';
 
 @Injectable()
 export class GiftService {
   private prisma = new PrismaClient();
 
   async createGift(data: CreateGiftDto): Promise<Gift> {
-    // If challengeId is provided, associate gift to challenge (relation is 'challenge', not 'challenges')
+    // Map frontend fields to DB fields
     const gift = await this.prisma.gift.create({
       data: {
-        identity: data.identity,
         name: data.name,
         description: data.description,
-        type: data.type,
+        giftType: data.type, // Prisma expects giftType
         value: data.value,
         currency: data.currency ?? 'USD',
-        image: data.image,
-        totalQuantity: data.totalQuantity ?? 1,
+        imageUrl: data.image,
+        quantity: data.totalQuantity ?? 1,
         tenantId: data.tenantId,
         venueId: data.venueId,
-        giftData: data.giftData,
+        status: 'AVAILABLE',
+        expiresAt: data.endDate ? new Date(data.endDate) : undefined,
+        giftData: {
+          coinRequirements: data.giftData?.coinRequirements || data.coinRequirements || {},
+        },
         challenge: data.challengeId
           ? { connect: { id: data.challengeId } }
           : undefined,

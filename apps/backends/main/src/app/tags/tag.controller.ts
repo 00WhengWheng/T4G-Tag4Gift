@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { IsString, IsOptional, IsNumber, IsEnum } from 'class-validator';
 import { TagService } from './tag.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -16,8 +17,21 @@ export class User {
   authProvider: string;
 }
 
-export class ScanTagDto {
+  @IsString()
   tagIdentifier: string;
+
+  @IsEnum(['QRCODE', 'NFC'], { message: 'scanType must be QRCODE or NFC' })
+  @IsOptional()
+  scanType?: 'QRCODE' | 'NFC';
+
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
+}
 }
 
 @Controller('tags')
@@ -49,11 +63,14 @@ export class TagController {
   async scanTag(
     @Body() scanTagDto: ScanTagDto,
     @Request() req: any
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; reason?: string }> {
     const userId = req.user?.userId;
     if (!userId) {
       throw new Error('User ID not found in JWT payload');
     }
-    return this.tagService.scanTag(scanTagDto.tagIdentifier, userId);
+    const scanType = scanTagDto.scanType || 'QRCODE';
+    const latitude = scanTagDto.latitude;
+    const longitude = scanTagDto.longitude;
+    return this.tagService.scanTag(scanTagDto.tagIdentifier, userId, scanType, latitude, longitude);
   }
 }

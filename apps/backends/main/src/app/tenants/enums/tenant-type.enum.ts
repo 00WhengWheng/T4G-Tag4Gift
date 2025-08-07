@@ -1,5 +1,8 @@
 export enum TenantType {
-  VENUE = 'VENUE',
-  ORGANIZER = 'ORGANIZER',
-  PARTNER = 'PARTNER',
+  RESTAURANT = 'RESTAURANT',
+  CAFE = 'CAFE',
+  BAR = 'BAR',
+  CLUB = 'CLUB',
+  STORE = 'STORE',
+  ORGANIZATION = 'ORGANIZATION',
 }

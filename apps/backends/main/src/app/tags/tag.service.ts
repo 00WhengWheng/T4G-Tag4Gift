@@ -5,17 +5,41 @@ import { PrismaService } from '@t4g/database';
 export class TagService {
   constructor(private prisma: PrismaService) {}
 
-  async scanTag(tagIdentifier: string, userId: string): Promise<boolean> {
-    const tag = await this.prisma.tag.findUnique({ where: { identifier: tagIdentifier } });
-    if (!tag || !tag.isActive) return false;
+  async scanTag(tagIdentifier: string, userId: string, scanType: 'QRCODE' | 'NFC' = 'QRCODE', latitude?: number, longitude?: number): Promise<{ success: boolean; reason?: string }> {
+    // Find tag by identifier (could be QR code or NFC ID)
+    const tag = await this.prisma.tag.findFirst({
+      where: {
+        OR: [
+          { qrCode: tagIdentifier },
+          { nfcId: tagIdentifier },
+          { identifier: tagIdentifier },
+        ],
+        status: 'ACTIVE',
+      },
+    });
+    if (!tag) return { success: false, reason: 'Tag not found or inactive' };
 
-    // Prevent duplicate scans
+    // Check scan limits for user/tenant/tag
+    const now = new Date();
+    const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+    const scanCount = await this.prisma.tagScan.count({
+      where: {
+        userId,
+        tagId: tag.id,
+        createdAt: { gte: twelveHoursAgo },
+      },
+    });
+    if (scanCount >= tag.maxScansPerUser) {
+      return { success: false, reason: 'Scan limit reached for this tag' };
+    }
+
+    // Prevent duplicate scan within 12 hours
     const alreadyScanned = await this.prisma.userScannedTag.findUnique({
       where: { userId_tagId: { userId, tagId: tag.id } },
     });
-    if (alreadyScanned) return false;
+    if (alreadyScanned) return { success: false, reason: 'Already scanned' };
 
-    // Record scan event
+    // Record scan event and associate to user/tenant
     await this.prisma.userScannedTag.create({
       data: { userId, tagId: tag.id },
     });
@@ -25,7 +49,20 @@ export class TagService {
         userId,
         tagId: tag.id,
         tenantId: tag.tenantId,
-        scanType: 'QR_CODE',
+        scanType,
+        latitude: latitude ?? tag.latitude,
+        longitude: longitude ?? tag.longitude,
+      },
+    });
+
+    // Create scan coin for user
+    await this.prisma.coin.create({
+      data: {
+        userId,
+        coinType: 'SCAN',
+        amount: tag.coinsPerScan,
+        description: `Scan at tag ${tag.id}`,
+        scanId: tag.id,
       },
     });
 
@@ -34,11 +71,11 @@ export class TagService {
       where: { id: tag.id },
       data: {
         scanCount: { increment: 1 },
-        lastScannedAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 
-    return true;
+    return { success: true };
   }
 
   async createTag(userId: string, venueId: string, latitude: number, longitude: number, nfcTagId?: string) {

@@ -37,19 +37,25 @@ export class GDevelopGamesService {
     gdevelopProjectUrl: string;
     structure?: any;
   }) {
-    const { name, type, category, description, difficulty, gdevelopProjectUrl, structure } = params;
-    return this.prisma.gameTemplate.create({
-      data: {
-        name,
-        description,
-        type,
-        category,
-        difficulty,
-        gdevelopProjectUrl,
-        structure: structure || {},
-        isActive: true,
-      },
-    });
+    if (!params.name || !params.type || !params.category || !params.gdevelopProjectUrl) {
+      throw new Error('Missing required fields: name, type, category, gdevelopProjectUrl');
+    }
+    try {
+      return await this.prisma.gameTemplate.create({
+        data: {
+          name: params.name,
+          description: params.description,
+          type: params.type,
+          category: params.category,
+          difficulty: params.difficulty,
+          gdevelopProjectUrl: params.gdevelopProjectUrl,
+          structure: params.structure || {},
+          isActive: true,
+        },
+      });
+    } catch (err) {
+      throw new Error('Failed to create GDevelop game template: ' + (err.message || err));
+    }
   }
 
   /**

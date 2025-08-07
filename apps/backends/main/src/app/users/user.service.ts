@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@t4g/database';
-import { CreateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -13,6 +13,16 @@ export class UserService {
     if (!data.email || !data.username || !data.firstName || !data.lastName || !data.password) {
       throw new BadRequestException('Missing required user fields');
     }
+    // Check for duplicate email/username
+    const existing = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: data.email },
+          { username: data.username }
+        ]
+      }
+    });
+    if (existing) throw new ConflictException('Email or username already exists');
     // Password strength validation (simple example)
     if (data.password.length < 8) {
       throw new BadRequestException('Password must be at least 8 characters long');
@@ -41,11 +51,38 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: string, data: Partial<CreateUserDto>) {
+  async updateUser(id: string, data: Partial<UpdateUserDto>) {
     // Optionally, validate data before update
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
+    // Prevent email/username duplication
+    if (data.email && data.email !== user.email) {
+      const emailExists = await this.prisma.user.findUnique({ where: { email: data.email } });
+      if (emailExists) throw new ConflictException('Email already exists');
+    }
+    if (data.username && data.username !== user.username) {
+      const usernameExists = await this.prisma.user.findUnique({ where: { username: data.username } });
+      if (usernameExists) throw new ConflictException('Username already exists');
+    }
+    // Hash password if updating
+    if (data.password) {
+      if (data.password.length < 8) throw new BadRequestException('Password must be at least 8 characters long');
+      data.password = await bcrypt.hash(data.password, 10);
+    }
     return this.prisma.user.update({ where: { id }, data });
+  async listUsers(limit = 20, offset = 0) {
+    const users = await this.prisma.user.findMany({
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' },
+    });
+    const total = await this.prisma.user.count();
+    return {
+      users,
+      total,
+      hasMore: users.length === limit
+    };
+  }
   }
 
   async deleteUser(id: string) {

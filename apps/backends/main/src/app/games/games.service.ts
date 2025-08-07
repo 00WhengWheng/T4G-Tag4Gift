@@ -81,18 +81,26 @@ export class GamesService {
     description?: string;
     gdevelopProjectUrl?: string;
   }) {
-    return this.prisma.gameTemplate.create({
-      data: {
-        name: params.name,
-        type: params.type,
-        category: params.category,
-        difficulty: params.difficulty,
-        structure: params.structure ?? null,
-        description: params.description,
-        isActive: true,
-        gdevelopProjectUrl: params.gdevelopProjectUrl,
-      },
-    });
+    // Basic validation
+    if (!params.name || !params.type) {
+      throw new Error('Missing required fields: name, type');
+    }
+    try {
+      return await this.prisma.gameTemplate.create({
+        data: {
+          name: params.name,
+          type: params.type,
+          category: params.category,
+          difficulty: params.difficulty,
+          structure: params.structure ?? null,
+          description: params.description,
+          isActive: true,
+          gdevelopProjectUrl: params.gdevelopProjectUrl,
+        },
+      });
+    } catch (err) {
+      throw new Error('Failed to create game template: ' + (err.message || err));
+    }
   }
 
   async getCategories(): Promise<string[]> {
@@ -137,6 +145,12 @@ export class GamesService {
             break;
           case 'PUZZLE':
             gdevelopProjectUrl = '/games/puzzle';
+            break;
+          case 'MUSIC':
+            gdevelopProjectUrl = '/games/music';
+            break;
+          case 'REACTION':
+            gdevelopProjectUrl = '/games/reaction';
             break;
           default:
             // Fallback to category/id-based URL if category and id exist

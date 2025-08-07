@@ -1,3 +1,79 @@
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '@t4g/database';
+import { GameType } from '../../games/enums/game-type.enum';
+
+@Injectable()
+export class CoinsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  // Create coin for game win
+  async createGameCoin(userId: string, gameId: string, gameType: GameType, score?: number): Promise<boolean> {
+    // Check eligibility (max 2/week)
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const coinCount = await this.prisma.coin.count({
+      where: {
+        userId,
+        coinType: 'GAME',
+        createdAt: { gte: oneWeekAgo },
+        gameType,
+      },
+    });
+    if (coinCount >= 2) return false;
+    await this.prisma.coin.create({
+      data: {
+        userId,
+        coinType: 'GAME',
+        amount: 1,
+        description: `Win in ${gameType} game`,
+        gameType,
+        gameId,
+        score,
+      },
+    });
+    return true;
+  }
+
+  // Create coin for scan
+  async createScanCoin(userId: string, tagId: string, tenantId: string): Promise<boolean> {
+    // Check eligibility (e.g., per tag/tenant logic)
+    // For demo, always allow
+    await this.prisma.coin.create({
+      data: {
+        userId,
+        coinType: 'SCAN',
+        amount: 1,
+        description: `Scan at tag ${tagId}`,
+        tagId,
+        tenantId,
+      },
+    });
+    return true;
+  }
+
+  // Check coin eligibility for game
+  async isGameCoinEligible(userId: string, gameType: GameType): Promise<boolean> {
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const coinCount = await this.prisma.coin.count({
+      where: {
+        userId,
+        coinType: 'GAME',
+        createdAt: { gte: oneWeekAgo },
+        gameType,
+      },
+    });
+    return coinCount < 2;
+  }
+
+  // Get user coin history
+  async getUserCoins(userId: string, limit = 20, offset = 0) {
+    return this.prisma.coin.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    });
+  }
+}
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@t4g/database';
 import { CoinType, TransactionSource } from '@prisma/client';
