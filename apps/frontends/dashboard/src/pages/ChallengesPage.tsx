@@ -13,16 +13,20 @@ import {
   Edit,
   Trash2,
   Clock,
-  Target
+  Target,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@t4g/ui-web';
 import { Button } from '@t4g/ui-web';
+import { trpc } from '../utils/trpc';
 
+// TypeScript interface for Challenge (matching our seeded data structure)
 interface Challenge {
   id: string;
   name: string;
-  description: string;
-  type: 'QUIZ' | 'PUZZLE' | 'SCAVENGER_HUNT' | 'SOCIAL' | 'LOCATION_BASED';
+  description: string | null;
+  type: 'GAME_BASED' | 'INDIVIDUAL' | 'TEAM';
   status: 'SCHEDULED' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'CANCELLED';
   startDate: string;
   endDate: string;
@@ -33,12 +37,16 @@ interface Challenge {
     name: string;
     value: number;
     currency: string;
-  };
+  } | null;
   game: {
     id: string;
     type: string;
     name?: string;
-  };
+  } | null;
+  tenant?: {
+    id: string;
+    name: string;
+  } | null;
   createdAt: string;
 }
 
@@ -46,80 +54,91 @@ export function ChallengesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  // Mock data - replace with actual tRPC query
-  const challenges: Challenge[] = [
-    {
-      id: '1',
-      name: 'Morning Quiz Challenge',
-      description: 'Test your knowledge with our daily morning quiz',
-      type: 'QUIZ',
-      status: 'ACTIVE',
-      startDate: '2024-01-20T08:00:00Z',
-      endDate: '2024-01-27T18:00:00Z',
-      winnerCount: 5,
-      totalParticipants: 127,
-      gift: {
-        id: 'g1',
-        name: 'Free Coffee',
-        value: 5.99,
-        currency: 'EUR',
-      },
-      game: {
-        id: 'game1',
-        type: 'QUIZ',
-        name: 'General Knowledge Quiz',
-      },
-      createdAt: '2024-01-15T10:00:00Z',
-    },
-    {
-      id: '2',
-      name: 'Weekend Photo Contest',
-      description: 'Share your best weekend moments',
-      type: 'SOCIAL',
-      status: 'SCHEDULED',
-      startDate: '2024-02-03T00:00:00Z',
-      endDate: '2024-02-04T23:59:59Z',
-      winnerCount: 3,
-      totalParticipants: 0,
-      gift: {
-        id: 'g2',
-        name: 'Digital Wallpaper Pack',
-        value: 9.99,
-        currency: 'EUR',
-      },
-      game: {
-        id: 'game2',
-        type: 'SOCIAL',
-      },
-      createdAt: '2024-01-25T14:30:00Z',
-    },
-    {
-      id: '3',
-      name: 'City Explorer',
-      description: 'Find and scan hidden QR codes around the city',
-      type: 'SCAVENGER_HUNT',
-      status: 'COMPLETED',
-      startDate: '2024-01-01T00:00:00Z',
-      endDate: '2024-01-14T23:59:59Z',
-      winnerCount: 10,
-      totalParticipants: 89,
-      gift: {
-        id: 'g3',
-        name: '20% Discount',
-        value: 20,
-        currency: 'EUR',
-      },
-      game: {
-        id: 'game3',
-        type: 'LOCATION_BASED',
-      },
-      createdAt: '2023-12-25T09:15:00Z',
-    },
-  ];
+  // Fetch challenges using tRPC
+  const { 
+    data: challengesData, 
+    isLoading: challengesLoading, 
+    error: challengesError,
+    refetch: refetchChallenges 
+  } = trpc.challenges.getAll.useQuery({
+    limit: 100, // Get all challenges for now
+    offset: 0,
+  });
+
+  // Fetch challenge statistics using tRPC
+  const { 
+    data: statsData, 
+    isLoading: statsLoading 
+  } = trpc.challenges.getStats.useQuery({});
+
+  // Handle loading state
+  if (challengesLoading || statsLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Challenge Management</h1>
+            <p className="text-muted-foreground">
+              Create and manage engaging challenges with gifts for your users.
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="/create-challenge">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Challenge
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading challenges...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (challengesError) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Challenge Management</h1>
+            <p className="text-muted-foreground">
+              Create and manage engaging challenges with gifts for your users.
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="/create-challenge">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Challenge
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="flex items-center justify-center h-64 text-red-500">
+          <AlertCircle className="h-8 w-8" />
+          <span className="ml-2">Failed to load challenges: {challengesError.message}</span>
+          <Button variant="outline" className="ml-4" onClick={() => refetchChallenges()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const challenges = challengesData?.challenges || [];
+  const stats = statsData || {
+    totalChallenges: 0,
+    activeChallenges: 0,
+    scheduledChallenges: 0,
+    totalParticipants: 0,
+  };
 
   const filteredChallenges = challenges.filter(challenge => {
     const matchesSearch = challenge.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         challenge.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (challenge.description && challenge.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesFilter = filterStatus === 'all' || challenge.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -137,11 +156,9 @@ export function ChallengesPage() {
 
   const getTypeColor = (type: Challenge['type']) => {
     switch (type) {
-      case 'QUIZ': return 'bg-purple-100 text-purple-800';
-      case 'PUZZLE': return 'bg-orange-100 text-orange-800';
-      case 'SCAVENGER_HUNT': return 'bg-green-100 text-green-800';
-      case 'SOCIAL': return 'bg-pink-100 text-pink-800';
-      case 'LOCATION_BASED': return 'bg-blue-100 text-blue-800';
+      case 'GAME_BASED': return 'bg-purple-100 text-purple-800';
+      case 'INDIVIDUAL': return 'bg-orange-100 text-orange-800';
+      case 'TEAM': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -196,7 +213,7 @@ export function ChallengesPage() {
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{challenges.length}</div>
+            <div className="text-2xl font-bold">{stats.totalChallenges}</div>
             <p className="text-xs text-muted-foreground">
               All time
             </p>
@@ -208,9 +225,7 @@ export function ChallengesPage() {
             <Play className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {challenges.filter(c => c.status === 'ACTIVE').length}
-            </div>
+            <div className="text-2xl font-bold">{stats.activeChallenges}</div>
             <p className="text-xs text-muted-foreground">
               Currently running
             </p>
@@ -222,9 +237,7 @@ export function ChallengesPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {challenges.reduce((sum, c) => sum + c.totalParticipants, 0)}
-            </div>
+            <div className="text-2xl font-bold">{stats.totalParticipants}</div>
             <p className="text-xs text-muted-foreground">
               Across all challenges
             </p>
@@ -236,9 +249,7 @@ export function ChallengesPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {challenges.filter(c => c.status === 'SCHEDULED').length}
-            </div>
+            <div className="text-2xl font-bold">{stats.scheduledChallenges}</div>
             <p className="text-xs text-muted-foreground">
               Upcoming challenges
             </p>
@@ -305,7 +316,9 @@ export function ChallengesPage() {
                   </div>
                 </div>
                 <CardTitle className="text-lg">{challenge.name}</CardTitle>
-                <CardDescription>{challenge.description}</CardDescription>
+                <CardDescription>
+                  {challenge.description || 'No description available'}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -339,11 +352,15 @@ export function ChallengesPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Gift className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">{challenge.gift.name}</span>
+                      <span className="text-sm font-medium">
+                        {challenge.gift?.name || 'No gift assigned'}
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold">
-                      €{challenge.gift.value}
-                    </span>
+                    {challenge.gift && (
+                      <span className="text-sm font-semibold">
+                        €{challenge.gift.value}
+                      </span>
+                    )}
                   </div>
                 </div>
 

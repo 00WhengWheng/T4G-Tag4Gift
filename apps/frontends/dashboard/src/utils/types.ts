@@ -1,3 +1,5 @@
 // Type definition for Business App Router
-// TODO: Import from shared types package when available
-export type AppRouter = any;
+// Import the actual type from the business backend
+import type { AppRouterType } from '../../../backends/business/src/app/trpc/app.router';
+
+export type AppRouter = AppRouterType;
