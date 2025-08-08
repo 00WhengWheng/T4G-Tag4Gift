@@ -66,7 +66,7 @@ import { PrismaService } from '@t4g/database';
   }
 import { Controller, Get, Post, Put, Body, Param, Query, BadRequestException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { GDevelopGamesService } from '../services/gdevelop-games.service';
+import { GDevelopGamesService } from './gdevelop-games.service';
 import { GameTemplate } from '../entities/game-template.entity';
 import { GameType } from '../enums/game-type.enum';
 import { CreateGameTemplateDto } from '../dto/create-game-template.dto';

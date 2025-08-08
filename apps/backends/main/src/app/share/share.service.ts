@@ -8,6 +8,7 @@ export class ShareService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+
   /**
    * Share a post to Facebook Page (tenant account) and log to DB
    */
@@ -33,6 +34,53 @@ export class ShareService {
       shareUrl: response.id,
     });
     return { id: response.id, dbRecord };
+  }
+
+  /**
+   * Share a video to TikTok and log to DB
+   */
+  async shareToTikTok(
+    accessToken: string,
+    videoUrl: string,
+    title: string,
+    description: string,
+    userId: string,
+    tenantId: string
+  ): Promise<{ publishId: string; dbRecord?: any }> {
+    // TikTok Content Posting API: /v2/post/publish/content/init/
+    const url = 'https://open.tiktokapis.com/v2/post/publish/content/init/';
+    const payload = {
+      post_info: {
+        title,
+        description,
+        privacy_level: 'PUBLIC_TO_EVERYONE',
+      },
+      source_info: {
+        source: 'PULL_FROM_URL',
+        video_url: videoUrl,
+      },
+      post_mode: 'DIRECT_POST',
+      media_type: 'VIDEO',
+    };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`TikTok API error: ${res.statusText}`);
+    const data = await res.json();
+    const publishId = data?.data?.publish_id;
+    // Log to DB using Share model
+    const dbRecord = await this.createShare({
+      userId,
+      tenantId,
+      socialType: 'TIKTOK',
+      shareUrl: publishId,
+    });
+    return { publishId, dbRecord };
   }
 
   /**

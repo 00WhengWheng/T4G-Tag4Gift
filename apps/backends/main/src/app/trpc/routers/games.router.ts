@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { GamesService } from '../../game/game.service';
-import { GDevelopGamesService } from '../../game/services/gdevelop-games.service';
+import { GDevelopGamesService } from '../../game/gdevelop/gdevelop-games.service';
 import { GameType } from '../../game/enums/game-type.enum';
 import { Injectable } from '@nestjs/common';
 

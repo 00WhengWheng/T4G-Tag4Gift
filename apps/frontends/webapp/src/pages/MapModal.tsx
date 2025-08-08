@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { useNavigate } from '@tanstack/react-router';
 
 // Types for venue data
+interface Challenge {
+  id: string;
+  title: string;
+  status: string;
+}
+
 interface Venue {
   id: string;
   name: string;
@@ -24,6 +32,7 @@ interface Venue {
     name: string;
     isActive: boolean;
   }>;
+  challenges?: Challenge[];
   _count: {
     tags: number;
     gifts: number;
@@ -148,43 +157,62 @@ export default function MapModal() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="h-96 bg-gray-800 relative">
-            {/* Map placeholder - will be replaced with OpenLayers */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-game-primary-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <p className="text-game-primary-300">Interactive map will load here</p>
-                <p className="text-sm text-game-primary-200 mt-2">
-                  OpenLayers integration for venue locations
-                </p>
-                {userLocation && (
-                  <p className="text-xs text-game-primary-400 mt-1">
-                    Your location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Dynamic venue pins based on real data */}
-            {venues.slice(0, 5).map((venue, index) => (
-              <div 
-                key={venue.id}
-                className={`absolute w-4 h-4 rounded-full border-2 border-white cursor-pointer hover:scale-125 transition-transform ${
-                  venue._count.tagScans > 20 ? 'bg-green-500' : 
-                  venue._count.tagScans > 10 ? 'bg-blue-500' : 
-                  'bg-red-500'
-                }`}
-                style={{
-                  top: `${20 + (index * 60)}px`,
-                  left: `${20 + (index * 40)}px`,
-                }}
-                title={`${venue.name} - ${venue._count.tagScans} scans`}
+            <MapContainer
+              center={userLocation ? [userLocation.lat, userLocation.lng] : [13.7563, 100.5018]} // Default: Bangkok
+              zoom={13}
+              style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }}
+              scrollWheelZoom={true}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-            ))}
+              {userLocation && (
+                <Marker position={[userLocation.lat, userLocation.lng]}>
+                  <Popup>Your location</Popup>
+                </Marker>
+              )}
+              {venues.map((venue) => {
+                const tag = venue.tags[0];
+                if (!tag) return null;
+                return (
+                  <Marker key={venue.id} position={[tag.latitude, tag.longitude]}>
+                    <Popup>
+                      <div>
+                        <strong>{venue.name}</strong><br />
+                        {venue.address && <span>{venue.address}<br /></span>}
+                        {venue.tenant && <span>by {venue.tenant.name}<br /></span>}
+                        <span>{venue._count.tagScans} scans</span><br />
+                        {/* Show active/inactive gifts */}
+                        <div className="mt-2">
+                          <span className="font-semibold">Gifts:</span>
+                          {venue.gifts.length === 0 ? (
+                            <span className="ml-1 text-gray-400">None</span>
+                          ) : (
+                            venue.gifts.map(gift => (
+                              <span key={gift.id} className={`ml-2 px-2 py-1 text-xs rounded ${gift.isActive ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
+                                {gift.name} {gift.isActive ? '(Active)' : '(Inactive)'}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                        {/* Show challenge status if available */}
+                        {venue.challenges && venue.challenges.length > 0 && (
+                          <div className="mt-2">
+                            <span className="font-semibold">Challenges:</span>
+                            {venue.challenges.map(challenge => (
+                              <span key={challenge.id} className={`ml-2 px-2 py-1 text-xs rounded ${challenge.status === 'ACTIVE' ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
+                                {challenge.title} {challenge.status === 'ACTIVE' ? '(Active)' : `(${challenge.status})`}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </MapContainer>
           </div>
           
           <div className="p-4 space-y-4">

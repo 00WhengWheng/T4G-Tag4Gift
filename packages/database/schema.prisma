@@ -29,6 +29,7 @@ enum ShareType {
   TWITTER
   INSTAGRAM
   WHATSAPP
+  TIKTOK
 }
 
 enum GameType {
@@ -223,6 +224,7 @@ model Game {
   // Relationships
   user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   coin Coin?
+  quizQuestions QuizQuestion[]
 
   @@map("games")
   @@index([userId])
@@ -352,4 +354,34 @@ model Referral {
   @@unique([referrerId, referredId]) // Prevent duplicate referrals
   @@index([referrerId])
   @@index([referredId])
+}
+
+// Quiz system models
+model QuizQuestion {
+  id          String   @id @default(cuid())
+  gameId      String
+  question    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  answers     QuizAnswer[]
+
+  @@map("quiz_questions")
+  @@index([gameId])
+}
+
+model QuizAnswer {
+  id            String   @id @default(cuid())
+  quizQuestionId String
+  answer        String
+  isCorrect     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  // Relationships
+  question      QuizQuestion @relation(fields: [quizQuestionId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_answers")
+  @@index([quizQuestionId])
 }

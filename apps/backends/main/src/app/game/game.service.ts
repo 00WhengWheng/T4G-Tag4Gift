@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@t4g/database';
 import { InputJsonValue } from '@prisma/client/runtime/library';
 import { GameType } from './enums/game-type.enum';
+import { GDevelopGamesService } from './gdevelop/gdevelop-games.service';
 
 @Injectable()
 export class GamesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gdevelopGamesService: GDevelopGamesService
+  ) {}
 
   async findMany(options?: {
     where?: any;
@@ -126,7 +130,13 @@ export class GamesService {
   }
 
   async getGameTemplates(category?: string, type?: GameType) {
-    // Fetch game templates filtered by category/type
+    // Use GDevelopGamesService for GDevelop types, fallback to Prisma for others
+    const gdevelopTypes = [GameType.PUZZLE, GameType.REACTION, GameType.MUSIC];
+    if (type && gdevelopTypes.includes(type)) {
+      // Delegate to GDevelopGamesService for GDevelop games
+      return await this.gdevelopGamesService.getGDevelopGameTemplates(category);
+    }
+    // Otherwise, fetch from Prisma directly
     const templates = await this.prisma.gameTemplate.findMany({
       where: {
         isActive: true,
@@ -134,9 +144,7 @@ export class GamesService {
         ...(type ? { type } : {}),
       },
     });
-
     return templates.map((t) => {
-      // Robust gdevelopProjectUrl assignment
       let gdevelopProjectUrl = t.gdevelopProjectUrl;
       if (!gdevelopProjectUrl || gdevelopProjectUrl.trim() === '') {
         switch (t.type) {
@@ -153,7 +161,6 @@ export class GamesService {
             gdevelopProjectUrl = '/games/reaction';
             break;
           default:
-            // Fallback to category/id-based URL if category and id exist
             if (t.category && t.id) {
               gdevelopProjectUrl = `/games/${t.category}/${t.id}/index.html`;
             } else {
@@ -161,8 +168,6 @@ export class GamesService {
             }
         }
       }
-
-      // Return enhanced template object with correct types for GraphQL
       return {
         id: t.id,
         name: t.name,

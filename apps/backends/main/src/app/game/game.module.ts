@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { GamesService } from './game.service';
-import { GDevelopGamesService } from './services/gdevelop-games.service';
+import { GDevelopGamesService } from './gdevelop/gdevelop-games.service';
 import { GamesController } from './game.controller';
-import { GDevelopGamesController } from './controllers/gdevelop-games.controller';
+import { GDevelopGamesController } from './gdevelop/gdevelop-games.controller';
 
 @Module({
   controllers: [
