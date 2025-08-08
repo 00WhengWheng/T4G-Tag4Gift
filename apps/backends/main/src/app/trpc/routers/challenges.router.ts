@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
-import { ChallengeService } from '../../challenges/challenge.service';
-import { ChallengeType } from '../../challenges/enums/challenge-type.enum';
+import { ChallengeService } from '../../challenge/challenge.service';
+import { ChallengeType } from '../../challenge/enums/challenge-type.enum';
 
 // Input schemas for tRPC procedures
 const createChallengeSchema = z.object({

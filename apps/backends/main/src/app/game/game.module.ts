@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { GamesService } from './games.service';
+import { GamesService } from './game.service';
 import { GDevelopGamesService } from './services/gdevelop-games.service';
-import { GamesController } from './games.controller';
+import { GamesController } from './game.controller';
 import { GDevelopGamesController } from './controllers/gdevelop-games.controller';
 
 @Module({

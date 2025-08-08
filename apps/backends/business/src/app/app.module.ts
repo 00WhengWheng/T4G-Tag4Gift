@@ -4,12 +4,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TenantModule } from './tenant/tenant.module';
 import { AuthModule } from './auth/auth.module';
-import { VenueModule } from './venue/venue.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { TagModule } from './tag/tag.module';
 import { GiftModule } from './gift/gift.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { PrismaModule } from '@t4g/database';
 import { ShareModule } from './share/share.module';
+import { UserModule } from './user/user.module';
+import { targetModulesByContainer } from '@nestjs/core/router/router-module';
 
 /**
  * Business Application Module for T4G Business Platform
@@ -33,10 +35,11 @@ import { ShareModule } from './share/share.module';
     
     // Business feature modules
     TenantModule,
-    VenueModule,
+    UserModule,
+    ShareModule,
+    TagModule,
     AnalyticsModule,
     GiftModule,
-    ShareModule,
   ],
   controllers: [AppController],
   providers: [AppService],

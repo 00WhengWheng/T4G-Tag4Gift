@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '@t4g/database';
-import { CoinsService } from './coins.service';
-import { ChallengePassService } from './challenge-pass.service';
+import { CoinsService } from './coin.service';
 
 @Module({
   imports: [PrismaModule],

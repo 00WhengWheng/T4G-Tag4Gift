@@ -1,7 +1,8 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { ShareService } from './share.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ShareToFacebookDto, ShareToInstagramDto } from './share.dto';
+import { ShareToFacebookDto, ShareToInstagramDto } from './dto/share.dto';
+import { Request } from 'express';
 
 @Controller('share')
 export class ShareController {
@@ -9,9 +10,11 @@ export class ShareController {
 
   @Post('facebook')
   @UseGuards(JwtAuthGuard)
-  async shareToFacebook(@Body() shareDto: ShareToFacebookDto): Promise<{ id: string; dbRecord: any }> {
-    // You may want to get userId and tenantId from JWT or request context
-    const { accessToken, message, link, userId, tenantId } = shareDto;
+  async shareToFacebook(@Body() shareDto: ShareToFacebookDto, @Req() req: Request): Promise<{ id: string; dbRecord: any }> {
+    // Extract userId and tenantId from JWT payload
+    const userId = req.user?.sub;
+    const tenantId = req.user?.tenantId;
+    const { accessToken, message, link } = shareDto;
     const result = await this.shareService.shareToFacebookPage(
       accessToken,
       message,
@@ -24,9 +27,11 @@ export class ShareController {
 
   @Post('instagram')
   @UseGuards(JwtAuthGuard)
-  async shareToInstagram(@Body() shareDto: ShareToInstagramDto): Promise<{ id: string; dbRecord: any }> {
-    // You may want to get userId and tenantId from JWT or request context
-    const { accessToken, imageUrl, caption, userId, tenantId } = shareDto;
+  async shareToInstagram(@Body() shareDto: ShareToInstagramDto, @Req() req: Request): Promise<{ id: string; dbRecord: any }> {
+    // Extract userId and tenantId from JWT payload
+    const userId = req.user?.sub;
+    const tenantId = req.user?.tenantId;
+    const { accessToken, imageUrl, caption } = shareDto;
     const result = await this.shareService.shareToInstagramBusiness(
       accessToken,
       imageUrl,

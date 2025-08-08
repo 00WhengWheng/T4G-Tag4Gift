@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
-import { CoinsService } from '../../coins/coins.service';
-import { ChallengePassService } from '../../coins/challenge-pass.service';
+import { CoinsService } from '../../coin/coin.service';
+import { ChallengePassService } from '../../coin/challenge-pass.service';
 import { PrismaService } from '@t4g/database';
 
 @Injectable()

@@ -1,76 +1,205 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@t4g/database';
+import { CoinType, TransactionSource } from '@prisma/client';
 import { GameType } from '../../games/enums/game-type.enum';
+
+export interface EarnCoinsInput {
+  auth0Id: string;
+  type: CoinType;
+  amount: number;
+  source: TransactionSource;
+  sourceId?: string;
+  description?: string;
+  metadata?: any;
+}
 
 @Injectable()
 export class CoinsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(CoinsService.name);
+  constructor(private prisma: PrismaService) {}
 
-  // Create coin for game win
-  async createGameCoin(userId: string, gameId: string, gameType: GameType, score?: number): Promise<boolean> {
-    // Check eligibility (max 2/week)
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const coinCount = await this.prisma.coin.count({
-      where: {
-        userId,
-        coinType: 'GAME',
-        createdAt: { gte: oneWeekAgo },
-        gameType,
-      },
-    });
-    if (coinCount >= 2) return false;
-    await this.prisma.coin.create({
-      data: {
-        userId,
-        coinType: 'GAME',
-        amount: 1,
-        description: `Win in ${gameType} game`,
-        gameType,
-        gameId,
-        score,
-      },
-    });
-    return true;
+  /**
+   * Helper method to get internal user ID from Auth0 ID
+   */
+  private async getUserIdFromAuth0(auth0Id: string): Promise<string> {
+    await this.getUserCoinBalance(auth0Id);
+    const user = await this.prisma.user.findUnique({ where: { auth0Id }, select: { id: true } });
+    if (!user) throw new Error(`User not found for auth0Id: ${auth0Id}`);
+    return user.id;
   }
 
-  // Create coin for scan
-  async createScanCoin(userId: string, tagId: string, tenantId: string): Promise<boolean> {
-    // Check eligibility (e.g., per tag/tenant logic)
-    // For demo, always allow
-    await this.prisma.coin.create({
-      data: {
-        userId,
-        coinType: 'SCAN',
-        amount: 1,
-        description: `Scan at tag ${tagId}`,
-        tagId,
-        tenantId,
-      },
-    });
-    return true;
+  /**
+   * Get user's current coin balance - creates user and balance if they don't exist
+   */
+  async getUserCoinBalance(auth0Id: string) {
+    let user = await this.prisma.user.findUnique({ where: { auth0Id } });
+    if (!user) {
+      const tempEmail = `${auth0Id.replace('|', '_')}@temp.t4g.fun`;
+      const tempUsername = auth0Id.replace('|', '_');
+      try {
+        user = await this.prisma.user.create({
+          data: {
+            auth0Id,
+            email: tempEmail,
+            username: tempUsername,
+            firstName: 'Anonymous',
+            lastName: 'User',
+            role: 'USER',
+            status: 'ACTIVE',
+            authProvider: 'GOOGLE',
+            language: 'en',
+            timezone: 'UTC',
+            password: '',
+          },
+        });
+        this.logger.log(`Created new user for auth0Id: ${auth0Id}`);
+      } catch (error) {
+        this.logger.error(`Failed to create user for auth0Id: ${auth0Id}`, error);
+        throw new Error('Failed to create user');
+      }
+    }
+    let balance = await this.prisma.coinBalance.findUnique({ where: { userId: user.id } });
+    if (!balance) {
+      balance = await this.prisma.coinBalance.create({
+        data: {
+          userId: user.id,
+          tagCoins: 0,
+          shareCoins: 0,
+          gameCoins: 0,
+          totalCoins: 0,
+        },
+      });
+      this.logger.log(`Created coin balance for user: ${user.id}`);
+    }
+    return balance;
   }
 
-  // Check coin eligibility for game
-  async isGameCoinEligible(userId: string, gameType: GameType): Promise<boolean> {
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const coinCount = await this.prisma.coin.count({
-      where: {
-        userId,
-        coinType: 'GAME',
-        createdAt: { gte: oneWeekAgo },
-        gameType,
-      },
+  /**
+   * Unified coin generation for game, share, scan
+   */
+  async generateCoinForAction(params: {
+    auth0Id: string;
+    action: 'GAME' | 'SHARE' | 'SCAN';
+    source: TransactionSource;
+    sourceId?: string;
+    description?: string;
+    metadata?: any;
+    gameType?: GameType;
+    score?: number;
+    tagId?: string;
+    tenantId?: string;
+    amount?: number;
+  }): Promise<any> {
+    const { auth0Id, action, source, sourceId, description, metadata, gameType, score, tagId, tenantId, amount } = params;
+    const userId = await this.getUserIdFromAuth0(auth0Id);
+    let coinAmount = amount ?? 1;
+
+    // Game coin eligibility (max 2/week per gameType)
+    if (action === 'GAME' && gameType) {
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const coinCount = await this.prisma.coinTransaction.count({
+        where: {
+          userId,
+          type: 'GAME',
+          createdAt: { gte: oneWeekAgo },
+          metadata: { path: ['gameType'], equals: gameType },
+        },
+      });
+      if (coinCount >= 2) throw new BadRequestException('Game coin limit reached for this week');
+    }
+
+    // Scan coin eligibility (per tag/tenant logic)
+    if (action === 'SCAN' && tagId) {
+      // Example: check scan limit per tag per day
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const scanCount = await this.prisma.scan.count({
+        where: {
+          userId,
+          tagId,
+          createdAt: { gte: today },
+        },
+      });
+      const tag = await this.prisma.tag.findUnique({ where: { id: tagId } });
+      if (tag && scanCount >= tag.maxScansPerUser) throw new BadRequestException('Scan limit reached');
+    }
+
+    // Share coin eligibility (can add logic if needed)
+
+    // Create coin transaction and update balance
+    return this.prisma.$transaction(async (tx) => {
+      await tx.coinTransaction.create({
+        data: {
+          userId,
+          type: action,
+          amount: coinAmount,
+          source,
+          sourceId,
+          description: description || `Earned ${coinAmount} ${action.toLowerCase()} coin(s)`,
+          metadata: {
+            ...(metadata || {}),
+            ...(gameType ? { gameType } : {}),
+            ...(score ? { score } : {}),
+            ...(tagId ? { tagId } : {}),
+            ...(tenantId ? { tenantId } : {}),
+          },
+        },
+      });
+      const coinBalance = await tx.coinBalance.upsert({
+        where: { userId },
+        update: {
+          [action === 'TAG' ? 'tagCoins' : action === 'SHARE' ? 'shareCoins' : 'gameCoins']: {
+            increment: coinAmount,
+          },
+        },
+        create: {
+          userId,
+          tagCoins: action === 'TAG' ? coinAmount : 0,
+          shareCoins: action === 'SHARE' ? coinAmount : 0,
+          gameCoins: action === 'GAME' ? coinAmount : 0,
+        },
+      });
+      await tx.coinBalance.update({
+        where: { userId },
+        data: {
+          totalCoins: coinBalance.tagCoins + coinBalance.shareCoins + coinBalance.gameCoins,
+        },
+      });
+      return { success: true };
     });
-    return coinCount < 2;
   }
 
-  // Get user coin history
-  async getUserCoins(userId: string, limit = 20, offset = 0) {
-    return this.prisma.coin.findMany({
+  /**
+   * Get user's coin transaction history
+   */
+  async getUserCoinHistory(auth0Id: string, limit = 50, offset = 0) {
+    const userId = await this.getUserIdFromAuth0(auth0Id);
+    return this.prisma.coinTransaction.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,
       skip: offset,
+    });
+  }
+
+  /**
+   * Get leaderboard based on total coins
+   */
+  async getCoinLeaderboard(limit = 10) {
+    return this.prisma.coinBalance.findMany({
+      take: limit,
+      orderBy: { totalCoins: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
     });
   }
 }

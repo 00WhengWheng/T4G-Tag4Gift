@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TrpcController } from './trpc.controller';
-import { GamesModule } from '../games/games.module';
-import { ChallengesModule } from '../challenges/challenges.module';
+import { GamesModule } from '../game/game.module';
+import { ChallengesModule } from '../challenge/challenge.module';
 import { TagModule } from '../tags/tag.module';
 import { ShareModule } from '../share/share.module';
 import { UsersModule } from '../users/users.module';

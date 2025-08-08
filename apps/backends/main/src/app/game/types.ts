@@ -1,5 +1,5 @@
 import { GameType } from './enums/game-type.enum';
-import { ChallengeType } from '../challenges/enums/challenge-type.enum';
+import { ChallengeType } from '../challenge/enums/challenge-type.enum';
 
 export class GameCategory {
   name: string;

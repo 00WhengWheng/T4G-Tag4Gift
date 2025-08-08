@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService, TagStatus } from '@t4g/database';
+import { PrismaService } from '@t4g/database';
 
 export interface CreateScanDto {
   userId: string;
@@ -9,13 +9,16 @@ export interface CreateScanDto {
 }
 
 @Injectable()
-export class TagService {
+export class ScanService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async scanTag(dto: CreateScanDto) {
+  async processScan(dto: CreateScanDto) {
     // Validate tag
     const tag = await this.prisma.tag.findUnique({ where: { id: dto.tagId } });
-    if (!tag || tag.status !== TagStatus.ACTIVE) throw new Error('Tag not found or inactive');
+    if (!tag) throw new Error('Tag not found');
+    // Validate user
+    const user = await this.prisma.user.findUnique({ where: { id: dto.userId } });
+    if (!user) throw new Error('User not found');
     // Check scan limit
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -48,13 +51,5 @@ export class TagService {
       },
     });
     return scan;
-  }
-
-  async getTagById(tagId: string) {
-    return this.prisma.tag.findUnique({ where: { id: tagId } });
-  }
-
-  async getScansByUser(userId: string) {
-    return this.prisma.scan.findMany({ where: { userId }, include: { tag: true } });
   }
 }

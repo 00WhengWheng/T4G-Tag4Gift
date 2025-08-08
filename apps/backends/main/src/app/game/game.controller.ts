@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Query, BadRequestException } from '@nestjs/common';
 import { ValidateNested } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { GamesService } from './games.service';
+import { GamesService } from './game.service';
 import { GameTemplate } from './entities/game-template.entity';
 import { CreateGameTemplateDto } from './dto/create-game-template.dto';
 import { GameType } from './enums/game-type.enum';

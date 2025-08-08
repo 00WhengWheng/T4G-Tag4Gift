@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
-import { GamesService } from '../../games/games.service';
-import { GDevelopGamesService } from '../../games/services/gdevelop-games.service';
-import { GameType } from '../../games/enums/game-type.enum';
+import { GamesService } from '../../game/game.service';
+import { GDevelopGamesService } from '../../game/services/gdevelop-games.service';
+import { GameType } from '../../game/enums/game-type.enum';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -1,14 +1,15 @@
-import './games/enums/game-type.enum';
+import './game/enums/game-type.enum';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { GamesModule } from './games/games.module';
+import { GamesModule } from './game/game.module';
 import { UsersModule } from './users/users.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { AuthModule } from './auth/auth.module';
-import { TagModule } from './tags/tag.module';
 import { ShareModule } from './share/share.module';
-import { ChallengesModule } from './challenges/challenges.module';
+import { ScanModule } from './scan/scan.module';
+import { CoinModule } from './coin/coin.module';
+import { ChallengesModule } from './challenge/challenge.module';
 import { PrismaModule } from '@t4g/database';
 
 /**
