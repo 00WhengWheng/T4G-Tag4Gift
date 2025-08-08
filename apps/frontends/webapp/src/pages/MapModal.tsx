@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { useNavigate } from '@tanstack/react-router';
 
 // Types for venue data
+// Types for tenant data
 interface Challenge {
   id: string;
   title: string;
@@ -50,7 +51,7 @@ export default function MapModal() {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Get user location
-  useEffect(() => {
+  useEffect(() => { 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -61,14 +62,14 @@ export default function MapModal() {
         },
         (error) => {
           console.warn('Geolocation error:', error);
-          // Continue without location
+          // Continue without location 
         }
       );
     }
   }, []);
 
   // Fetch venues from our API
-  useEffect(() => {
+  useEffect(() => { 
     const fetchVenues = async () => {
       try {
         setIsLoading(true);
@@ -88,7 +89,7 @@ export default function MapModal() {
         const response = await fetch(`http://localhost:3001/api/venues/map?${params.toString()}`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', 
             // TODO: Add auth header when auth is implemented
             // 'Authorization': `Bearer ${token}`,
           },
@@ -190,7 +191,50 @@ export default function MapModal() {
                             <span className="ml-1 text-gray-400">None</span>
                           ) : (
                             venue.gifts.map(gift => (
-                              <span key={gift.id} className={`ml-2 px-2 py-1 text-xs rounded ${gift.isActive ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
+                          }, [userLocation]); 
+  
+                          // Fetch venues and tenants from our API, then merge tenant info into venues
+                          useEffect(() => {
+                            const fetchMapData = async () => {
+                              try {
+                                setIsLoading(true);
+                                const params = new URLSearchParams();
+                                if (userLocation) {
+                                  const offset = 0.045;
+                                  params.append('north', (userLocation.lat + offset).toString());
+                                  params.append('south', (userLocation.lat - offset).toString());
+                                  params.append('east', (userLocation.lng + offset).toString());
+                                  params.append('west', (userLocation.lng - offset).toString());
+                                }
+                                // Fetch venues
+                                const venuesRes = await fetch(`http://localhost:3001/api/venues/map?${params.toString()}`);
+                                if (!venuesRes.ok) throw new Error(`Failed to fetch venues: ${venuesRes.statusText}`);
+                                const venuesData: Venue[] = await venuesRes.json();
+
+                                // Fetch tenants
+                                const tenantsRes = await fetch(`http://localhost:3001/api/tenants`);
+                                if (!tenantsRes.ok) throw new Error(`Failed to fetch tenants: ${tenantsRes.statusText}`);
+                                const tenantsData = await tenantsRes.json();
+
+                                // Merge tenant info into venues
+                                const venuesWithTenant = venuesData.map(venue => {
+                                  const tenant = tenantsData.find((t: any) => t.id === venue.tenant?.id);
+                                  return {
+                                    ...venue,
+                                    tenant: tenant ? { ...tenant } : venue.tenant,
+                                  };
+                                });
+                                setVenues(venuesWithTenant);
+                                setError(null);
+                              } catch (err) {
+                                setError(err instanceof Error ? err.message : 'Failed to load venues/tenants');
+                                console.error('Error fetching map data:', err);
+                              } finally {
+                                setIsLoading(false);
+                              }
+                            };
+                            fetchMapData();
+                          }, [userLocation]);
                                 {gift.name} {gift.isActive ? '(Active)' : '(Inactive)'}
                               </span>
                             ))
