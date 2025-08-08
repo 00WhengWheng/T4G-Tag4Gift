@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { GiftService } from './gift.service';
-import { GiftController } from './gift.controller';
+import { GiftService } from './gifts.service';
+import { GiftController } from './gifts.controller';
 
 @Module({
   providers: [GiftService],

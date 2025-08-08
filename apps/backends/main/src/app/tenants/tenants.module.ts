@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TenantService } from './tenant.service';
-import { TenantController } from './tenant.controller';
+import { TenantService } from './tenants.service';
+import { TenantController } from './tenants.controller';
 import { PrismaService } from '@t4g/database';
 
 @Module({

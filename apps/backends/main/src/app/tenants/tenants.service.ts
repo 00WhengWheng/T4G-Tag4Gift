@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@t4g/database';
-import { CreateTenantDto } from './tenant.dto';
+import { CreateTenantDto } from './dto/tenants.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()

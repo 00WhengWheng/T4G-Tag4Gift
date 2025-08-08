@@ -80,6 +80,7 @@ model User {
   id          String   @id @default(cuid())
   email       String   @unique
   username    String   @unique
+  auth0Id     String?  @unique // Auth0 user ID for federated login
   firstName   String?
   lastName    String?
   avatar      String?

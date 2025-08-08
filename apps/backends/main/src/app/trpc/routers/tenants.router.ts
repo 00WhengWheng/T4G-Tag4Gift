@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
-import { TenantService } from '../../tenants/tenant.service';
+import { TenantService } from '../../tenants/tenants.service';
 
 // Input validation schemas
 const createTenantSchema = z.object({

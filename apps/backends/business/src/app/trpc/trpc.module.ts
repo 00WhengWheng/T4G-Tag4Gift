@@ -8,7 +8,7 @@ import { ChallengesRouter } from './routers/challenges.router';
 import { TenantModule } from '../tenant/tenant.module';
 import { VenueModule } from '../venue/venue.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
-import { GiftModule } from '../gift/gift.module';
+import { GiftModule } from '../gifts/gifts.module';
 import { ChallengeModule } from '../challenge/challenge.module';
 import { ChallengeService } from '../challenge/challenge.service';
 

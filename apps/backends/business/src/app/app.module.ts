@@ -6,11 +6,11 @@ import { TenantModule } from './tenant/tenant.module';
 import { AuthModule } from './auth/auth.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { TagModule } from './tag/tag.module';
-import { GiftModule } from './gift/gift.module';
+import { GiftModule } from './gifts/gifts.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { PrismaModule } from '@t4g/database';
-import { ShareModule } from './share/share.module';
-import { UserModule } from './user/user.module';
+import { SocialModule } from './social/social.module';
+import { UserModule } from './users/users.module';
 import { targetModulesByContainer } from '@nestjs/core/router/router-module';
 
 /**
@@ -36,7 +36,7 @@ import { targetModulesByContainer } from '@nestjs/core/router/router-module';
     // Business feature modules
     TenantModule,
     UserModule,
-    ShareModule,
+    SocialModule,
     TagModule,
     AnalyticsModule,
     GiftModule,

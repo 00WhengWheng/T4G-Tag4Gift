@@ -1,35 +1,44 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@t4g/database';
 
-export interface CreateScanDto {
-  userId: string;
-  tagId: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
+import { ScanResponseDto, CreateScanDto } from './dto/scan.dto';
 
 @Injectable()
 export class ScanService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async processScan(dto: CreateScanDto) {
+  async processScan(dto: CreateScanDto): Promise<ScanResponseDto> {
     // Validate tag
     const tag = await this.prisma.tag.findUnique({ where: { id: dto.tagId } });
     if (!tag) throw new Error('Tag not found');
     // Validate user
     const user = await this.prisma.user.findUnique({ where: { id: dto.userId } });
     if (!user) throw new Error('User not found');
-    // Check scan limit
+    // Enforce 1 scan per user per day
     const today = new Date();
     today.setHours(0,0,0,0);
-    const scanCount = await this.prisma.scan.count({
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const existingScan = await this.prisma.scan.findFirst({
       where: {
         userId: dto.userId,
         tagId: dto.tagId,
-        createdAt: { gte: today },
+        createdAt: {
+          gte: today,
+          lt: tomorrow,
+        },
       },
     });
-    if (scanCount >= tag.maxScansPerUser) throw new Error('Scan limit reached');
+    if (existingScan) {
+      return {
+        scanId: existingScan.id,
+        userId: dto.userId,
+        tagId: dto.tagId,
+        coinId: existingScan.coin?.id ?? '',
+        coinAmount: tag.coinsPerScan,
+        scannedAt: existingScan.createdAt,
+        expiredAt: existingScan.expiredAt,
+        message: 'Already scanned today',
+      };
+    }
     // Create scan
     const scan = await this.prisma.scan.create({
       data: {
@@ -40,8 +49,8 @@ export class ScanService {
         expiredAt: new Date(Date.now() + 12 * 60 * 60 * 1000),
       },
     });
-    // Award coins
-    await this.prisma.coin.create({
+    // Award coin_scan
+    const coin = await this.prisma.coin.create({
       data: {
         userId: dto.userId,
         coinType: 'SCAN',
@@ -50,6 +59,20 @@ export class ScanService {
         scanId: scan.id,
       },
     });
-    return scan;
+    // Update scan with coin reference
+    await this.prisma.scan.update({
+      where: { id: scan.id },
+      data: { coin: { connect: { id: coin.id } } },
+    });
+    return {
+      scanId: scan.id,
+      userId: dto.userId,
+      tagId: dto.tagId,
+      coinId: coin.id,
+      coinAmount: tag.coinsPerScan,
+      scannedAt: scan.createdAt,
+      expiredAt: scan.expiredAt,
+      message: 'Scan successful',
+    };
   }
 }

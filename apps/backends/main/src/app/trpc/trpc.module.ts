@@ -4,7 +4,7 @@ import { GamesModule } from '../game/game.module';
 import { ChallengesModule } from '../challenge/challenge.module';
 import { TagModule } from '../tags/tag.module';
 import { ShareModule } from '../share/share.module';
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from '../user/user.module';
 import { TenantsModule } from '../tenants/tenants.module';
 import { VenueModule } from '../venue/venue.module';
 import { GamesRouter } from './routers/games.router';

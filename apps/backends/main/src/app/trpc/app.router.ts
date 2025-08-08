@@ -7,6 +7,9 @@ import { ShareRouter } from './routers/share.router';
 import { UsersRouter } from './routers/users.router';
 import { TenantsRouter } from './routers/tenants.router';
 import { VenuesRouter } from './routers/venues.router';
+import { GiftsRouter } from './routers/gifts.router';
+import { ScanRouter } from './routers/scan.router';
+import { PrismaService } from '@t4g/database';
 
 @Injectable()
 export class AppRouter {
@@ -17,7 +20,9 @@ export class AppRouter {
     private readonly shareRouter: ShareRouter,
     private readonly usersRouter: UsersRouter,
     private readonly tenantsRouter: TenantsRouter,
-    private readonly venuesRouter: VenuesRouter
+    private readonly venuesRouter: VenuesRouter,
+  private readonly prismaService: PrismaService,
+  private readonly scanRouter: ScanRouter,
   ) {}
 
   getAppRouter() {
@@ -29,6 +34,8 @@ export class AppRouter {
       users: this.usersRouter.getRoutes(),
       tenants: this.tenantsRouter.getRoutes(),
       venues: this.venuesRouter.getRoutes(),
+  gifts: new GiftsRouter(this.prismaService).getRoutes(),
+  scan: this.scanRouter.getRoutes(),
     });
   }
 }

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, BadRequestException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { CreateGiftDto } from './dto/gift.dto';
+import { CreateGiftDto } from './dto/gifts.dto';
 
 @Controller('gifts')
 export class GiftController {

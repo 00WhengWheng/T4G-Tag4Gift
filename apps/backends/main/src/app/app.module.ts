@@ -2,14 +2,12 @@ import './game/enums/game-type.enum';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { GamesModule } from './game/game.module';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './user/user.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { AuthModule } from './auth/auth.module';
 import { ShareModule } from './share/share.module';
 import { ScanModule } from './scan/scan.module';
-import { CoinModule } from './coin/coin.module';
-import { ChallengesModule } from './challenge/challenge.module';
 import { PrismaModule } from '@t4g/database';
 
 /**
@@ -35,10 +33,9 @@ import { PrismaModule } from '@t4g/database';
   // Feature modules
   GamesModule,
   UsersModule,
-  TagModule,
   ShareModule,
-  ChallengesModule,
-    
+  ScanModule,
+
   // Business logic
   TenantsModule,
   ],

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, Gift } from '@prisma/client';
-import { CreateGiftDto, UpdateGiftDto } from './dto/gift.dto';
+import { CreateGiftDto, UpdateGiftDto } from './dto/gifts.dto';
 
 @Injectable()
 export class GiftService {

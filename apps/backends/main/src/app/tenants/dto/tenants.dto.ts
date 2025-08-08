@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsEnum, IsEmail, IsNumber } from 'class-validator';
-import { TenantStatus } from './enums/tenant-status.enum';
-import { TenantType } from './enums/tenant-type.enum';
+import { TenantStatus } from '../enums/tenant-status.enum';
+import { TenantType } from '../enums/tenant-type.enum';
 
 export class CreateTenantDto {
   @IsString()

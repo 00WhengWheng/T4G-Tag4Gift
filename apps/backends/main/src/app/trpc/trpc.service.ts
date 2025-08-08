@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { UserService } from '../users/user.service';
+import { UserService } from '../user/user.service';
 import { ChallengeService } from '../challenge/challenge.service';
 import { GamesService } from '../game/game.service';
 import { TagService } from '../tags/tag.service';
 import { ShareService } from '../share/share.service';
-import { TenantService } from '../tenants/tenant.service';
+import { TenantService } from '../tenants/tenants.service';
 
 /**
  * Main tRPC Service
