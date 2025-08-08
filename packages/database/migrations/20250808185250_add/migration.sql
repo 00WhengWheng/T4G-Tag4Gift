@@ -1,0 +1,13 @@
+/*
+  Warnings:
+
+  - Added the required column `password` to the `users` table without a default value. This is not possible if the table is not empty.
+
+*/
+-- AlterTable
+ALTER TABLE "public"."gifts" ADD COLUMN     "coin_game_requirement" INTEGER,
+ADD COLUMN     "coin_scan_requirement" INTEGER,
+ADD COLUMN     "coin_share_requirement" INTEGER;
+
+-- AlterTable
+ALTER TABLE "public"."users" ADD COLUMN     "password" TEXT NOT NULL;

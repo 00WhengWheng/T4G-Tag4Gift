@@ -1,19 +1,23 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
-import { GamesService } from '../../game/game.service';
+import { GameService } from '../../game/game.service';
 import { GDevelopGamesService } from '../../game/gdevelop/gdevelop-games.service';
 import { GameType } from '../../game/enums/game-type.enum';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class GamesRouter {
+export class GameRouter {
   constructor(
-    private readonly gamesService: GamesService,
+    private readonly gameService: GameService,
     private readonly gdevelopGamesService: GDevelopGamesService
   ) {}
 
   getRoutes() {
-    return router({
+  return router({
+      userStatus: publicProcedure
+        .query(({ ctx }) => {
+          return { loggedIn: !!ctx.user, user: ctx.user || null };
+        }),
       // Game Templates
       getTemplates: publicProcedure
         .input(z.object({
@@ -21,7 +25,7 @@ export class GamesRouter {
           type: z.nativeEnum(GameType).optional(),
         }))
         .query(async ({ input }) => {
-          return this.gamesService.getGameTemplates(input.category, input.type);
+          return this.gameService.getGameTemplates(input.category, input.type);
         }),
 
       createTemplate: publicProcedure
@@ -34,8 +38,9 @@ export class GamesRouter {
           description: z.string().optional(),
           gdevelopProjectUrl: z.string().optional(),
         }))
-        .mutation(async ({ input }) => {
-          return this.gamesService.createGameTemplate({
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
+          return this.gameService.createGameTemplate({
             name: input.name,
             type: input.type,
             category: input.category,
@@ -100,7 +105,8 @@ export class GamesRouter {
             structure: z.string(),
             gdevelopProjectUrl: z.string().optional(),
           }))
-          .mutation(async ({ input }) => {
+          .mutation(async ({ input, ctx }) => {
+            if (!ctx.user) throw new Error('Not authenticated');
             const template = await this.gdevelopGamesService.registerGDevelopGame({
               name: input.name,
               type: input.type,
@@ -135,7 +141,8 @@ export class GamesRouter {
             structure: z.string().optional(),
             gdevelopProjectUrl: z.string().optional(),
           }))
-          .mutation(async ({ input }) => {
+          .mutation(async ({ input, ctx }) => {
+            if (!ctx.user) throw new Error('Not authenticated');
             const { id, ...updateData } = input;
             const template = await this.gdevelopGamesService.updateGDevelopGame(id, updateData);
             
@@ -162,7 +169,8 @@ export class GamesRouter {
             timeSpent: z.number().optional(),
             completedAt: z.date().optional(),
           }))
-          .mutation(async ({ input }) => {
+          .mutation(async ({ input, ctx }) => {
+            if (!ctx.user) throw new Error('Not authenticated');
             return this.gdevelopGamesService.recordGameSession({
               userId: input.userId,
               gameId: input.gameId,

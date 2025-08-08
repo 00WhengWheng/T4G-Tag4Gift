@@ -46,8 +46,26 @@ export class UserService {
   }
 
   async loginUser(email: string, password: string) {
-    // Find user by email
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    // Find user by email, include password for validation
+    const user = await this.prisma.user.findUnique({ 
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        auth0Id: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        phoneNumber: true,
+        dateOfBirth: true,
+        totalCoins: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        password: true, // explicitly select password
+      }
+    });
     if (!user) throw new NotFoundException('User not found');
     // Validate password
     const valid = await bcrypt.compare(password, user.password);
@@ -61,7 +79,9 @@ export class UserService {
     };
     // Sign JWT
     const token = this.jwtService.sign(payload);
-    return { token, user };
+    // Remove password from returned user object
+    const { password: _, ...userWithoutPassword } = user;
+    return { token, user: userWithoutPassword };
   }
 
   async findUserById(id: string) {

@@ -1,13 +1,9 @@
 import { IsString, IsOptional, IsEnum, IsEmail, IsNumber } from 'class-validator';
-import { TenantStatus } from '../enums/tenant-status.enum';
-import { TenantType } from '../enums/tenant-type.enum';
+import { VenueType } from '../enums/tenant-type.enum';
 
 export class CreateTenantDto {
   @IsString()
   name: string;
-
-  @IsString()
-  slug: string;
 
   @IsEmail()
   email: string;
@@ -16,39 +12,62 @@ export class CreateTenantDto {
   @IsString()
   description?: string;
 
-  @IsEnum(TenantType)
-  type: TenantType;
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
 
-  @IsEnum(TenantStatus)
-  status: TenantStatus;
+  @IsOptional()
+  @IsString()
+  address?: string;
 
-  @IsNumber()
-  totalChallenges: number;
+  @IsOptional()
+  @IsString()
+  city?: string;
 
-  @IsNumber()
-  totalUsers: number;
+  @IsOptional()
+  @IsString()
+  country?: string;
 
-  @IsNumber()
-  totalGifts: number;
+  @IsOptional()
+  @IsString()
+  vatNumber?: string;
 
-  @IsNumber()
-  maxActiveChallenges: number;
+  @IsOptional()
+  @IsString()
+  legalName?: string;
 
-  @IsNumber()
-  maxUsersPerChallenge: number;
+  @IsOptional()
+  @IsString()
+  googleMap?: string;
 
-  @IsNumber()
-  maxTags: number;
+  @IsOptional()
+  @IsString()
+  facebook?: string;
+
+  @IsOptional()
+  @IsString()
+  instagram?: string;
+
+  @IsOptional()
+  @IsString()
+  tiktok?: string;
+
+  @IsOptional()
+  @IsString()
+  website?: string;
+
+  @IsOptional()
+  @IsString()
+  logo?: string;
+
+  @IsEnum(VenueType)
+  venueType: VenueType;
 }
 
 export class UpdateTenantDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
-  @IsString()
-  slug?: string;
 
   @IsOptional()
   @IsEmail()
@@ -59,69 +78,99 @@ export class UpdateTenantDto {
   description?: string;
 
   @IsOptional()
-  @IsEnum(TenantType)
-  type?: TenantType;
+  @IsString()
+  phoneNumber?: string;
 
   @IsOptional()
-  @IsEnum(TenantStatus)
-  status?: TenantStatus;
+  @IsString()
+  address?: string;
 
   @IsOptional()
-  @IsNumber()
-  totalChallenges?: number;
+  @IsString()
+  city?: string;
 
   @IsOptional()
-  @IsNumber()
-  totalUsers?: number;
+  @IsString()
+  country?: string;
 
   @IsOptional()
-  @IsNumber()
-  totalGifts?: number;
+  @IsString()
+  vatNumber?: string;
 
   @IsOptional()
-  @IsNumber()
-  maxActiveChallenges?: number;
+  @IsString()
+  legalName?: string;
 
   @IsOptional()
-  @IsNumber()
-  maxUsersPerChallenge?: number;
+  @IsString()
+  googleMap?: string;
 
   @IsOptional()
-  @IsNumber()
-  maxTags?: number;
+  @IsString()
+  facebook?: string;
+
+  @IsOptional()
+  @IsString()
+  instagram?: string;
+
+  @IsOptional()
+  @IsString()
+  tiktok?: string;
+
+  @IsOptional()
+  @IsString()
+  website?: string;
+
+  @IsOptional()
+  @IsString()
+  logo?: string;
+
+  @IsOptional()
+  @IsEnum(VenueType)
+  venueType?: VenueType;
 }
 
 export class TenantResponseDto {
   id: string;
   name: string;
-  slug: string;
   email: string;
   description?: string;
-  type: TenantType;
-  status: TenantStatus;
-  totalChallenges: number;
-  totalUsers: number;
-  totalGifts: number;
-  maxActiveChallenges: number;
-  maxUsersPerChallenge: number;
-  maxTags: number;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  vatNumber?: string;
+  legalName?: string;
+  googleMap?: string;
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
+  website?: string;
+  logo?: string;
+  venueType: VenueType;
+  isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 
   constructor(tenant: any) {
     this.id = tenant.id;
     this.name = tenant.name;
-    this.slug = tenant.slug;
     this.email = tenant.email;
     this.description = tenant.description;
-    this.type = tenant.type;
-    this.status = tenant.status;
-    this.totalChallenges = tenant.totalChallenges;
-    this.totalUsers = tenant.totalUsers;
-    this.totalGifts = tenant.totalGifts;
-    this.maxActiveChallenges = tenant.maxActiveChallenges;
-    this.maxUsersPerChallenge = tenant.maxUsersPerChallenge;
-    this.maxTags = tenant.maxTags;
+    this.phoneNumber = tenant.phoneNumber;
+    this.address = tenant.address;
+    this.city = tenant.city;
+    this.country = tenant.country;
+    this.vatNumber = tenant.vatNumber;
+    this.legalName = tenant.legalName;
+    this.googleMap = tenant.googleMap;
+    this.facebook = tenant.facebook;
+    this.instagram = tenant.instagram;
+    this.tiktok = tenant.tiktok;
+    this.website = tenant.website;
+    this.logo = tenant.logo;
+    this.venueType = tenant.venueType;
+    this.isActive = tenant.isActive;
     this.createdAt = tenant.createdAt;
     this.updatedAt = tenant.updatedAt;
   }

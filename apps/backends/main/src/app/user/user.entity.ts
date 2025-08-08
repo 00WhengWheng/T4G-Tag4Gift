@@ -1,4 +1,6 @@
-import { UserRole, UserStatus, AuthProvider } from '@prisma/client';
+import { UserRole } from './dto/enums/user-role.enum';
+import { UserStatus } from './dto/enums/user-status.enum';
+import { AuthProvider } from './dto/enums/auth-provider.enum';
 
 /**
  * User entity: represents a user in the backend, used for type safety and response shaping.
@@ -15,7 +17,7 @@ export class User {
   /** Last name */
   lastName!: string;
   /** Phone number (optional) */
-  phone?: string;
+  phoneNumber?: string;
   /** Avatar URL (optional) */
   avatar?: string;
   /** Date of birth (optional) */

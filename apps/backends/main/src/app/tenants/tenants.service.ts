@@ -4,60 +4,61 @@ import { CreateTenantDto } from './dto/tenants.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class TenantService {
+export class TenantsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Create tenant and automatically create a default tag and venue for it
-   * @param data - tenant creation DTO
-   * @param tagInfo - { name, latitude, longitude, description? }
-   * @param venueInfo - { name, address, latitude, longitude, description? }
-   */
-  async createTenantWithDefaults(
-    data: CreateTenantDto,
-    tagInfo: { name: string; latitude: number; longitude: number; description?: string },
-    venueInfo: { name: string; address: string; latitude: number; longitude: number; description?: string }
-  ) {
-    // Create tenant
-    const tenant = await this.prisma.tenant.create({
+  // Create tenant
+  async createTenant(data: CreateTenantDto) {
+    return await this.prisma.tenant.create({
       data: {
         ...data,
         venueType: data.venueType as any,
       },
     });
+  }
 
-    // Generate unique QR code and NFC ID
-    const qrCode = uuidv4();
-    const nfcId = uuidv4();
-
-    // Create default tag for tenant
-    const tag = await this.prisma.tag.create({
-      data: {
-        tenantId: tenant.id,
-        name: tagInfo.name,
-        description: tagInfo.description ?? '',
-        location: `${tagInfo.latitude},${tagInfo.longitude}`,
-        status: 'ACTIVE',
-        scanCount: 0,
-        maxScansPerUser: 10,
-        coinsPerScan: 10,
-        qrCode,
-        nfcId,
-      },
+  // Find tenant by ID
+  async findTenantById(id: string) {
+    return await this.prisma.tenant.findUnique({
+      where: { id },
     });
+  }
 
-    // Create default venue for tenant
-    const venue = await this.prisma.venue.create({
-      data: {
-        tenantId: tenant.id,
-        name: venueInfo.name,
-        address: venueInfo.address,
-        description: venueInfo.description ?? '',
-        latitude: venueInfo.latitude,
-        longitude: venueInfo.longitude,
-        isActive: true,
-      },
+  // Find tenant by slug
+  async findTenantBySlug(slug: string) {
+    return await this.prisma.tenant.findUnique({
+      where: { slug },
     });
+  }
 
-    return { tenant, tag, venue };
+  // Update tenant
+  async updateTenant(id: string, data: Partial<CreateTenantDto>) {
+    return await this.prisma.tenant.update({
+      where: { id },
+      data,
+    });
+  }
+
+  // Delete tenant
+  async deleteTenant(id: string) {
+    return await this.prisma.tenant.delete({
+      where: { id },
+    });
+  }
+
+  // List tenants with pagination
+  async listTenants(limit = 20, offset = 0) {
+    const [tenants, total] = await Promise.all([
+      this.prisma.tenant.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.tenant.count(),
+    ]);
+    return {
+      tenants,
+      total,
+      hasMore: offset + limit < total,
+    };
   }

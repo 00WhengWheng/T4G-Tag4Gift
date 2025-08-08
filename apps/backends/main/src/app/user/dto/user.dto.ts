@@ -1,5 +1,7 @@
 import { IsEmail, IsString, IsOptional, IsEnum, IsBoolean, IsDate, IsNumber, MinLength } from 'class-validator';
-import { UserRole, UserStatus, AuthProvider } from '@prisma/client';
+import { UserRole } from './enums/user-role.enum';
+import { UserStatus } from './enums/user-status.enum';
+import { AuthProvider } from './enums/auth-provider.enum';
 
 export class CreateUserDto {
   @IsEmail()
@@ -16,7 +18,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  phone?: string;
+  phoneNumber?: string;
 
   @IsOptional()
   @IsString()
@@ -86,7 +88,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  phone?: string;
+  phoneNumber?: string;
 
   @IsOptional()
   @IsString()
@@ -153,7 +155,7 @@ export class UserResponseDto {
   firstName?: string;
   lastName?: string;
   avatar?: string;
-  phone?: string;
+  phoneNumber?: string;
   dateOfBirth?: Date;
   role: UserRole;
   status: UserStatus;
@@ -176,7 +178,7 @@ export class UserResponseDto {
     this.firstName = user.firstName;
     this.lastName = user.lastName;
     this.avatar = user.avatar;
-    this.phone = user.phone;
+    this.phoneNumber = user.phoneNumber;
     this.dateOfBirth = user.dateOfBirth;
     this.role = user.role;
     this.status = user.status;

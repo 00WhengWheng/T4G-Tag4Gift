@@ -88,6 +88,7 @@ model User {
   avatar      String?
   phoneNumber String?   @map("phone_number")
   dateOfBirth DateTime? @map("date_of_birth") @db.Timestamptz
+  password    String
   totalCoins  Int       @default(0) @map("total_coins")
   isActive    Boolean   @default(true) @map("is_active")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
@@ -102,8 +103,38 @@ model User {
   referralsSent           Referral[]  @relation("ReferrerUser")
   referralsReceived       Referral[]  @relation("ReferredUser")
   challengeParticipants   ChallengeParticipant[] @relation("ChallengeParticipant")
+  standaloneGameSessions  StandaloneGameSession[]
 
   @@map("users")
+}
+
+model GameTemplate {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  name        String
+  description String?
+  type        GameType
+  category    String?
+  difficulty  String?
+  structure   Json?
+  gdevelopProjectUrl String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz
+  updatedAt   DateTime @updatedAt @db.Timestamptz
+  sessions    StandaloneGameSession[]
+}
+
+model StandaloneGameSession {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  userId      String   @map("user_id")
+  gameId      String   @map("game_id")
+  score       Int
+  timeSpent   Int?
+  completedAt DateTime? @db.Timestamptz
+  createdAt   DateTime @default(now()) @db.Timestamptz
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game GameTemplate @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Tenant {
@@ -316,9 +347,12 @@ model Gift {
   quantity    Int         @default(1)
   status      GiftStatus  @default(AVAILABLE)
   expiresAt   DateTime?   @map("expires_at") @db.Timestamptz
+  coinScanRequirement   Int?   @map("coin_scan_requirement")
+  coinShareRequirement  Int?   @map("coin_share_requirement")
+  coinGameRequirement   Int?   @map("coin_game_requirement")
   createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz
-  
+
   // New optional relationships
   userId      String?     @map("user_id")
   challengeId String?     @map("challenge_id")

@@ -37,14 +37,15 @@ const userEmailSchema = z.object({
 });
 
 @Injectable()
-export class UsersRouter {
-  constructor(private readonly userService: UserService) {}
+export class UserRouter {
+  constructor(private readonly usersService: UserService) {}
 
   getRoutes() {
     return router({
       create: publicProcedure
         .input(createUserSchema)
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
           // Transform input to match CreateUserDto with defaults
           const userInput = {
             ...input,
@@ -57,20 +58,21 @@ export class UsersRouter {
             isPhoneVerified: input.isPhoneVerified ?? false,
             totalPoints: input.totalPoints ?? 0,
             level: input.level ?? 1,
+            userId: ctx.user.id || ctx.user.sub,
           } as any;
-          return await this.userService.createUser(userInput);
+          return await this.usersService.createUser(userInput);
         }),
 
       findById: publicProcedure
         .input(userIdSchema)
         .query(async ({ input }) => {
-          return await this.userService.findUserById(input.id);
+          return await this.usersService.findUserById(input.id);
         }),
 
       findByEmail: publicProcedure
         .input(userEmailSchema)
         .query(async ({ input }) => {
-          return await this.userService.findUserByEmail(input.email);
+          return await this.usersService.findUserByEmail(input.email);
         }),
 
       update: publicProcedure
@@ -78,14 +80,16 @@ export class UsersRouter {
           id: z.string(),
           data: updateUserSchema,
         }))
-        .mutation(async ({ input }) => {
-          return await this.userService.updateUser(input.id, input.data);
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
+          return await this.usersService.updateUser(input.id, input.data);
         }),
 
       delete: publicProcedure
         .input(userIdSchema)
-        .mutation(async ({ input }) => {
-          return await this.userService.deleteUser(input.id);
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
+          return await this.usersService.deleteUser(input.id);
         }),
     });
   }

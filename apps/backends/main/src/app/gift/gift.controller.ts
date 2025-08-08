@@ -1,19 +1,26 @@
-import { Controller, Post, Get, Put, Body, Param, Query, BadRequestException } from '@nestjs/common';
-import { GiftService, CreateGiftDto } from './gift.service';
+import { Controller, Post, Get, Put, Body, Param, Query, BadRequestException, UseGuards } from '@nestjs/common';
+import { GiftService } from './gift.service';
+import { CreateGiftDto } from './dto/create-gift.dto';
 import { GiftStatus } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('gifts')
 export class GiftController {
   constructor(private readonly giftService: GiftService) {}
 
   @Post()
-  async createGift(@Body() dto: CreateGiftDto) {
+  @UseGuards(JwtAuthGuard)
+  async createGift(@Body() dto: CreateGiftDto, @Body('user') user: any) {
+    // Optionally check business user permissions here
+    if (!user) throw new BadRequestException('Unauthorized');
     return await this.giftService.createGift(dto);
   }
 
   @Post('claim/:id')
-  async claimGift(@Param('id') id: string, @Body() body: { userId: string }) {
-    return await this.giftService.claimGift(id, body.userId);
+  @UseGuards(JwtAuthGuard)
+  async claimGift(@Param('id') id: string, @Body('user') user: any) {
+    if (!user) throw new BadRequestException('Unauthorized');
+    return await this.giftService.claimGift(id, user.id);
   }
 
   @Get()
@@ -22,7 +29,10 @@ export class GiftController {
   }
 
   @Put(':id')
-  async updateGift(@Param('id') id: string, @Body() data: Partial<CreateGiftDto>) {
+  @UseGuards(JwtAuthGuard)
+  async updateGift(@Param('id') id: string, @Body() data: Partial<CreateGiftDto>, @Body('user') user: any) {
+    // Optionally check business user permissions here
+    if (!user) throw new BadRequestException('Unauthorized');
     return await this.giftService.updateGift(id, data);
   }
 }

@@ -1,18 +1,19 @@
-import './game/enums/game-type.enum';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { GamesModule } from './game/game.module';
-import { UsersModule } from './user/user.module';
-import { TenantsModule } from './tenants/tenants.module';
 import { TrpcModule } from './trpc/trpc.module';
-import { AuthModule } from './auth/auth.module';
-import { ShareModule } from './share/share.module';
-import { ScanModule } from './scan/scan.module';
 import { PrismaModule } from '@t4g/database';
+
+import { AuthModule } from './auth/auth.module';
+import { GameModule } from './game/game.module';
+import { GiftModule } from './gift/gift.module';
+import { ScanModule } from './scan/scan.module';
+import { ShareModule } from './share/share.module';
+import { TenantsModule } from './tenants/tenants.module';
+import { UserModule } from './user/user.module';
 
 /**
  * Main Application Module for T4G User Platform
- * Domain: t4g.fun (Users, Games, Social Features, Challenges)
+ * Domain: t4g.fun
  */
 @Module({
   imports: [
@@ -22,24 +23,16 @@ import { PrismaModule } from '@t4g/database';
       envFilePath: ['.env.local', '.env'],
       expandVariables: true,
     }),
-    
-    // Global database module
-    PrismaModule,
-    
-    // Core modules
     TrpcModule,
+    PrismaModule,
     AuthModule,
-    
-  // Feature modules
-  GamesModule,
-  UsersModule,
-  ShareModule,
-  ScanModule,
-
-  // Business logic
-  TenantsModule,
+    GameModule,
+    GiftModule,
+    ScanModule,
+    ShareModule,
+    TenantsModule,
+    UserModule,
   ],
-  // No REST controllers, only tRPC and environment modules
   controllers: [],
   providers: [],
 })

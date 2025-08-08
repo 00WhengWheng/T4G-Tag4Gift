@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
-import { TenantService } from '../../tenants/tenants.service';
+import { TenantsService } from '../../tenants/tenants.service';
 
 // Input validation schemas
 const createTenantSchema = z.object({
@@ -31,13 +31,14 @@ const tenantSlugSchema = z.object({
 
 @Injectable()
 export class TenantsRouter {
-  constructor(private readonly tenantService: TenantService) {}
+  constructor(private readonly tenantsService: TenantsService) {}
 
   getRoutes() {
     return router({
       create: publicProcedure
         .input(createTenantSchema)
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
           // Transform input to match CreateTenantDto with defaults
           const tenantInput = {
             ...input,
@@ -48,6 +49,7 @@ export class TenantsRouter {
             subscriptionPlan: input.subscriptionPlan || 'FREE',
             maxUsers: input.maxUsers ?? 100,
             maxVenues: input.maxVenues ?? 1,
+            userId: ctx.user.id || ctx.user.sub,
           } as any;
           return await this.tenantService.createTenant(tenantInput);
         }),
@@ -69,13 +71,15 @@ export class TenantsRouter {
           id: z.string(),
           data: updateTenantSchema,
         }))
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
           return await this.tenantService.updateTenant(input.id, input.data as any);
         }),
 
       delete: publicProcedure
         .input(tenantIdSchema)
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.user) throw new Error('Not authenticated');
           return await this.tenantService.deleteTenant(input.id);
         }),
     });

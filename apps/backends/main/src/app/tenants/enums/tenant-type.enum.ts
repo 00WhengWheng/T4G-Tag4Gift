@@ -1,4 +1,4 @@
-export enum TenantType {
+export enum VenueType {
   RESTAURANT = 'RESTAURANT',
   CAFE = 'CAFE',
   BAR = 'BAR',

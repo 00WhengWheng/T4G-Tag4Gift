@@ -8,4 +8,4 @@ import { PrismaService } from '@t4g/database';
   providers: [UserService, PrismaService],
   exports: [UserService],
 })
-export class UsersModule {}
+export class UserModule {}

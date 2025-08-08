@@ -1,24 +1,31 @@
-import { Controller, Get, Post, Put, Body, Query, Param, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Query, Param, BadRequestException } from '@nestjs/common';
+import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    userId?: string;
+    // add other properties as needed
+  };
+}
 import { ValidateNested } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { GamesService } from './game.service';
+import { GameService } from './game.service';
 import { GameTemplate } from './entities/game-template.entity';
-import { CreateGameTemplateDto } from './dto/create-game-template.dto';
 import { GameType } from './enums/game-type.enum';
 
-@Controller('games')
-export class GamesController {
-  constructor(private readonly gamesService: GamesService) {}
+@Controller('game')
+export class GameController {
+  constructor(private readonly gameService: GameService) {}
 
   @Get('templates')
   async getGameTemplates(
     @Query('category') category?: string,
     @Query('type') type?: GameType,
-    @Req() req?: any
+  @Body('user') user?: { userId?: string }
   ): Promise<any[]> {
     // Unified: includes GDevelop and other game templates
-    const templates = await this.gamesService.getGameTemplates(category, type);
-    const userId = req?.user?.userId;
+    const templates = await this.gameService.getGameTemplates(category, type);
+  const userId = user?.userId;
     // Add coin eligibility for GDevelop types
     return await Promise.all(
       templates.map(async (t: any) => {
@@ -43,7 +50,7 @@ export class GamesController {
       throw new BadRequestException(errors);
     }
     try {
-      const template = await this.gamesService.createGameTemplate({
+      const template = await this.gameService.createGameTemplate({
         name: body.name,
         type: body.type as GameType,
         category: body.category ?? undefined,
@@ -68,7 +75,7 @@ export class GamesController {
     }
   }
 
-  // Endpoint: record win and update coin for quiz or gdevelop games
+  // Endpoint: record win and update coin for quiz or gdevelop game
   @Post('win')
   async recordGameWin(
     @Body() body: { gameId: string; type: GameType; userId: string; score?: number; quiz?: boolean }
@@ -86,7 +93,7 @@ export class GamesController {
     if (!eligible) {
       return { coinAwarded: false, reason: 'Coin limit reached for this week' };
     }
-    await this.gamesService.prisma.coin.create({
+    await this.gameService.prisma.coin.create({
       data: {
         userId: body.userId,
         coinType: 'GAME',
@@ -103,7 +110,7 @@ export class GamesController {
   // Helper: check if user is eligible for coin for a game type
   private async isCoinEligible(userId: string, gameType: GameType): Promise<boolean> {
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const coinCount = await this.gamesService.prisma.coin.count({
+    const coinCount = await this.gameService.prisma.coin.count({
       where: {
         userId,
         coinType: 'GAME',
@@ -116,10 +123,10 @@ export class GamesController {
 
   // Endpoint: get coin eligibility for a user/game
   @Get('coin-eligibility/:gameId')
-  async getCoinEligibility(@Param('gameId') gameId: string, @Req() req: any): Promise<{ eligible: boolean }> {
-    const userId = req.user?.userId;
+  async getCoinEligibility(@Param('gameId') gameId: string, @Body('user') user: { userId?: string }): Promise<{ eligible: boolean }> {
+    const userId = user?.userId;
     if (!userId) throw new BadRequestException('User not authenticated');
-    const game = await this.gamesService.findById(gameId);
+    const game = await this.gameService.findById(gameId);
     if (!game) throw new BadRequestException('Game not found');
     const eligible = await this.isCoinEligible(userId, game.type);
     return { eligible };
@@ -140,7 +147,7 @@ export class GamesController {
     @Param('id') id: string,
     @Body() updateGameDto: Partial<CreateGameTemplateDto>
   ): Promise<GameTemplate> {
-    const template = await this.gamesService.createGameTemplate({ ...updateGameDto, id });
+    const template = await this.gameService.createGameTemplate({ ...updateGameDto, id });
     return {
       ...template,
       structure: JSON.stringify(template.structure),

@@ -5,7 +5,7 @@ import { GameType } from './enums/game-type.enum';
 import { GDevelopGamesService } from './gdevelop/gdevelop-games.service';
 
 @Injectable()
-export class GamesService {
+export class GameService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gdevelopGamesService: GDevelopGamesService

@@ -1,5 +1,10 @@
 import { Controller, All, Req, Res } from '@nestjs/common';
 import { AppRouter } from './app.router';
+import { GiftService } from '../gift/gift.service';
+import { ScanService } from '../scan/scan.service';
+import { ShareService } from '../share/share.service';
+import { UserService } from '../user/user.service';
+import { TenantsService } from '../tenants/tenants.service';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { Request, Response } from 'express';
 
@@ -16,15 +21,26 @@ interface AuthenticatedRequest extends Request {
 export class TrpcController {
   private trpcMiddleware: any;
 
-  constructor(private appRouter: AppRouter) {
+  constructor(
+    private appRouter: AppRouter,
+    private giftService: GiftService,
+    private scanService: ScanService,
+    private shareService: ShareService,
+    private userService: UserService,
+    private tenantsService: TenantsService,
+  ) {
     // Create tRPC express middleware
     this.trpcMiddleware = createExpressMiddleware({
       router: this.appRouter.getAppRouter(),
       createContext: ({ req, res }: { req: AuthenticatedRequest; res: Response }) => ({
         req,
         res,
-        // Add authentication context here
         user: req.user || null,
+        giftService: this.giftService,
+        scanService: this.scanService,
+        shareService: this.shareService,
+        userService: this.userService,
+        tenantsService: this.tenantsService,
       }),
       onError: ({ error, path, input }) => {
         console.error(`tRPC Error on ${path}:`, error);
