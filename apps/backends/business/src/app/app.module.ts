@@ -9,6 +9,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { GiftModule } from './gift/gift.module';
 import { TrpcModule } from './trpc/trpc.module';
 import { PrismaModule } from '@t4g/database';
+import { ShareModule } from './share/share.module';
 
 /**
  * Business Application Module for T4G Business Platform
@@ -35,6 +36,7 @@ import { PrismaModule } from '@t4g/database';
     VenueModule,
     AnalyticsModule,
     GiftModule,
+    ShareModule,
   ],
   controllers: [AppController],
   providers: [AppService],
