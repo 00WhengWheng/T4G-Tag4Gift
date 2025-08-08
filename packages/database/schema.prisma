@@ -6,11 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Optional: for migrations
 }
 
-// Enum definitions
+// Enum definitions (now matching PostgreSQL enums)
 enum CoinType {
   SCAN
   SHARE
@@ -78,78 +79,78 @@ enum VenueType {
 
 // Core entities
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  username    String   @unique
-  auth0Id     String?  @unique // Auth0 user ID for federated login
-  firstName   String?
-  lastName    String?
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  email       String    @unique
+  username    String    @unique
+  auth0Id     String?   @unique @map("auth0_id")
+  firstName   String?   @map("first_name")
+  lastName    String?   @map("last_name")
   avatar      String?
-  phoneNumber String?
-  dateOfBirth DateTime?
-  totalCoins  Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  phoneNumber String?   @map("phone_number")
+  dateOfBirth DateTime? @map("date_of_birth") @db.Timestamptz
+  totalCoins  Int       @default(0) @map("total_coins")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationships
-  scans         Scan[]
-  shares        Share[]
-  games         Game[]
-  coins         Coin[]
-  gifts         Gift[]  // New relationship to gifts
-  referralsSent Referral[] @relation("ReferrerUser")
-  referralsReceived Referral[] @relation("ReferredUser")
-  challengeParticipants ChallengeParticipant[] @relation("ChallengeParticipant")
+  scans                   Scan[]
+  shares                  Share[]
+  games                   Game[]
+  coins                   Coin[]
+  gifts                   Gift[]
+  referralsSent           Referral[]  @relation("ReferrerUser")
+  referralsReceived       Referral[]  @relation("ReferredUser")
+  challengeParticipants   ChallengeParticipant[] @relation("ChallengeParticipant")
 
   @@map("users")
 }
 
 model Tenant {
-  id          String  @id @default(cuid())
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Text
   name        String
   description String?
-  email       String  @unique
-  phoneNumber String?
+  email       String     @unique
+  phoneNumber String?    @map("phone_number")
   address     String?
   city        String?
   country     String?
-  vatNumber   String?
-  legalName   String?
-  googleMap   String?
+  vatNumber   String?    @map("vat_number")
+  legalName   String?    @map("legal_name")
+  googleMap   String?    @map("google_map")
   facebook    String?
   instagram   String?
   tiktok      String?
   website     String?
   logo        String?
-  venueType   VenueType
-  isActive    Boolean @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  venueType   VenueType  @map("venue_type")
+  isActive    Boolean    @default(true) @map("is_active")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationships
-  tags       Tag[]
-  shares     Share[]
-  gifts      Gift[]
-  challenges Challenge[]
+  tags        Tag[]
+  shares      Share[]
+  gifts       Gift[]
+  challenges  Challenge[]
 
   @@map("tenants")
 }
 
 model Tag {
-  id          String    @id @default(cuid())
-  tenantId    String
-  name        String
-  description String?
-  nfcId       String?   @unique
-  qrCode      String?   @unique
-  location    String?
-  status      TagStatus @default(ACTIVE)
-  scanCount   Int       @default(0)
-  maxScansPerUser Int   @default(10) // Daily limit per user
-  coinsPerScan Int      @default(10)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  tenantId        String    @map("tenant_id")
+  name            String
+  description     String?
+  nfcId           String?   @unique @map("nfc_id")
+  qrCode          String?   @unique @map("qr_code")
+  location        String?
+  status          TagStatus @default(ACTIVE)
+  scanCount       Int       @default(0) @map("scan_count")
+  maxScansPerUser Int       @default(10) @map("max_scans_per_user")
+  coinsPerScan    Int       @default(10) @map("coins_per_scan")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationships
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -162,13 +163,13 @@ model Tag {
 }
 
 model Scan {
-  id        String   @id @default(cuid())
-  userId    String
-  tagId     String
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-  expiredAt DateTime // Default 12-hour expiration
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  userId    String   @map("user_id")
+  tagId     String   @map("tag_id")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  expiredAt DateTime @map("expired_at") @db.Timestamptz
 
   // Relationships
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -179,16 +180,16 @@ model Scan {
   @@index([userId])
   @@index([tagId])
   @@index([createdAt])
-  @@unique([userId, tagId, createdAt]) // Prevent duplicate scans within same timestamp
+  @@unique([userId, tagId, createdAt])
 }
 
 model Share {
-  id          String   @id @default(cuid())
-  userId      String
-  tenantId    String
-  socialType  ShareType
-  shareUrl    String?
-  createdAt   DateTime @default(now())
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  userId      String     @map("user_id")
+  tenantId    String     @map("tenant_id")
+  socialType  ShareType  @map("social_type")
+  shareUrl    String?    @map("share_url")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
 
   // Relationships
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -202,24 +203,24 @@ model Share {
 }
 
 model Game {
-  id          String     @id @default(cuid())
-  userId      String
-  earnCoin    Boolean    @default(true) // Whether the game is eligible for coin rewards
-  gameChallenge Boolean  @default(false) // Whether the game is part of a challenge
-  gameType    GameType
-  status      GameStatus @default(ACTIVE)
-  isWinner    Boolean    @default(false)
-  coinsEarned Int        @default(0)
-  coinsSpent  Int        @default(0)
-  gameData    Json?      // Store game-specific data for Quiz game
-  gameUrl     String?    // URL to the GDevelop game if hosted externally
-  gameImage   String?
-  gameTitle   String?
-  gameDescription String?
-  startedAt   DateTime   @default(now())
-  completedAt DateTime?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  userId          String      @map("user_id")
+  earnCoin        Boolean     @default(true) @map("earn_coin")
+  gameChallenge   Boolean     @default(false) @map("game_challenge")
+  gameType        GameType    @map("game_type")
+  status          GameStatus  @default(ACTIVE)
+  isWinner        Boolean     @default(false) @map("is_winner")
+  coinsEarned     Int         @default(0) @map("coins_earned")
+  coinsSpent      Int         @default(0) @map("coins_spent")
+  gameData        Json?       @map("game_data")
+  gameUrl         String?     @map("game_url")
+  gameImage       String?     @map("game_image")
+  gameTitle       String?     @map("game_title")
+  gameDescription String?     @map("game_description")
+  startedAt       DateTime    @default(now()) @map("started_at") @db.Timestamptz
+  completedAt     DateTime?   @map("completed_at") @db.Timestamptz
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationships
   user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -234,19 +235,19 @@ model Game {
 }
 
 model Coin {
-  id          String   @id @default(cuid())
-  userId      String
-  coinType    CoinType
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  userId      String    @map("user_id")
+  coinType    CoinType  @map("coin_type")
   amount      Int
   description String?
   
   // Reference to the source event (nullable - only one will be set)
-  scanId      String?  @unique
-  shareId     String?  @unique
-  gameId      String?  @unique
-  referralId  String?  @unique
+  scanId      String?   @unique @map("scan_id")
+  shareId     String?   @unique @map("share_id")
+  gameId      String?   @unique @map("game_id")
+  referralId  String?   @unique @map("referral_id")
   
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   // Relationships
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -262,20 +263,20 @@ model Coin {
 }
 
 model Challenge {
-  id              String          @id @default(cuid())
-  tenantId        String
-  title           String
-  description     String
-  coinScanCost    Int?
-  coinShareCost   Int?
-  coinGameCost    Int?
-  maxParticipants Int?
-  currentParticipants Int @default(0)
-  startDate       DateTime
-  endDate         DateTime
-  status          ChallengeStatus @default(ACTIVE)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  tenantId            String            @map("tenant_id")
+  title               String
+  description         String
+  coinScanCost        Int?              @map("coin_scan_cost")
+  coinShareCost       Int?              @map("coin_share_cost")
+  coinGameCost        Int?              @map("coin_game_cost")
+  maxParticipants     Int?              @map("max_participants")
+  currentParticipants Int               @default(0) @map("current_participants")
+  startDate           DateTime          @map("start_date") @db.Timestamptz
+  endDate             DateTime          @map("end_date") @db.Timestamptz
+  status              ChallengeStatus   @default(ACTIVE)
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationships
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -289,39 +290,38 @@ model Challenge {
 }
 
 model ChallengeParticipant {
-  id          String   @id @default(cuid())
-  challengeId String
-  userId      String
-  joinedAt    DateTime @default(now())
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  challengeId String    @map("challenge_id")
+  userId      String    @map("user_id")
+  joinedAt    DateTime  @default(now()) @map("joined_at") @db.Timestamptz
 
   // Relationships
   challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade, name: "ChallengeParticipant")
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, name: "ChallengeParticipant")
 
   @@map("challenge_participants")
-  @@unique([challengeId, userId]) // Prevent duplicate participation
+  @@unique([challengeId, userId])
   @@index([challengeId])
   @@index([userId])
 }
 
-
 model Gift {
-  id          String     @id @default(cuid())
-  tenantId    String
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  tenantId    String      @map("tenant_id")
   name        String
   description String
-  giftType    GiftType
-  imageUrl    String?
-  value       Decimal?   @db.Decimal(10, 2)
-  quantity    Int        @default(1)
-  status      GiftStatus @default(AVAILABLE)
-  expiresAt   DateTime?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  giftType    GiftType    @map("gift_type")
+  imageUrl    String?     @map("image_url")
+  value       Decimal?    @db.Decimal(10, 2)
+  quantity    Int         @default(1)
+  status      GiftStatus  @default(AVAILABLE)
+  expiresAt   DateTime?   @map("expires_at") @db.Timestamptz
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz
   
   // New optional relationships
-  userId      String?
-  challengeId String?
+  userId      String?     @map("user_id")
+  challengeId String?     @map("challenge_id")
 
   // Relationships
   tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -336,14 +336,13 @@ model Gift {
   @@index([challengeId])
 }
 
-
 model Referral {
-  id          String   @id @default(cuid())
-  referrerId  String
-  referredId  String
-  coinsEarned Int      @default(50) // Coins earned by referrer
-  bonusCoins  Int      @default(25) // Bonus coins for referred user
-  createdAt   DateTime @default(now())
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  referrerId  String    @map("referrer_id")
+  referredId  String    @map("referred_id")
+  coinsEarned Int       @default(50) @map("coins_earned")
+  bonusCoins  Int       @default(25) @map("bonus_coins")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   // Relationships
   referrer User @relation("ReferrerUser", fields: [referrerId], references: [id], onDelete: Cascade)
@@ -351,18 +350,17 @@ model Referral {
   coin     Coin?
 
   @@map("referrals")
-  @@unique([referrerId, referredId]) // Prevent duplicate referrals
+  @@unique([referrerId, referredId])
   @@index([referrerId])
   @@index([referredId])
 }
 
-// Quiz system models
 model QuizQuestion {
-  id          String   @id @default(cuid())
-  gameId      String
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  gameId      String    @map("game_id")
   question    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relationships
   game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -373,11 +371,11 @@ model QuizQuestion {
 }
 
 model QuizAnswer {
-  id            String   @id @default(cuid())
-  quizQuestionId String
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  quizQuestionId String   @map("quiz_question_id")
   answer        String
-  isCorrect     Boolean  @default(false)
-  createdAt     DateTime @default(now())
+  isCorrect     Boolean   @default(false) @map("is_correct")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   // Relationships
   question      QuizQuestion @relation(fields: [quizQuestionId], references: [id], onDelete: Cascade)
