@@ -3,32 +3,5 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/ui-web/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:ui"],
-  "targets": {
-    "build": {
-      "executor": "@nx/rollup:rollup",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/ui-web",
-        "tsConfig": "packages/ui-web/tsconfig.lib.json",
-        "project": "packages/ui-web/package.json",
-        "entryFile": "packages/ui-web/src/index.ts",
-        "external": ["react/jsx-runtime"]
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["packages/ui-web/**/*.{ts,tsx,js,jsx}"]
-      }
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "packages/ui-web/jest.config.ts"
-      }
-    }
-  }
+  "tags": ["scope:shared", "type:ui"]
 }

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { trpc } from '../utils/trpc';
 import { useNavigate } from '@tanstack/react-router';
-import GameModal from '../components/GameModal';
+import GameView from '../components/GameView';
+import MapView from '../components/MapView';
+import ShareView from '@/components/ShareView';
 
 interface Game {
   id: string;

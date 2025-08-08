@@ -25,3 +25,18 @@ export class ShareDto {
   @IsString()
   caption?: string;
 }
+
+export class ShareToTikTokDto {
+  @IsString()
+  accessToken: string;
+
+  @IsUrl()
+  videoUrl: string;
+
+  @IsString()
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}

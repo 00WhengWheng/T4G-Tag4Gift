@@ -7,16 +7,17 @@
   "parallel": 4,
   "defaultBase": "main",
   "watch": {
-    "ignored": [
-      "dist/**",
-      "out-tsc/**",
-      "dist/apps/backends/main/**",
-      "apps/backends/main/.generated",
-      "apps/backends/main/logs",
-      "apps/backends/main/cache",
-      ".nx/cache",
-      "node_modules"
-    ]
+      "ignored": [
+        "dist/**",
+        "dist/packages/ui-web/**",
+        "out-tsc/**",
+        "dist/apps/backends/main/**",
+        "apps/backends/main/.generated",
+        "apps/backends/main/logs",
+        "apps/backends/main/cache",
+        ".nx/cache",
+        "node_modules"
+      ]
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],

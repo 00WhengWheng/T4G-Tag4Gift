@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { 
-  MapPin, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import { useState } from 'react';
+import { trpc } from '../utils/trpc';
+import {
+  MapPin,
+  Plus,
+  Edit,
+  Trash2,
   Eye,
   Users,
   Activity,
@@ -13,8 +14,7 @@ import {
   Building,
   Tag as TagIcon
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@t4g/ui-web';
-import { Button } from '@t4g/ui-web';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from '@t4g/ui-web';
 
 interface Venue {
   id: string;
@@ -49,64 +49,24 @@ export function MapPage() {
   const [showUserActivity, setShowUserActivity] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 51.505, lng: -0.09 });
 
-  // Mock data - replace with actual tRPC queries
-  const venues: Venue[] = [
-    {
-      id: '1',
-      name: 'Downtown Coffee Shop',
-      address: '123 Main Street, City Center',
-      latitude: 51.505,
-      longitude: -0.09,
-      tagCount: 3,
-      activeUsers: 45,
-      totalScans: 1234,
-      tags: [
-        { id: 't1', name: 'Entrance Tag', identifier: 'DCF_001', scanCount: 567, lastScannedAt: '2024-01-30T10:30:00Z' },
-        { id: 't2', name: 'Counter Tag', identifier: 'DCF_002', scanCount: 445, lastScannedAt: '2024-01-30T09:45:00Z' },
-        { id: 't3', name: 'Outdoor Seating', identifier: 'DCF_003', scanCount: 222, lastScannedAt: '2024-01-30T11:15:00Z' },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Fashion Store',
-      address: '456 Shopping Avenue, Mall District',
-      latitude: 51.51,
-      longitude: -0.1,
-      tagCount: 5,
-      activeUsers: 23,
-      totalScans: 789,
-      tags: [
-        { id: 't4', name: 'Store Entrance', identifier: 'FS_001', scanCount: 234, lastScannedAt: '2024-01-30T14:20:00Z' },
-        { id: 't5', name: 'Changing Room', identifier: 'FS_002', scanCount: 189, lastScannedAt: '2024-01-30T13:45:00Z' },
-      ],
-    },
-    {
-      id: '3',
-      name: 'City Park Pavilion',
-      address: 'Central Park, Recreation Area',
-      latitude: 51.515,
-      longitude: -0.095,
-      tagCount: 2,
-      activeUsers: 67,
-      totalScans: 2156,
-      tags: [
-        { id: 't6', name: 'Pavilion Entry', identifier: 'CPP_001', scanCount: 1200, lastScannedAt: '2024-01-30T16:30:00Z' },
-        { id: 't7', name: 'Playground Area', identifier: 'CPP_002', scanCount: 956, lastScannedAt: '2024-01-30T15:45:00Z' },
-      ],
-    },
-  ];
+  // Replace with actual businessId from context/auth
+  const BUSINESS_ID = 'demo-business-id';
+  // Business backend
+  const { data: tenantData, isLoading: tenantLoading, error: tenantError } = trpc.tenant.getById.useQuery({ id: BUSINESS_ID });
+  const { data: giftsData, isLoading: giftsLoading, error: giftsError } = trpc.gifts.listGiftsByTenant.useQuery({ tenantId: BUSINESS_ID });
+  // Main backend
+  const { data: usersData, isLoading: usersLoading, error: usersError } = trpc.users.listUsers.useQuery({ tenantId: BUSINESS_ID });
+  const { data: scansData, isLoading: scansLoading, error: scansError } = trpc.scans.listScansByTenant.useQuery({ tenantId: BUSINESS_ID });
 
-  const userActivities: UserActivity[] = [
-    { userId: '1', userName: 'John D.', latitude: 51.507, longitude: -0.088, activity: 'Scanned tag', timestamp: '2024-01-30T16:45:00Z' },
-    { userId: '2', userName: 'Sarah M.', latitude: 51.513, longitude: -0.092, activity: 'Completed challenge', timestamp: '2024-01-30T16:30:00Z' },
-    { userId: '3', userName: 'Mike R.', latitude: 51.509, longitude: -0.098, activity: 'Claimed gift', timestamp: '2024-01-30T16:15:00Z' },
-  ];
+  // Deduce challenges from gifts
+  const challenges = (giftsData?.gifts ?? []).filter(gift => gift.challenge);
 
-  const filteredVenues = venues.filter(venue => 
+  // Compose venues from tenantData (or gifts if needed)
+  const venues: Venue[] = tenantData?.venues ?? [];
+  const filteredVenues = venues.filter(venue =>
     venue.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     venue.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const totalStats = venues.reduce((acc, venue) => ({
     totalVenues: acc.totalVenues + 1,
     totalTags: acc.totalTags + venue.tagCount,
@@ -114,6 +74,23 @@ export function MapPage() {
     totalActiveUsers: acc.totalActiveUsers + venue.activeUsers,
   }), { totalVenues: 0, totalTags: 0, totalScans: 0, totalActiveUsers: 0 });
 
+  // Compose user activities from scans
+  const userActivities: UserActivity[] = (scansData?.scans ?? []).map(scan => ({
+    userId: scan.userId,
+    userName: usersData?.users?.find(u => u.id === scan.userId)?.username ?? '',
+    latitude: scan.latitude ?? 0,
+    longitude: scan.longitude ?? 0,
+    activity: 'Scanned tag',
+    timestamp: scan.createdAt,
+  }));
+
+  // Loading/error states
+  if (tenantLoading || giftsLoading || usersLoading || scansLoading) {
+    return <div className="text-center py-8">Loading data...</div>;
+  }
+  if (tenantError || giftsError || usersError || scansError) {
+    return <div className="text-red-500 text-center py-8">{tenantError?.message || giftsError?.message || usersError?.message || scansError?.message}</div>;
+  }
   return (
     <div className="space-y-8">
       {/* Header */}

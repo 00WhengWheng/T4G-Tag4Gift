@@ -15,6 +15,13 @@ const ShareToInstagramInput = z.object({
   caption: z.string().optional(),
 });
 
+const ShareToTikTokInput = z.object({
+  accessToken: z.string().min(1, 'Access token is required'),
+  videoUrl: z.string().url('Video URL must be valid'),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+});
+
 @Injectable()
 export class ShareRouter {
   constructor(private readonly shareService: ShareService) {}
@@ -23,18 +30,26 @@ export class ShareRouter {
     return router({
       shareToFacebook: publicProcedure
         .input(ShareToFacebookInput)
-        .output(z.boolean())
+        .output(z.object({ id: z.string(), dbRecord: z.any().optional() }))
         .mutation(async ({ input }) => {
           const { accessToken, message, link } = input;
-          return await this.shareService.shareToFacebook(accessToken, message, link);
+          return await this.shareService.shareToFacebookPage(accessToken, message, link, /* userId */ '', /* tenantId */ '');
         }),
 
       shareToInstagram: publicProcedure
         .input(ShareToInstagramInput)
-        .output(z.boolean())
+        .output(z.object({ id: z.string(), dbRecord: z.any().optional() }))
         .mutation(async ({ input }) => {
           const { accessToken, imageUrl, caption } = input;
-          return await this.shareService.shareToInstagram(accessToken, imageUrl, caption);
+          return await this.shareService.shareToInstagramBusiness(accessToken, imageUrl, caption, /* userId */ '', /* tenantId */ '');
+        }),
+
+      shareToTikTok: publicProcedure
+        .input(ShareToTikTokInput)
+        .output(z.object({ publishId: z.string(), dbRecord: z.any().optional() }))
+        .mutation(async ({ input }) => {
+          const { accessToken, videoUrl, title, description } = input;
+          return await this.shareService.shareToTikTok(accessToken, videoUrl, title, description, /* userId */ '', /* tenantId */ '');
         }),
     });
   }

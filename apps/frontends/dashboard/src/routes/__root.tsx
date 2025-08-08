@@ -6,7 +6,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { QueryClient } from '@tanstack/react-query';
 import { Suspense } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 
 // Define types directly in this file for now
 interface BusinessUser {
@@ -72,10 +72,15 @@ function RootComponent() {
     return <RootPendingComponent />;
   }
 
+  // Wrap all routes in authentication required
+  const ProtectedOutlet = withAuthenticationRequired(Outlet, {
+    onRedirecting: () => <RootPendingComponent />,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={<RootPendingComponent />}>
-        <Outlet />
+        <ProtectedOutlet />
       </Suspense>
       {import.meta.env.MODE === 'development' && <TanStackRouterDevtools position="bottom-right" />}
     </div>

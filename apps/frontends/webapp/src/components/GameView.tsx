@@ -1,33 +1,17 @@
-type QuizQuestion = {
-  id: string
-  question: string
-  answers: string[]
-  correctAnswer: string
-}
-
-type GameViewProps = {
-  isOpen: boolean
-  onClose: () => void
-  gameId: string
-}
 import React, { useEffect, useState } from 'react';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
 
+type QuizQuestion = {
   id: string;
   question: string;
   answers: string[];
   correctAnswer: string;
-}
+};
 
 interface GameViewProps {
   isOpen: boolean;
   onClose: () => void;
   gameId: string;
-}
-}
-
-interface GameTemplateProps {
-  // Optionally pass props if needed
 }
 
 const GameView: React.FC<GameViewProps> = ({ isOpen, onClose, gameId }) => {
