@@ -1,4 +1,5 @@
 import { publicProcedure, router } from '../trpc';
+import type { TrpcContext } from '../trpc.controller';
 import { GiftService } from '../../gift/gift.service';
 import { CreateGiftDto } from '../../gift/dto/create-gift.dto';
 import { GiftStatus } from '@prisma/client';
@@ -8,7 +9,7 @@ export const giftRouter = router({
   // List gifts (public)
   list: publicProcedure
     .input(z.object({ tenantId: z.string().optional(), status: z.nativeEnum(GiftStatus).optional() }))
-    .query(async ({ input, ctx }) => {
+  .query(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       return await ctx.giftService.listGifts(input.tenantId, input.status);
     }),
 
@@ -26,7 +27,7 @@ export const giftRouter = router({
       coinShareRequirement: z.number().optional(),
       coinGameRequirement: z.number().optional(),
     }))
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Unauthorized');
       // TODO: Add business user check if needed
       return await ctx.giftService.createGift(input as CreateGiftDto);
@@ -35,7 +36,7 @@ export const giftRouter = router({
   // Claim gift (protected, user only)
   claim: publicProcedure
     .input(z.object({ giftId: z.string() }))
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Unauthorized');
       return await ctx.giftService.claimGift(input.giftId, ctx.user.id || ctx.user.sub);
     }),
@@ -43,7 +44,7 @@ export const giftRouter = router({
   // Update gift (protected, business only)
   update: publicProcedure
     .input(z.object({ giftId: z.string(), data: z.record(z.any()) }))
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Unauthorized');
       // TODO: Add business user check if needed
       return await ctx.giftService.updateGift(input.giftId, input.data);

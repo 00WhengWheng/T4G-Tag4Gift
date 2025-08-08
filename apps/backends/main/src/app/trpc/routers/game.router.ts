@@ -38,7 +38,7 @@ export class GameRouter {
           description: z.string().optional(),
           gdevelopProjectUrl: z.string().optional(),
         }))
-        .mutation(async ({ input, ctx }) => {
+            .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           return this.gameService.createGameTemplate({
             name: input.name,

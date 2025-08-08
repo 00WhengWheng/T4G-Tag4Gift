@@ -44,7 +44,7 @@ export class UserRouter {
     return router({
       create: publicProcedure
         .input(createUserSchema)
-        .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           // Transform input to match CreateUserDto with defaults
           const userInput = {
@@ -80,14 +80,14 @@ export class UserRouter {
           id: z.string(),
           data: updateUserSchema,
         }))
-        .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           return await this.usersService.updateUser(input.id, input.data);
         }),
 
       delete: publicProcedure
         .input(userIdSchema)
-        .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           return await this.usersService.deleteUser(input.id);
         }),

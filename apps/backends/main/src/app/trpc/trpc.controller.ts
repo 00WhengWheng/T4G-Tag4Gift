@@ -8,6 +8,18 @@ import { TenantsService } from '../tenants/tenants.service';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { Request, Response } from 'express';
 
+// Shared tRPC context type for all routers
+export interface TrpcContext {
+  req: Request;
+  res: Response;
+  user: any;
+  giftService: GiftService;
+  scanService: ScanService;
+  shareService: ShareService;
+  userService: UserService;
+  tenantsService: TenantsService;
+}
+
 // Extend Express Request to include user property
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -32,7 +44,7 @@ export class TrpcController {
     // Create tRPC express middleware
     this.trpcMiddleware = createExpressMiddleware({
       router: this.appRouter.getAppRouter(),
-      createContext: ({ req, res }: { req: AuthenticatedRequest; res: Response }) => ({
+      createContext: ({ req, res }: { req: AuthenticatedRequest; res: Response }): TrpcContext => ({
         req,
         res,
         user: req.user || null,

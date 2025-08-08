@@ -1,4 +1,5 @@
 import { publicProcedure, router } from '../trpc';
+import type { TrpcContext } from '../trpc.controller';
 import { ShareService } from '../../share/share.service';
 import { z } from 'zod';
 
@@ -25,7 +26,7 @@ export const shareRouter = router({
   shareToFacebook: publicProcedure
     .input(ShareToFacebookInput)
     .output(z.object({ id: z.string(), dbRecord: z.any().optional() }))
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Not authenticated');
       const { accessToken, message, link } = input;
       return await ctx.shareService.shareToFacebookPage(accessToken, message, link, ctx.user.id || ctx.user.sub, ctx.user.tenantId);
@@ -34,7 +35,7 @@ export const shareRouter = router({
   shareToInstagram: publicProcedure
     .input(ShareToInstagramInput)
     .output(z.object({ id: z.string(), dbRecord: z.any().optional() }))
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Not authenticated');
       const { accessToken, imageUrl, caption } = input;
       return await ctx.shareService.shareToInstagramBusiness(accessToken, imageUrl, caption, ctx.user.id || ctx.user.sub, ctx.user.tenantId);
@@ -43,7 +44,7 @@ export const shareRouter = router({
   shareToTikTok: publicProcedure
     .input(ShareToTikTokInput)
     .output(z.object({ publishId: z.string(), dbRecord: z.any().optional() }))
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Not authenticated');
       const { accessToken, videoUrl, title, description } = input;
       return await ctx.shareService.shareToTikTok(accessToken, videoUrl, title, description, ctx.user.id || ctx.user.sub, ctx.user.tenantId);

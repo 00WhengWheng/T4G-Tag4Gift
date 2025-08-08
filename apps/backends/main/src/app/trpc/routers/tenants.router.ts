@@ -37,7 +37,7 @@ export class TenantsRouter {
     return router({
       create: publicProcedure
         .input(createTenantSchema)
-        .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           // Transform input to match CreateTenantDto with defaults
           const tenantInput = {
@@ -71,14 +71,14 @@ export class TenantsRouter {
           id: z.string(),
           data: updateTenantSchema,
         }))
-        .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           return await this.tenantService.updateTenant(input.id, input.data as any);
         }),
 
       delete: publicProcedure
         .input(tenantIdSchema)
-        .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: import('../trpc.controller').TrpcContext }) => {
           if (!ctx.user) throw new Error('Not authenticated');
           return await this.tenantService.deleteTenant(input.id);
         }),

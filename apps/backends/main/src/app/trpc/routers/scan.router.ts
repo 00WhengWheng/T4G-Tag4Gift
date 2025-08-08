@@ -1,4 +1,5 @@
 import { publicProcedure, router } from '../trpc';
+import type { TrpcContext } from '../trpc.controller';
 import { ScanService } from '../../scan/scan.service';
 import { z } from 'zod';
 
@@ -11,7 +12,7 @@ const CreateScanInput = z.object({
 export const scanRouter = router({
   processScan: publicProcedure
     .input(CreateScanInput)
-    .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }: { input: any; ctx: TrpcContext }) => {
       if (!ctx.user) throw new Error('Not authenticated');
       const dto = {
         userId: ctx.user.id || ctx.user.sub,
